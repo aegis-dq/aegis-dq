@@ -287,6 +287,57 @@ async def _audit_trajectory(run_id: str, fmt: str) -> None:
     console.print(f"[bold]{len(decisions)}[/bold] decision(s)")
 
 
+@audit_app.command("list-runs")
+def audit_list_runs() -> None:
+    """List all run IDs in the audit database, newest first."""
+    asyncio.run(_audit_list_runs())
+
+
+async def _audit_list_runs() -> None:
+    from ..audit.trajectory import list_run_ids
+
+    run_ids = await list_run_ids()
+    if not run_ids:
+        console.print("[yellow]No runs found in audit database[/yellow]")
+        return
+    for rid in run_ids:
+        console.print(rid)
+
+
+@audit_app.command("export-dataset")
+def audit_export_dataset(
+    output: Path = typer.Argument(..., help="Output file path (.jsonl or .json)"),
+    run_ids: list[str] = typer.Option([], "--run-id", "-r", help="Run IDs to include (repeatable); omit for all"),
+    fmt: str = typer.Option("jsonl", "--format", "-f", help="Output format: jsonl|json"),
+    min_turns: int = typer.Option(1, "--min-turns", help="Min LLM turns per run (quality filter)"),
+    no_filter: bool = typer.Option(False, "--no-filter", help="Disable quality filtering"),
+) -> None:
+    """Export run trajectories as a ShareGPT fine-tuning dataset."""
+    asyncio.run(_audit_export_dataset(output, run_ids, fmt, min_turns, not no_filter))
+
+
+async def _audit_export_dataset(
+    output: Path, run_ids: list[str], fmt: str, min_turns: int, filter_quality: bool
+) -> None:
+    from ..audit.trajectory import export_dataset, list_run_ids
+
+    ids = run_ids or await list_run_ids()
+    if not ids:
+        console.print("[yellow]No runs found[/yellow]")
+        raise typer.Exit(1)
+
+    console.print(f"Exporting [bold]{len(ids)}[/bold] run(s) → [cyan]{output}[/cyan]")
+    stats = await export_dataset(
+        ids, output, fmt=fmt, min_llm_turns=min_turns, filter_quality=filter_quality
+    )
+
+    console.print(
+        f"[green]✓[/green] Exported [bold]{stats['exported']}[/bold] samples "
+        f"({stats['skipped']} skipped by quality filter) — "
+        f"{stats['total_turns']} turns, {stats['total_tokens']} tokens"
+    )
+
+
 @rules_app.command("list")
 def rules_list(
     category: str | None = typer.Option(None, "--category", "-c", help="Filter by category"),
