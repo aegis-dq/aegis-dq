@@ -72,7 +72,15 @@ rules:
 @app.command()
 def run(
     config: Path = typer.Argument(..., help="Path to rules YAML file"),
-    db: str = typer.Option(":memory:", "--db", help="DuckDB path (or :memory:)"),
+    db: str = typer.Option(":memory:", "--db", help="DuckDB file path (or :memory:)"),
+    warehouse: str = typer.Option("duckdb", "--warehouse", "-w", help="Warehouse: duckdb|postgres"),
+    pg_dsn: str | None = typer.Option(None, "--pg-dsn", help="Postgres/Redshift DSN string"),
+    pg_host: str = typer.Option("localhost", "--pg-host", help="Postgres host"),
+    pg_port: int = typer.Option(5432, "--pg-port", help="Postgres port (5439 for Redshift)"),
+    pg_dbname: str = typer.Option("postgres", "--pg-dbname", help="Postgres database name"),
+    pg_user: str = typer.Option("postgres", "--pg-user", help="Postgres user"),
+    pg_password: str = typer.Option("", "--pg-password", help="Postgres password"),
+    pg_schema: str = typer.Option("public", "--pg-schema", help="Postgres default schema"),
     no_llm: bool = typer.Option(False, "--no-llm", help="Skip LLM diagnosis (offline mode)"),
     llm: str = typer.Option("anthropic", "--llm", help="LLM provider: anthropic|openai|ollama"),
     llm_model: str | None = typer.Option(None, "--llm-model", help="Override default model name"),
@@ -90,7 +98,11 @@ def run(
     ),
 ) -> None:
     """Run data quality checks defined in a YAML config file."""
-    asyncio.run(_run(config, db, no_llm, llm, llm_model, ollama_host, output_json, notify, notify_on))
+    asyncio.run(_run(
+        config, db, warehouse,
+        pg_dsn, pg_host, pg_port, pg_dbname, pg_user, pg_password, pg_schema,
+        no_llm, llm, llm_model, ollama_host, output_json, notify, notify_on,
+    ))
 
 
 def _build_llm_adapter(provider: str, model: str | None, ollama_host: str = "http://localhost:11434"):
@@ -115,9 +127,46 @@ def _build_llm_adapter(provider: str, model: str | None, ollama_host: str = "htt
     raise typer.Exit(1)
 
 
+def _build_warehouse_adapter(
+    warehouse_type: str,
+    db: str,
+    pg_dsn: str | None,
+    pg_host: str,
+    pg_port: int,
+    pg_dbname: str,
+    pg_user: str,
+    pg_password: str,
+    pg_schema: str,
+):
+    if warehouse_type == "duckdb":
+        from ..adapters.warehouse.duckdb import DuckDBAdapter
+        return DuckDBAdapter(db)
+    if warehouse_type in ("postgres", "redshift"):
+        try:
+            from ..adapters.warehouse.postgres import PostgresAdapter
+        except ImportError:
+            console.print("[red]psycopg2 not installed. Run: pip install aegis-dq[postgres][/red]")
+            raise typer.Exit(1)
+        return PostgresAdapter(
+            host=pg_host, port=pg_port, dbname=pg_dbname,
+            user=pg_user, password=pg_password, schema=pg_schema,
+            dsn=pg_dsn,
+        )
+    console.print(f"[red]Unknown warehouse '{warehouse_type}'. Choose: duckdb|postgres|redshift[/red]")
+    raise typer.Exit(1)
+
+
 async def _run(
     config: Path,
     db: str,
+    warehouse_type: str,
+    pg_dsn: str | None,
+    pg_host: str,
+    pg_port: int,
+    pg_dbname: str,
+    pg_user: str,
+    pg_password: str,
+    pg_schema: str,
     no_llm: bool,
     llm_provider: str,
     llm_model: str | None,
@@ -126,7 +175,6 @@ async def _run(
     notify: str | None,
     notify_on: str,
 ) -> None:
-    from ..adapters.warehouse.duckdb import DuckDBAdapter
     from ..core.agent import AegisAgent
     from ..memory.store import save_run
     from ..rules.parser import load_rules
@@ -141,7 +189,9 @@ async def _run(
 
     console.print(f"Loaded [bold]{len(rules)}[/bold] rules")
 
-    warehouse = DuckDBAdapter(db)
+    warehouse = _build_warehouse_adapter(
+        warehouse_type, db, pg_dsn, pg_host, pg_port, pg_dbname, pg_user, pg_password, pg_schema
+    )
     llm = None if no_llm else _build_llm_adapter(llm_provider, llm_model, ollama_host)
 
     if llm:

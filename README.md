@@ -77,6 +77,7 @@ pip install aegis-dq
 | `aegis-dq[bigquery]` | BigQuery adapter |
 | `aegis-dq[databricks]` | Databricks adapter |
 | `aegis-dq[athena]` | AWS Athena adapter |
+| `aegis-dq[postgres]` | PostgreSQL / Redshift adapter |
 | `aegis-dq[openai]` | OpenAI LLM provider |
 | `aegis-dq[ollama]` | Ollama (local) LLM provider |
 | `aegis-dq[airflow]` | Airflow `AegisOperator` |
@@ -194,7 +195,7 @@ rules:
 | Databricks | `aegis-dq[databricks]` | ✅ |
 | AWS Athena | `aegis-dq[athena]` | ✅ |
 | Snowflake | `aegis-dq[snowflake]` | ✅ coming v1.0 |
-| Postgres / Redshift | `aegis-dq[postgres]` | 🚧 v1.0 |
+| Postgres / Redshift | `aegis-dq[postgres]` | ✅ |
 
 ---
 
@@ -259,7 +260,7 @@ aegis run rules.yaml --llm ollama --llm-model llama3.2
 |---|---|---|---|
 | Foundation | v0.1 | Core agent, DuckDB, CLI, audit trail | ✅ Done |
 | Differentiate | v0.5 | BigQuery, Databricks, Athena, Airflow, Ollama, RCA, ShareGPT export, FTS5 search, dbt, MCP | ✅ Done |
-| Mature | v1.0 | Postgres, REST API, GitHub Action, parallel subagents, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
+| Mature | v1.0 | ~~Postgres~~, REST API, GitHub Action, parallel subagents, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
 
 Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aegis-dq/aegis-dq/issues)
 
