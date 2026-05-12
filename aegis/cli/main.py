@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from pathlib import Path
 
 import typer
@@ -71,9 +72,15 @@ def run(
     output_json: Path | None = typer.Option(
         None, "--output-json", "-o", help="Write JSON report to file"
     ),
+    notify: str | None = typer.Option(
+        None, "--notify", help="Slack webhook URL (or set AEGIS_SLACK_WEBHOOK)"
+    ),
+    notify_on: str = typer.Option(
+        "failures", "--notify-on", help="When to notify: all|failures|critical"
+    ),
 ) -> None:
     """Run data quality checks defined in a YAML config file."""
-    asyncio.run(_run(config, db, no_llm, llm, llm_model, output_json))
+    asyncio.run(_run(config, db, no_llm, llm, llm_model, output_json, notify, notify_on))
 
 
 def _build_llm_adapter(provider: str, model: str | None):
@@ -99,6 +106,8 @@ async def _run(
     llm_provider: str,
     llm_model: str | None,
     output_json: Path | None,
+    notify: str | None,
+    notify_on: str,
 ) -> None:
     from ..adapters.warehouse.duckdb import DuckDBAdapter
     from ..core.agent import AegisAgent
@@ -163,6 +172,18 @@ async def _run(
     if output_json:
         output_json.write_text(json.dumps(report, indent=2))
         console.print(f"\n[green]Report written to {output_json}[/green]")
+
+    # Slack notification
+    if notify or os.environ.get("AEGIS_SLACK_WEBHOOK"):
+        from ..adapters.output.slack import NotifyOn, post_to_slack
+        try:
+            notify_on_enum = NotifyOn(notify_on)
+        except ValueError:
+            console.print(f"[red]Invalid --notify-on value '{notify_on}'. Choose: all|failures|critical[/red]")
+            raise typer.Exit(1)
+        sent = await post_to_slack(report, webhook_url=notify, notify_on=notify_on_enum)
+        if sent:
+            console.print("[green]Slack notification sent[/green]")
 
     # Exit with non-zero if failures
     if s.get("failed", 0) > 0:
