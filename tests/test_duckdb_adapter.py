@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 
 from aegis.adapters.warehouse.duckdb import DuckDBAdapter
@@ -15,13 +17,25 @@ from aegis.rules.schema import (
 )
 
 
+async def _setup(adapter: DuckDBAdapter, *statements: str) -> None:
+    """Run SQL in the adapter's executor thread — ensures connection lives there."""
+    loop = asyncio.get_running_loop()
+
+    def _run() -> None:
+        conn = adapter._get_conn()
+        for sql in statements:
+            conn.execute(sql)
+
+    await loop.run_in_executor(adapter._executor, _run)
+
+
 @pytest.fixture
-def adapter_with_data():
+async def adapter_with_data():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE orders (order_id INT, revenue FLOAT)")
-    conn.execute(
-        "INSERT INTO orders VALUES (1, 100.0), (2, -50.0), (3, NULL), (NULL, 200.0)"
+    await _setup(
+        adapter,
+        "CREATE TABLE orders (order_id INT, revenue FLOAT)",
+        "INSERT INTO orders VALUES (1, 100.0), (2, -50.0), (3, NULL), (NULL, 200.0)",
     )
     return adapter
 
@@ -76,7 +90,7 @@ async def test_sql_expression_passes(adapter_with_data):
 @pytest.mark.asyncio
 async def test_unique_fails(adapter_with_data):
     # Insert a duplicate to ensure uniqueness fails
-    adapter_with_data._get_conn().execute("INSERT INTO orders VALUES (1, 999.0)")
+    await _setup(adapter_with_data, "INSERT INTO orders VALUES (1, 999.0)")
     rule = make_rule(RuleType.UNIQUE, columns=["order_id"])
     result = await adapter_with_data.execute_rule(rule)
     assert not result.passed
@@ -138,8 +152,7 @@ async def test_duration_ms_populated(adapter_with_data):
 @pytest.mark.asyncio
 async def test_unique_missing_columns_returns_error():
     adapter = DuckDBAdapter(":memory:")
-    adapter._get_conn().execute("CREATE TABLE t (a INT)")
-    adapter._get_conn().execute("INSERT INTO t VALUES (1)")
+    await _setup(adapter, "CREATE TABLE t (a INT)", "INSERT INTO t VALUES (1)")
     rule = DataQualityRule(
         apiVersion="aegis.dev/v1",
         metadata=RuleMetadata(id="unique_no_col", severity=Severity.HIGH),
@@ -155,6 +168,6 @@ async def test_unique_missing_columns_returns_error():
 @pytest.mark.asyncio
 async def test_adapter_close():
     adapter = DuckDBAdapter(":memory:")
-    adapter._get_conn()  # open connection
+    await _setup(adapter, "SELECT 1")  # open connection in the executor thread
     await adapter.close()
     assert adapter._conn is None
