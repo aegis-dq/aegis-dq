@@ -223,7 +223,56 @@ aegis run rules.yaml --llm ollama --llm-model llama3.2
 | `aegis-dq[airflow]` | `AegisOperator` — drop-in Airflow task |
 | `aegis-dq[mcp]` | MCP server for Claude Desktop / tool use |
 | `aegis dbt generate` | Convert dbt `manifest.json` to Aegis rules |
-| GitHub Action (#27) | CI/CD gate on PRs *(coming v1.0)* |
+| GitHub Action | CI/CD gate on PRs — fails the job when rules fail |
+
+### GitHub Action
+
+```yaml
+# .github/workflows/data-quality.yml
+name: Data Quality
+
+on: [push, pull_request]
+
+jobs:
+  aegis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Aegis DQ
+        uses: aegis-dq/aegis-dq@v0.5.0
+        with:
+          rules-file: rules.yaml
+          db: data/warehouse.db
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      # Without LLM (free, validation only)
+      # - name: Run Aegis DQ (offline)
+      #   uses: aegis-dq/aegis-dq@v0.5.0
+      #   with:
+      #     rules-file: rules.yaml
+      #     no-llm: 'true'
+```
+
+The job fails automatically if any rules fail. Set `fail-on-failure: 'false'` to report without blocking the pipeline.
+
+**Action inputs:**
+
+| Input | Default | Description |
+|---|---|---|
+| `rules-file` | `rules.yaml` | Path to rules YAML |
+| `db` | `:memory:` | DuckDB file path |
+| `warehouse` | `duckdb` | `duckdb` \| `postgres` \| `redshift` |
+| `pg-dsn` | — | PostgreSQL / Redshift DSN |
+| `no-llm` | `false` | Skip LLM diagnosis |
+| `llm` | `anthropic` | `anthropic` \| `openai` \| `ollama` |
+| `llm-model` | *(provider default)* | Override model |
+| `fail-on-failure` | `true` | Fail step on rule failures |
+| `version` | *(latest)* | Pin aegis-dq version |
+| `anthropic-api-key` | — | Anthropic API key secret |
+| `openai-api-key` | — | OpenAI API key secret |
+
+**Action outputs:** `rules-checked`, `passed`, `failed`, `pass-rate`, `report-json`
 
 ---
 
@@ -260,7 +309,7 @@ aegis run rules.yaml --llm ollama --llm-model llama3.2
 |---|---|---|---|
 | Foundation | v0.1 | Core agent, DuckDB, CLI, audit trail | ✅ Done |
 | Differentiate | v0.5 | BigQuery, Databricks, Athena, Airflow, Ollama, RCA, ShareGPT export, FTS5 search, dbt, MCP | ✅ Done |
-| Mature | v1.0 | ~~Postgres~~, REST API, GitHub Action, parallel subagents, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
+| Mature | v1.0 | ~~Postgres~~, REST API, ~~GitHub Action~~, parallel subagents, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
 
 Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aegis-dq/aegis-dq/issues)
 
