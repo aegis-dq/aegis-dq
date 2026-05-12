@@ -5,7 +5,8 @@
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 [![CI](https://github.com/aegis-dq/aegis-dq/actions/workflows/ci.yml/badge.svg)](https://github.com/aegis-dq/aegis-dq/actions)
-[![Tests](https://img.shields.io/badge/tests-101%20passing-brightgreen)](#)
+[![PyPI](https://img.shields.io/pypi/v/aegis-dq)](https://pypi.org/project/aegis-dq/)
+[![Downloads](https://img.shields.io/pypi/dm/aegis-dq)](https://pypi.org/project/aegis-dq/)
 
 Aegis runs a **LangGraph-orchestrated agent** that validates your data, diagnoses failures with an LLM, and logs every decision to an audit trail — with every cost metered and every finding exportable.
 
