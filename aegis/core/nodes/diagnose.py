@@ -21,20 +21,17 @@ LIKELY_CAUSE: <one sentence>
 SUGGESTED_ACTION: <one sentence>"""
 
 
-async def diagnose_node(state: AegisState, llm: LLMAdapter | None) -> AegisState:
-    """Diagnose each failure using the LLM. Skips gracefully if llm is None."""
-    if not state["failures"] or llm is None:
-        state["diagnoses"] = []
-        return state
+async def _diagnose_one(
+    failure, llm: LLMAdapter, run_id: str
+) -> tuple[Diagnosis, int, int]:
+    """Diagnose a single failure. Extracted for use in parallel_table_node."""
+    rule = failure.rule
+    result = failure.result
+    sample_str = (
+        str(result.failure_sample[:3]) if result.failure_sample else "No sample available"
+    )
 
-    async def diagnose_one(failure) -> tuple[Diagnosis, int, int]:
-        rule = failure.rule
-        result = failure.result
-        sample_str = (
-            str(result.failure_sample[:3]) if result.failure_sample else "No sample available"
-        )
-
-        user_msg = f"""Rule: {rule.metadata.id}
+    user_msg = f"""Rule: {rule.metadata.id}
 Table: {rule.spec_scope.table}
 Rule type: {rule.spec_logic.type}
 Expression: {rule.spec_logic.expression or rule.spec_logic.query or "N/A"}
@@ -44,40 +41,46 @@ Failure sample: {sample_str}
 Common causes hint: {", ".join(rule.diagnosis.common_causes) if rule.diagnosis.common_causes else "None provided"}
 Error: {result.error or "None"}"""
 
-        t0 = time.monotonic()
-        text, in_tok, out_tok = await llm.complete(SYSTEM_PROMPT, user_msg, max_tokens=512)
-        duration_ms = (time.monotonic() - t0) * 1000
+    t0 = time.monotonic()
+    text, in_tok, out_tok = await llm.complete(SYSTEM_PROMPT, user_msg, max_tokens=512)
+    duration_ms = (time.monotonic() - t0) * 1000
 
-        lines = {
-            line.split(": ", 1)[0]: line.split(": ", 1)[1]
-            for line in text.strip().splitlines()
-            if ": " in line
-        }
+    lines = {
+        line.split(": ", 1)[0]: line.split(": ", 1)[1]
+        for line in text.strip().splitlines()
+        if ": " in line
+    }
 
-        diag: Diagnosis = {
-            "failure_id": rule.metadata.id,
-            "explanation": lines.get("EXPLANATION", text[:200]),
-            "likely_cause": lines.get("LIKELY_CAUSE", "Unknown"),
-            "suggested_action": lines.get("SUGGESTED_ACTION", "Investigate manually"),
-        }
+    diag: Diagnosis = {
+        "failure_id": rule.metadata.id,
+        "explanation": lines.get("EXPLANATION", text[:200]),
+        "likely_cause": lines.get("LIKELY_CAUSE", "Unknown"),
+        "suggested_action": lines.get("SUGGESTED_ACTION", "Investigate manually"),
+    }
 
-        # claude-haiku-4-5 pricing: $0.80/M input, $4.00/M output
-        decision_cost = (in_tok * 0.80 + out_tok * 4.00) / 1_000_000
-        await log_decision(
-            run_id=state["run_id"],
-            step="diagnose",
-            input_summary=f"[{rule.metadata.id}] {user_msg[:500]}",
-            output_summary=text[:500],
-            model=getattr(llm, "_model", None),
-            input_tokens=in_tok,
-            output_tokens=out_tok,
-            cost_usd=decision_cost,
-            duration_ms=duration_ms,
-        )
+    decision_cost = (in_tok * 0.80 + out_tok * 4.00) / 1_000_000
+    await log_decision(
+        run_id=run_id,
+        step="diagnose",
+        input_summary=f"[{rule.metadata.id}] {user_msg[:500]}",
+        output_summary=text[:500],
+        model=getattr(llm, "_model", None),
+        input_tokens=in_tok,
+        output_tokens=out_tok,
+        cost_usd=decision_cost,
+        duration_ms=duration_ms,
+    )
 
-        return diag, in_tok, out_tok
+    return diag, in_tok, out_tok
 
-    tasks = [diagnose_one(f) for f in state["failures"]]
+
+async def diagnose_node(state: AegisState, llm: LLMAdapter | None) -> AegisState:
+    """Diagnose each failure using the LLM. Skips gracefully if llm is None."""
+    if not state["failures"] or llm is None:
+        state["diagnoses"] = []
+        return state
+
+    tasks = [_diagnose_one(f, llm, state["run_id"]) for f in state["failures"]]
     outcomes = await asyncio.gather(*tasks)
 
     diagnoses: list[Diagnosis] = []

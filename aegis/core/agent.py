@@ -1,4 +1,4 @@
-"""LangGraph orchestrator — wires plan → execute → diagnose → report."""
+"""LangGraph orchestrator — wires plan → parallel_table → reconcile → report."""
 
 from __future__ import annotations
 
@@ -12,11 +12,8 @@ from ..adapters.warehouse.base import WarehouseAdapter
 from ..adapters.warehouse.duckdb import DuckDBAdapter
 from ..rules.schema import DataQualityRule
 from .lineage.openlineage import LineageGraph
-from .nodes.classify import classify_node
-from .nodes.diagnose import diagnose_node
-from .nodes.execute import execute_node
+from .nodes.parallel import parallel_table_node
 from .nodes.plan import plan_node
-from .nodes.rca import rca_node
 from .nodes.reconcile import reconcile_node
 from .nodes.remediate import remediate_node
 from .nodes.report import report_node
@@ -26,7 +23,15 @@ _UNSET = object()  # sentinel — distinguishes "not provided" from explicit Non
 
 
 class AegisAgent:
-    """Agentic data quality orchestrator built on LangGraph."""
+    """Agentic data quality orchestrator built on LangGraph.
+
+    Pipeline (default — parallel):
+        plan → parallel_table → reconcile → remediate → report
+
+    parallel_table fans out per-table: each table runs
+    execute → classify → diagnose → rca concurrently, so LLM calls for
+    table A overlap with warehouse queries for table B.
+    """
 
     def __init__(
         self,
@@ -47,42 +52,26 @@ class AegisAgent:
     def _build_graph(self):
         builder: StateGraph = StateGraph(AegisState)
 
-        # Capture adapter references so closures are stable
         warehouse = self._warehouse
         llm = self._llm
         lineage = self._lineage
 
-        async def _execute(state: AegisState) -> AegisState:
-            return await execute_node(state, warehouse)
-
-        async def _classify(state: AegisState) -> AegisState:
-            return await classify_node(state, llm)
-
-        async def _diagnose(state: AegisState) -> AegisState:
-            return await diagnose_node(state, llm)
-
-        async def _rca(state: AegisState) -> AegisState:
-            return await rca_node(state, llm, lineage)
+        async def _parallel_table(state: AegisState) -> AegisState:
+            return await parallel_table_node(state, warehouse, llm, lineage)
 
         async def _remediate(state: AegisState) -> AegisState:
             return await remediate_node(state, llm)
 
         builder.add_node("plan", plan_node)
-        builder.add_node("execute", _execute)
+        builder.add_node("parallel_table", _parallel_table)
         builder.add_node("reconcile", reconcile_node)
-        builder.add_node("classify", _classify)
-        builder.add_node("diagnose", _diagnose)
-        builder.add_node("rca", _rca)
         builder.add_node("remediate", _remediate)
         builder.add_node("report", report_node)
 
         builder.set_entry_point("plan")
-        builder.add_edge("plan", "execute")
-        builder.add_edge("execute", "reconcile")
-        builder.add_edge("reconcile", "classify")
-        builder.add_edge("classify", "diagnose")
-        builder.add_edge("diagnose", "rca")
-        builder.add_edge("rca", "remediate")
+        builder.add_edge("plan", "parallel_table")
+        builder.add_edge("parallel_table", "reconcile")
+        builder.add_edge("reconcile", "remediate")
         builder.add_edge("remediate", "report")
         builder.add_edge("report", END)
 
