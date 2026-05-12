@@ -175,6 +175,15 @@ async def _run(
                 console.print(f"  [yellow]Likely cause:[/yellow] {d.get('likely_cause', '')}")
                 console.print(f"  [yellow]Action:[/yellow] {d.get('suggested_action', '')}")
 
+    # Print remediation proposals
+    if report.get("remediation_proposals"):
+        console.print("\n[bold yellow]Remediation Proposals:[/bold yellow]")
+        for p in report["remediation_proposals"]:
+            label = p["failure_id"]
+            console.print(f"\n  [bold]{label}[/bold] (confidence: {p['confidence']})")
+            console.print(f"  [cyan]SQL:[/cyan] {p['proposed_sql']}")
+            console.print(f"  [yellow]⚠[/yellow]  {p['caveat']}")
+
     # Save to history
     await save_run(report)
 
@@ -448,6 +457,49 @@ def rules_list(
 
     console.print(table)
     console.print(f"\n[bold]{len(templates)}[/bold] template(s) shown")
+
+
+@rules_app.command("pack")
+def rules_pack(
+    name: str = typer.Argument(..., help="Pack name: retail"),
+    output: Path = typer.Option(Path("rules.yaml"), "--output", "-o", help="Output file path"),
+    orders_table: str = typer.Option("orders", "--orders-table", help="Override orders table name"),
+    order_items_table: str = typer.Option(
+        "order_items", "--order-items-table", help="Override order_items table name"
+    ),
+    products_table: str = typer.Option(
+        "products", "--products-table", help="Override products table name"
+    ),
+    customers_table: str = typer.Option(
+        "customers", "--customers-table", help="Override customers table name"
+    ),
+    warehouse: str = typer.Option("duckdb", "--warehouse", "-w", help="Warehouse type"),
+) -> None:
+    """Export a built-in industry pack as a rules YAML file."""
+    if name != "retail":
+        console.print(f"[red]Unknown pack '{name}'. Available: retail[/red]")
+        raise typer.Exit(1)
+
+    src = Path(__file__).parent.parent / "rules" / "builtin" / "packs" / "retail.yaml"
+    text = src.read_text()
+
+    # Substitute canonical table names with caller's actual names.
+    text = text.replace("table: orders\n", f"table: {orders_table}\n")
+    text = text.replace("table: order_items\n", f"table: {order_items_table}\n")
+    text = text.replace("table: products\n", f"table: {products_table}\n")
+    text = text.replace("table: customers\n", f"table: {customers_table}\n")
+    text = text.replace("warehouse: duckdb", f"warehouse: {warehouse}")
+
+    output.write_text(text)
+    console.print(f"[green]✓[/green] Retail pack written to [cyan]{output}[/cyan]")
+
+    # Count and display the loaded rules for confirmation.
+    from ..rules.parser import load_rules as _load_rules
+
+    rules = _load_rules(output)
+    console.print(
+        f"[bold]{len(rules)}[/bold] rules covering: orders, order_items, products, customers"
+    )
 
 
 if __name__ == "__main__":
