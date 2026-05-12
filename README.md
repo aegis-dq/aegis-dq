@@ -14,33 +14,41 @@
 ---
 
 ```
-$ aegis run rules.yaml
+$ aegis run demo/rules.yaml --db demo.db
 
-Aegis DQ — loading rules from rules.yaml
+Aegis DQ — loading rules from demo/rules.yaml
 Loaded 3 rules
 LLM: Anthropic (claude-haiku-4-5-20251001)
 
-╭─────────────────────────────────────────────────╮
-│         Aegis Validation Report                  │
-├──────────────────┬──────────────────────────────┤
-│ Metric           │ Value                        │
-├──────────────────┼──────────────────────────────┤
-│ Rules checked    │ 3                            │
-│ Passed           │ 2                            │
-│ Failed           │ 1                            │
-│ Pass rate        │ 66.67%                       │
-│ LLM cost         │ $0.000183                    │
-╰──────────────────┴──────────────────────────────╯
+ Aegis Validation Report
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Metric        ┃ Value      ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Rules checked │ 3          │
+│ Passed        │ 1          │
+│ Failed        │ 2          │
+│ Pass rate     │ 33.3%      │
+│ LLM cost      │ $0.000241  │
+└───────────────┴────────────┘
 
 Failures:
 
-  orders_no_nulls (critical) — orders
-  Rows failed: 47 / 10,000
-  Explanation:  47 rows have NULL order_id, violating the completeness rule.
-  Likely cause: ETL pipeline failed to populate order_id for orders placed via
-                the mobile API between 2024-01-14 02:00–04:00 UTC.
-  Action:       Re-run the mobile-api ingestion job for that window and
-                backfill the missing order_ids from the events table.
+  orders_no_null_order_id (critical) — orders
+  Rows failed: 50 / 10,000
+  Explanation:  50 rows have NULL order_id, violating the completeness rule.
+  Likely cause: ETL pipeline failed to populate order_id for a batch of
+                orders, leaving primary keys unset.
+  Action:       Identify the ingestion job that produced NULL order_ids and
+                re-run it with a backfill for the affected window.
+
+  orders_positive_revenue (high) — orders
+  Rows failed: 20 / 10,000
+  Explanation:  20 rows have negative revenue values, which violates the
+                business rule that all transactions must be non-negative.
+  Likely cause: A refund or adjustment record was written with a negative
+                amount instead of a separate credit entry.
+  Action:       Audit the revenue column for refund records and apply the
+                correct accounting treatment.
 ```
 
 ---
