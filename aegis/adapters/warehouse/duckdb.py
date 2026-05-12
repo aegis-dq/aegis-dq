@@ -656,6 +656,70 @@ class DuckDBAdapter(WarehouseAdapter):
                     duration_ms=(time.monotonic() - start) * 1000,
                 )
 
+            elif logic.type == RuleType.ZSCORE_OUTLIER:
+                from ...rules.anomaly import zscore_outlier_sql
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                threshold = logic.zscore_threshold if logic.zscore_threshold is not None else 3.0
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                count_sql, sample_sql = zscore_outlier_sql(t, col, threshold)
+                fail_count = conn.execute(count_sql).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = conn.execute(sample_sql).df().to_dict("records")
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=int(fail_count),
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.ISOLATION_FOREST:
+                from ...rules.anomaly import isolation_forest_detect
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                contamination = logic.contamination if logic.contamination is not None else 0.1
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                rows_df = conn.execute(f"SELECT * FROM {t} WHERE {col} IS NOT NULL").df()
+                values = rows_df[col].tolist()
+                anomaly_mask = isolation_forest_detect(values, contamination)
+                fail_count = sum(anomaly_mask)
+                sample = []
+                if fail_count > 0:
+                    anomaly_idx = [i for i, a in enumerate(anomaly_mask) if a][:5]
+                    sample = rows_df.iloc[anomaly_idx].to_dict("records")
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=int(fail_count),
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.LEARNED_THRESHOLD:
+                from ...memory.column_stats import load_column_history_sync
+                from ...rules.anomaly import check_learned_threshold
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                threshold = logic.zscore_threshold if logic.zscore_threshold is not None else 3.0
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                stats = conn.execute(
+                    f"SELECT AVG(CAST({col} AS DOUBLE)), STDDEV_POP(CAST({col} AS DOUBLE)) FROM {t}"
+                ).fetchone()
+                current_mean = float(stats[0]) if stats[0] is not None else 0.0
+                current_stddev = float(stats[1]) if stats[1] is not None else 0.0
+                history = load_column_history_sync(t, col)
+                passed, details = check_learned_threshold(current_mean, history, threshold)
+                details["current_stddev"] = current_stddev
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=[] if passed else [details],
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
             else:
                 return RuleResult(
                     rule_id=rule.metadata.id,

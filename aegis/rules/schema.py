@@ -47,6 +47,10 @@ class RuleType(StrEnum):
     RECONCILE_ROW_COUNT = "reconcile_row_count"
     RECONCILE_COLUMN_SUM = "reconcile_column_sum"
     RECONCILE_KEY_MATCH = "reconcile_key_match"
+    # ML / statistical anomaly detection
+    ZSCORE_OUTLIER = "zscore_outlier"
+    ISOLATION_FOREST = "isolation_forest"
+    LEARNED_THRESHOLD = "learned_threshold"
 
 
 class RuleScope(BaseModel):
@@ -76,6 +80,10 @@ class RuleLogic(BaseModel):
     column_b: str | None = None          # second column for date_order
     source_table: str | None = None      # reconciliation: table to compare against
     tolerance_pct: float = 0.0           # reconciliation: allowed % deviation (0.0 = exact)
+    # ML / statistical anomaly detection
+    zscore_threshold: float | None = None  # z-score cutoff (default 3.0)
+    contamination: float | None = None     # isolation_forest: expected anomaly fraction (0.0–0.5)
+    min_history_days: int | None = None    # learned_threshold: minimum history required
 
 
 class ReconciliationConfig(BaseModel):

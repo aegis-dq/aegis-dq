@@ -46,6 +46,7 @@ Documentation = "https://aegis-dq.github.io/aegis-dq"
 Changelog = "https://github.com/aegis-dq/aegis-dq/releases"
 
 [project.optional-dependencies]
+ml = ["scikit-learn>=1.4", "numpy>=1.26"]
 mcp = ["mcp>=1.0"]
 openai = ["openai>=1.30"]
 ollama = []
@@ -57,7 +58,7 @@ athena = ["pyathena>=3.0"]
 postgres = ["psycopg2-binary>=2.9"]
 rest = ["fastapi>=0.110", "uvicorn[standard]>=0.29"]
 docs = ["mkdocs-material>=9.0"]
-dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.4", "mypy>=1.10", "openai>=1.30", "numpy>=1.26", "pandas>=2.0"]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.4", "mypy>=1.10", "openai>=1.30", "numpy>=1.26", "pandas>=2.0", "scikit-learn>=1.4"]
 
 [project.scripts]
 aegis = "aegis.cli.main:app"
