@@ -16,13 +16,23 @@ async def report_node(state: AegisState) -> AegisState:
 
     diag_map = {d["failure_id"]: d for d in state.get("diagnoses", [])}
 
+    # Build reverse map: rule_id → triaged severity (from classify node)
+    triaged_severity: dict[str, str] = {}
+    for sev, failures in state.get("classified_failures", {}).items():
+        for f in failures:
+            triaged_severity[f.rule.metadata.id] = sev
+
     failure_details = []
     for f in state["failures"]:
         rid = f.rule.metadata.id
+        declared_sev = f.rule.metadata.severity.value
+        effective_sev = triaged_severity.get(rid, declared_sev)
         detail: dict = {
             "rule_id": rid,
             "table": f.rule.spec_scope.table,
-            "severity": f.rule.metadata.severity.value,
+            "severity": declared_sev,
+            "effective_severity": effective_sev,
+            "escalated": effective_sev != declared_sev,
             "rows_failed": f.result.row_count_failed,
             "rows_checked": f.result.row_count_checked,
         }
@@ -31,6 +41,11 @@ async def report_node(state: AegisState) -> AegisState:
         if rid in diag_map:
             detail["diagnosis"] = diag_map[rid]
         failure_details.append(detail)
+
+    severity_breakdown = {
+        sev: len(failures)
+        for sev, failures in state.get("classified_failures", {}).items()
+    }
 
     report = {
         "run_id": state["run_id"],
@@ -41,6 +56,7 @@ async def report_node(state: AegisState) -> AegisState:
             "passed": passed,
             "failed": failed,
             "pass_rate": round(passed / total * 100, 1) if total else 0.0,
+            "severity_breakdown": severity_breakdown,
         },
         "failures": failure_details,
         "cost_usd": round(state.get("cost_total_usd", 0.0), 6),
