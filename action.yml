@@ -1,10 +1,10 @@
 name: 'Aegis DQ'
-description: 'Agentic data quality checks — validate, diagnose, and explain data failures in CI/CD'
+description: 'Data quality CI gate — 31 rule types, LLM root-cause diagnosis, and SQL auto-fix · DuckDB · Postgres · BigQuery · Databricks · Snowflake'
 author: 'aegis-dq'
 
 branding:
-  icon: 'check-circle'
-  color: 'blue'
+  icon: 'shield'
+  color: 'purple'
 
 inputs:
   rules-file:
