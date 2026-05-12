@@ -11,10 +11,12 @@ from ..adapters.llm.base import LLMAdapter
 from ..adapters.warehouse.base import WarehouseAdapter
 from ..adapters.warehouse.duckdb import DuckDBAdapter
 from ..rules.schema import DataQualityRule
+from .lineage.openlineage import LineageGraph
 from .nodes.classify import classify_node
 from .nodes.diagnose import diagnose_node
 from .nodes.execute import execute_node
 from .nodes.plan import plan_node
+from .nodes.rca import rca_node
 from .nodes.reconcile import reconcile_node
 from .nodes.report import report_node
 from .state import AegisState
@@ -29,6 +31,7 @@ class AegisAgent:
         self,
         warehouse_adapter: WarehouseAdapter | None = None,
         llm_adapter: LLMAdapter | None = _UNSET,  # type: ignore[assignment]
+        lineage_graph: LineageGraph | None = None,
     ):
         self._warehouse: WarehouseAdapter = warehouse_adapter or DuckDBAdapter()
         # If caller explicitly passes llm_adapter=None → no-LLM / offline mode.
@@ -37,6 +40,7 @@ class AegisAgent:
             self._llm: LLMAdapter | None = AnthropicAdapter()
         else:
             self._llm = llm_adapter  # type: ignore[assignment]
+        self._lineage: LineageGraph = lineage_graph or {}
         self._graph = self._build_graph()
 
     def _build_graph(self):
@@ -45,6 +49,7 @@ class AegisAgent:
         # Capture adapter references so closures are stable
         warehouse = self._warehouse
         llm = self._llm
+        lineage = self._lineage
 
         async def _execute(state: AegisState) -> AegisState:
             return await execute_node(state, warehouse)
@@ -55,11 +60,15 @@ class AegisAgent:
         async def _diagnose(state: AegisState) -> AegisState:
             return await diagnose_node(state, llm)
 
+        async def _rca(state: AegisState) -> AegisState:
+            return await rca_node(state, llm, lineage)
+
         builder.add_node("plan", plan_node)
         builder.add_node("execute", _execute)
         builder.add_node("reconcile", reconcile_node)
         builder.add_node("classify", _classify)
         builder.add_node("diagnose", _diagnose)
+        builder.add_node("rca", _rca)
         builder.add_node("report", report_node)
 
         builder.set_entry_point("plan")
@@ -67,7 +76,8 @@ class AegisAgent:
         builder.add_edge("execute", "reconcile")
         builder.add_edge("reconcile", "classify")
         builder.add_edge("classify", "diagnose")
-        builder.add_edge("diagnose", "report")
+        builder.add_edge("diagnose", "rca")
+        builder.add_edge("rca", "report")
         builder.add_edge("report", END)
 
         return builder.compile()
@@ -93,6 +103,7 @@ class AegisAgent:
             "classified_failures": {},
             "reconciliation_summary": {},
             "diagnoses": [],
+            "rca_results": [],
             "report": {},
             "trajectory": [],
             "cost_total_usd": 0.0,

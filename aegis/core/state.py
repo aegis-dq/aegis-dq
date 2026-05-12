@@ -30,6 +30,17 @@ class Diagnosis(TypedDict):
     suggested_action: str
 
 
+class RCAResult(TypedDict):
+    failure_id: str
+    table: str
+    upstream_tables: list[str]
+    lineage_depth: int
+    root_cause: str
+    origin: str
+    propagation: str
+    fix: str
+
+
 class AegisState(TypedDict):
     run_id: str
     triggered_by: str
@@ -41,6 +52,7 @@ class AegisState(TypedDict):
     classified_failures: dict[str, list[RuleFailure]]  # severity -> failures
     reconciliation_summary: dict[str, Any]
     diagnoses: list[Diagnosis]
+    rca_results: list[RCAResult]
     report: dict[str, Any]
     trajectory: list[AgentDecision]
     cost_total_usd: float
