@@ -21,13 +21,6 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
   "Topic :: Software Development :: Quality Assurance",
 ]
-
-[project.urls]
-Homepage = "https://aegis-dq.github.io/aegis-dq"
-Repository = "https://github.com/aegis-dq/aegis-dq"
-Documentation = "https://aegis-dq.github.io/aegis-dq"
-"Issue Tracker" = "https://github.com/aegis-dq/aegis-dq/issues"
-Changelog = "https://github.com/aegis-dq/aegis-dq/releases"
 dependencies = [
   "langgraph>=0.2",
   "langchain-anthropic>=0.3",
@@ -44,6 +37,13 @@ dependencies = [
   "sqlalchemy>=2.0",
   "aiosqlite>=0.20",
 ]
+
+[project.urls]
+Homepage = "https://aegis-dq.github.io/aegis-dq"
+Repository = "https://github.com/aegis-dq/aegis-dq"
+Documentation = "https://aegis-dq.github.io/aegis-dq"
+"Issue Tracker" = "https://github.com/aegis-dq/aegis-dq/issues"
+Changelog = "https://github.com/aegis-dq/aegis-dq/releases"
 
 [project.optional-dependencies]
 openai = ["openai>=1.30"]
