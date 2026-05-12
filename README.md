@@ -4,7 +4,6 @@
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
-[![CI](https://github.com/aegis-dq/aegis-dq/actions/workflows/ci.yml/badge.svg)](https://github.com/aegis-dq/aegis-dq/actions)
 [![PyPI](https://img.shields.io/pypi/v/aegis-dq)](https://pypi.org/project/aegis-dq/)
 [![Downloads](https://img.shields.io/pypi/dm/aegis-dq)](https://pypi.org/project/aegis-dq/)
 
