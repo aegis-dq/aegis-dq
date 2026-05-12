@@ -190,6 +190,46 @@ async def _run(
         raise typer.Exit(1)
 
 
+@app.command()
+def validate(
+    config: Path = typer.Argument(..., help="Path to rules YAML file"),
+    warnings: bool = typer.Option(True, "--warnings/--no-warnings", help="Show warnings"),
+) -> None:
+    """Check rule YAML syntax and schema correctness without hitting any warehouse."""
+    from ..rules.validator import validate_file
+
+    report = validate_file(config)
+
+    console.print(f"\n[bold blue]Aegis validate[/bold blue] — {config}\n")
+
+    for r in report.results:
+        label = r.rule_id or f"rule[{r.index}]"
+        if r.valid:
+            warn_str = f"  [yellow]{len(r.warnings)} warning(s)[/yellow]" if r.warnings else ""
+            console.print(f"  [green]✓[/green] {label}{warn_str}")
+            if warnings:
+                for w in r.warnings:
+                    console.print(f"      [yellow]⚠[/yellow]  {w}")
+        else:
+            console.print(f"  [red]✗[/red] {label}")
+            for e in r.errors:
+                console.print(f"      [red]✗[/red]  {e}")
+            if warnings:
+                for w in r.warnings:
+                    console.print(f"      [yellow]⚠[/yellow]  {w}")
+
+    console.print()
+    if report.ok:
+        console.print(
+            f"[bold green]All {report.total} rule(s) valid.[/bold green]"
+        )
+    else:
+        console.print(
+            f"[bold red]{report.invalid_count} of {report.total} rule(s) invalid.[/bold red]"
+        )
+        raise typer.Exit(1)
+
+
 audit_app = typer.Typer(help="Inspect audit trails and trajectories")
 app.add_typer(audit_app, name="audit")
 
