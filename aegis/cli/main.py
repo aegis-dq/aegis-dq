@@ -145,6 +145,63 @@ async def _run(
         raise typer.Exit(1)
 
 
+audit_app = typer.Typer(help="Inspect audit trails and trajectories")
+app.add_typer(audit_app, name="audit")
+
+
+@audit_app.command("trajectory")
+def audit_trajectory(
+    run_id: str = typer.Argument(..., help="Run ID to inspect"),
+    fmt: str = typer.Option("table", "--format", "-f", help="Output format: table|json|sharegpt"),
+) -> None:
+    """Show the decision trajectory for a completed run."""
+    asyncio.run(_audit_trajectory(run_id, fmt))
+
+
+async def _audit_trajectory(run_id: str, fmt: str) -> None:
+    from ..audit.logger import get_decisions
+    from ..audit.trajectory import export_sharegpt
+
+    if fmt == "sharegpt":
+        data = await export_sharegpt(run_id)
+        console.print_json(json.dumps(data, indent=2))
+        return
+
+    decisions = await get_decisions(run_id)
+    if not decisions:
+        console.print(f"[yellow]No decisions found for run {run_id}[/yellow]")
+        raise typer.Exit(1)
+
+    if fmt == "json":
+        console.print_json(json.dumps(decisions, indent=2))
+        return
+
+    table = Table(title=f"Trajectory — {run_id}")
+    table.add_column("#", style="dim", width=4)
+    table.add_column("Step", style="cyan", no_wrap=True)
+    table.add_column("Model", style="magenta")
+    table.add_column("In tok", justify="right")
+    table.add_column("Out tok", justify="right")
+    table.add_column("Cost $", justify="right")
+    table.add_column("ms", justify="right")
+    table.add_column("Output summary", style="white")
+
+    for i, d in enumerate(decisions, 1):
+        table.add_row(
+            str(i),
+            d["step"],
+            d.get("model") or "—",
+            str(d.get("input_tokens") or 0),
+            str(d.get("output_tokens") or 0),
+            f"{d.get('cost_usd', 0):.6f}",
+            f"{d.get('duration_ms', 0):.0f}",
+            (d.get("output_summary") or "")[:60],
+        )
+
+    console.print(table)
+    console.print(f"[bold]{len(decisions)}[/bold] decision(s)")
+
+
 @rules_app.command("list")
 def rules_list(
     category: str | None = typer.Option(None, "--category", "-c", help="Filter by category"),
