@@ -67,8 +67,11 @@ def run(
     config: Path = typer.Argument(..., help="Path to rules YAML file"),
     db: str = typer.Option(":memory:", "--db", help="DuckDB path (or :memory:)"),
     no_llm: bool = typer.Option(False, "--no-llm", help="Skip LLM diagnosis (offline mode)"),
-    llm: str = typer.Option("anthropic", "--llm", help="LLM provider: anthropic|openai"),
+    llm: str = typer.Option("anthropic", "--llm", help="LLM provider: anthropic|openai|ollama"),
     llm_model: str | None = typer.Option(None, "--llm-model", help="Override default model name"),
+    ollama_host: str = typer.Option(
+        "http://localhost:11434", "--ollama-host", help="Base URL for local Ollama instance"
+    ),
     output_json: Path | None = typer.Option(
         None, "--output-json", "-o", help="Write JSON report to file"
     ),
@@ -80,10 +83,10 @@ def run(
     ),
 ) -> None:
     """Run data quality checks defined in a YAML config file."""
-    asyncio.run(_run(config, db, no_llm, llm, llm_model, output_json, notify, notify_on))
+    asyncio.run(_run(config, db, no_llm, llm, llm_model, ollama_host, output_json, notify, notify_on))
 
 
-def _build_llm_adapter(provider: str, model: str | None):
+def _build_llm_adapter(provider: str, model: str | None, ollama_host: str = "http://localhost:11434"):
     """Resolve provider name to an LLMAdapter instance."""
     if provider == "anthropic":
         from ..adapters.llm.anthropic import AnthropicAdapter
@@ -95,7 +98,13 @@ def _build_llm_adapter(provider: str, model: str | None):
             console.print("[red]openai package not installed. Run: pip install aegis-dq[openai][/red]")
             raise typer.Exit(1)
         return OpenAIAdapter(**({"model": model} if model else {}))
-    console.print(f"[red]Unknown LLM provider '{provider}'. Choose: anthropic|openai[/red]")
+    if provider == "ollama":
+        from ..adapters.llm.ollama import OllamaAdapter
+        kwargs: dict = {"base_url": ollama_host}
+        if model:
+            kwargs["model"] = model
+        return OllamaAdapter(**kwargs)
+    console.print(f"[red]Unknown LLM provider '{provider}'. Choose: anthropic|openai|ollama[/red]")
     raise typer.Exit(1)
 
 
@@ -105,6 +114,7 @@ async def _run(
     no_llm: bool,
     llm_provider: str,
     llm_model: str | None,
+    ollama_host: str,
     output_json: Path | None,
     notify: str | None,
     notify_on: str,
@@ -125,7 +135,7 @@ async def _run(
     console.print(f"Loaded [bold]{len(rules)}[/bold] rules")
 
     warehouse = DuckDBAdapter(db)
-    llm = None if no_llm else _build_llm_adapter(llm_provider, llm_model)
+    llm = None if no_llm else _build_llm_adapter(llm_provider, llm_model, ollama_host)
 
     if llm:
         provider_label = type(llm).__name__.replace("Adapter", "")
