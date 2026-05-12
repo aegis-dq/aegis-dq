@@ -11,6 +11,7 @@ from ..adapters.llm.base import LLMAdapter
 from ..adapters.warehouse.base import WarehouseAdapter
 from ..adapters.warehouse.duckdb import DuckDBAdapter
 from ..rules.schema import DataQualityRule
+from .nodes.classify import classify_node
 from .nodes.diagnose import diagnose_node
 from .nodes.execute import execute_node
 from .nodes.plan import plan_node
@@ -47,17 +48,22 @@ class AegisAgent:
         async def _execute(state: AegisState) -> AegisState:
             return await execute_node(state, warehouse)
 
+        async def _classify(state: AegisState) -> AegisState:
+            return await classify_node(state, llm)
+
         async def _diagnose(state: AegisState) -> AegisState:
             return await diagnose_node(state, llm)
 
         builder.add_node("plan", plan_node)
         builder.add_node("execute", _execute)
+        builder.add_node("classify", _classify)
         builder.add_node("diagnose", _diagnose)
         builder.add_node("report", report_node)
 
         builder.set_entry_point("plan")
         builder.add_edge("plan", "execute")
-        builder.add_edge("execute", "diagnose")
+        builder.add_edge("execute", "classify")
+        builder.add_edge("classify", "diagnose")
         builder.add_edge("diagnose", "report")
         builder.add_edge("report", END)
 
