@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://aegis-dq.github.io/aegis-dq/contributing/">
+        <link rel="canonical" href="https://aegis-dq.github.io/aegis-dq/integrations/airflow/">
       
       
-        <link rel="prev" href="../vs-competitors/">
+        <link rel="prev" href="../dbt/">
       
+      
+        <link rel="next" href="../mcp/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Contributing - Aegis</title>
+        <title>Airflow - Aegis</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#contributing-to-aegis" class="md-skip">
+        <a href="#airflow-integration" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Aegis" class="md-header__button md-logo" aria-label="Aegis" data-md-component="logo">
+    <a href="../.." title="Aegis" class="md-header__button md-logo" aria-label="Aegis" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Contributing
+              Airflow
             
           </span>
         </div>
@@ -223,7 +225,7 @@
   
   
     <li class="md-tabs__item">
-      <a href=".." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -242,7 +244,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../getting-started/" class="md-tabs__link">
+      <a href="../../getting-started/" class="md-tabs__link">
         
   
   
@@ -261,7 +263,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../architecture/" class="md-tabs__link">
+      <a href="../../architecture/" class="md-tabs__link">
         
   
   
@@ -280,7 +282,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../rule-schema-reference/" class="md-tabs__link">
+      <a href="../../rule-schema-reference/" class="md-tabs__link">
         
   
   
@@ -297,11 +299,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../integrations/dbt/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../dbt/" class="md-tabs__link">
           
   
   
@@ -319,7 +323,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../vs-competitors/" class="md-tabs__link">
+      <a href="../../vs-competitors/" class="md-tabs__link">
         
   
   
@@ -336,11 +340,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../contributing/" class="md-tabs__link">
         
   
   
@@ -375,7 +377,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Aegis" class="md-nav__button md-logo" aria-label="Aegis" data-md-component="logo">
+    <a href="../.." title="Aegis" class="md-nav__button md-logo" aria-label="Aegis" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -405,7 +407,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -432,7 +434,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/" class="md-nav__link">
+      <a href="../../getting-started/" class="md-nav__link">
         
   
   
@@ -459,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+      <a href="../../architecture/" class="md-nav__link">
         
   
   
@@ -486,7 +488,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rule-schema-reference/" class="md-nav__link">
+      <a href="../../rule-schema-reference/" class="md-nav__link">
         
   
   
@@ -510,26 +512,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -547,7 +554,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -565,7 +572,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../integrations/dbt/" class="md-nav__link">
+      <a href="../dbt/" class="md-nav__link">
         
   
   
@@ -590,10 +597,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../integrations/airflow/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Airflow
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -609,6 +643,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operator-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-the-report-downstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading the report downstream
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -621,7 +730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../integrations/mcp/" class="md-nav__link">
+      <a href="../mcp/" class="md-nav__link">
         
   
   
@@ -656,7 +765,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../vs-competitors/" class="md-nav__link">
+      <a href="../../vs-competitors/" class="md-nav__link">
         
   
   
@@ -680,37 +789,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contributing
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
         
   
   
@@ -726,92 +808,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Getting started
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-to-work-on" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What to work on
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pull-request-process" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pull request process
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#code-style" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Code style
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#community" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Community
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#code-of-conduct" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Code of Conduct
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -843,10 +839,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Getting started
+        Install
       
     </span>
   </a>
@@ -854,10 +850,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-to-work-on" class="md-nav__link">
+  <a href="#basic-usage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What to work on
+        Basic usage
       
     </span>
   </a>
@@ -865,10 +861,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pull-request-process" class="md-nav__link">
+  <a href="#operator-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pull request process
+        Operator parameters
       
     </span>
   </a>
@@ -876,10 +872,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#code-style" class="md-nav__link">
+  <a href="#reading-the-report-downstream" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Code style
+        Reading the report downstream
       
     </span>
   </a>
@@ -887,21 +883,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#community" class="md-nav__link">
+  <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Community
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#code-of-conduct" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Code of Conduct
+        Environment variables
       
     </span>
   </a>
@@ -928,48 +913,125 @@
   
 
 
-<h1 id="contributing-to-aegis">Contributing to Aegis</h1>
-<p>Thanks for your interest in contributing. Aegis is an early-stage project and every contribution matters.</p>
-<h2 id="getting-started">Getting started</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/aegis-dq/aegis-dq
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>aegis-dq
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+<h1 id="airflow-integration">Airflow Integration</h1>
+<p>Aegis ships an <code>AegisOperator</code> that wraps an <code>aegis run</code> invocation as a native Airflow task. The operator runs in the Airflow worker process (no subprocess), uses the same audit trail as the CLI, and can push the run report to XCom.</p>
+<hr />
+<h2 id="install">Install</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;aegis-dq[airflow]&quot;</span>
 </code></pre></div>
-<p>Run tests:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+<hr />
+<h2 id="basic-usage">Basic usage</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">airflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAG</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">aegis.integrations.airflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">AegisOperator</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">with</span> <span class="n">DAG</span><span class="p">(</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">dag_id</span><span class="o">=</span><span class="s2">&quot;daily_orders_dq&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">start_date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">schedule</span><span class="o">=</span><span class="s2">&quot;@daily&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">catchup</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">)</span> <span class="k">as</span> <span class="n">dag</span><span class="p">:</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">validate_orders</span> <span class="o">=</span> <span class="n">AegisOperator</span><span class="p">(</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="n">task_id</span><span class="o">=</span><span class="s2">&quot;validate_orders&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="n">rules_file</span><span class="o">=</span><span class="s2">&quot;/opt/airflow/dq/rules.yaml&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="n">warehouse</span><span class="o">=</span><span class="s2">&quot;duckdb&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="n">db_path</span><span class="o">=</span><span class="s2">&quot;/opt/airflow/data/warehouse.duckdb&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="n">no_llm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>                        <span class="c1"># set True to skip LLM</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="n">llm</span><span class="o">=</span><span class="s2">&quot;anthropic&quot;</span><span class="p">,</span>                     <span class="c1"># or &quot;openai&quot;, &quot;ollama&quot;</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="n">fail_on_severity</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;critical&quot;</span><span class="p">],</span>        <span class="c1"># only fail the task on critical</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="n">output_xcom_key</span><span class="o">=</span><span class="s2">&quot;dq_report&quot;</span><span class="p">,</span>         <span class="c1"># push JSON report to XCom</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="p">)</span>
 </code></pre></div>
-<p>Run linter:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ruff<span class="w"> </span>check<span class="w"> </span>aegis<span class="w"> </span>tests
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>ruff<span class="w"> </span>check<span class="w"> </span>aegis<span class="w"> </span>tests<span class="w"> </span>--fix<span class="w">   </span><span class="c1"># auto-fix</span>
+<hr />
+<h2 id="operator-parameters">Operator parameters</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rules_file</code></td>
+<td>str</td>
+<td>required</td>
+<td>Path to <code>rules.yaml</code></td>
+</tr>
+<tr>
+<td><code>warehouse</code></td>
+<td>str</td>
+<td><code>"duckdb"</code></td>
+<td>Warehouse adapter: <code>duckdb</code>, <code>bigquery</code>, <code>databricks</code>, <code>athena</code></td>
+</tr>
+<tr>
+<td><code>db_path</code></td>
+<td>str</td>
+<td><code>None</code></td>
+<td>DuckDB file path (duckdb only)</td>
+</tr>
+<tr>
+<td><code>no_llm</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Skip LLM diagnosis</td>
+</tr>
+<tr>
+<td><code>llm</code></td>
+<td>str</td>
+<td><code>"anthropic"</code></td>
+<td>LLM provider</td>
+</tr>
+<tr>
+<td><code>llm_model</code></td>
+<td>str</td>
+<td><code>None</code></td>
+<td>Override the default model</td>
+</tr>
+<tr>
+<td><code>fail_on_severity</code></td>
+<td>list</td>
+<td><code>["critical", "high"]</code></td>
+<td>Severity levels that cause the task to fail</td>
+</tr>
+<tr>
+<td><code>output_xcom_key</code></td>
+<td>str</td>
+<td><code>None</code></td>
+<td>XCom key to push the JSON report to</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="reading-the-report-downstream">Reading the report downstream</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">airflow.operators.python</span><span class="w"> </span><span class="kn">import</span> <span class="n">PythonOperator</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_report</span><span class="p">(</span><span class="o">**</span><span class="n">context</span><span class="p">):</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">report</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s2">&quot;ti&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">xcom_pull</span><span class="p">(</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">task_ids</span><span class="o">=</span><span class="s2">&quot;validate_orders&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;dq_report&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">failed</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s2">&quot;summary&quot;</span><span class="p">][</span><span class="s2">&quot;failed&quot;</span><span class="p">]</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DQ check: </span><span class="si">{</span><span class="n">failed</span><span class="si">}</span><span class="s2"> rule(s) failed&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">read_report</span> <span class="o">=</span> <span class="n">PythonOperator</span><span class="p">(</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">task_id</span><span class="o">=</span><span class="s2">&quot;read_dq_report&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">python_callable</span><span class="o">=</span><span class="n">check_report</span><span class="p">,</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="p">)</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="n">validate_orders</span> <span class="o">&gt;&gt;</span> <span class="n">read_report</span>
 </code></pre></div>
-<h2 id="what-to-work-on">What to work on</h2>
-<p>Check <a href="https://github.com/aegis-dq/aegis-dq/issues">open issues</a> — especially those labeled <a href="https://github.com/aegis-dq/aegis-dq/issues?q=label%3A%22good+first+issue%22"><code>good first issue</code></a>.</p>
-<p>Good entry points for new contributors:</p>
-<ul>
-<li><strong>New warehouse adapter</strong> — copy <code>aegis/adapters/warehouse/duckdb.py</code>, implement the same interface for Postgres, MySQL, etc.</li>
-<li><strong>New LLM adapter</strong> — copy <code>aegis/adapters/llm/anthropic.py</code>, implement <code>complete()</code> for any OpenAI-compatible endpoint.</li>
-<li><strong>New rule type</strong> — add to <code>RuleType</code> enum in <code>schema.py</code>, implement in <code>duckdb.py</code>, add tests.</li>
-<li><strong>Industry pack</strong> — create a <code>aegis-packs/&lt;domain&gt;/rules/</code> directory with domain-specific rule templates.</li>
-</ul>
-<h2 id="pull-request-process">Pull request process</h2>
-<ol>
-<li>Fork the repo and create a feature branch: <code>feat/&lt;short-description&gt;</code></li>
-<li>Write tests for your change — all PRs must keep tests green</li>
-<li>Run <code>ruff check aegis tests</code> — no lint errors</li>
-<li>Open a PR referencing the issue it closes (<code>Closes #N</code>)</li>
-<li>Keep PRs focused — one issue per PR</li>
-</ol>
-<h2 id="code-style">Code style</h2>
-<ul>
-<li>Python 3.11+, type hints throughout</li>
-<li>Ruff for formatting and linting (<code>line-length = 100</code>)</li>
-<li><code>async/await</code> for all I/O — no blocking calls in the hot path</li>
-<li>No comments explaining <em>what</em> the code does — only <em>why</em> when non-obvious</li>
-</ul>
-<h2 id="community">Community</h2>
-<p>Questions and discussion: open a <a href="https://github.com/aegis-dq/aegis-dq/discussions">GitHub Discussion</a>.</p>
-<h2 id="code-of-conduct">Code of Conduct</h2>
-<p>Be respectful. We follow the <a href="https://www.contributor-covenant.org/">Contributor Covenant</a>.</p>
+<hr />
+<h2 id="environment-variables">Environment variables</h2>
+<p>Set your LLM API key as an Airflow Variable or in the worker environment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>sk-ant-...
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># or</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>sk-...
+</code></pre></div>
+<p>For BigQuery, set <code>GOOGLE_APPLICATION_CREDENTIALS</code> to your service account JSON path.</p>
 
 
 
@@ -1056,10 +1118,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.instant", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.instant", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

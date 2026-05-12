@@ -5,6 +5,10 @@
          <lastmod>2026-05-12</lastmod>
     </url>
     <url>
+         <loc>https://aegis-dq.github.io/aegis-dq/architecture/</loc>
+         <lastmod>2026-05-12</lastmod>
+    </url>
+    <url>
          <loc>https://aegis-dq.github.io/aegis-dq/contributing/</loc>
          <lastmod>2026-05-12</lastmod>
     </url>
@@ -14,6 +18,22 @@
     </url>
     <url>
          <loc>https://aegis-dq.github.io/aegis-dq/rule-schema-reference/</loc>
+         <lastmod>2026-05-12</lastmod>
+    </url>
+    <url>
+         <loc>https://aegis-dq.github.io/aegis-dq/vs-competitors/</loc>
+         <lastmod>2026-05-12</lastmod>
+    </url>
+    <url>
+         <loc>https://aegis-dq.github.io/aegis-dq/integrations/airflow/</loc>
+         <lastmod>2026-05-12</lastmod>
+    </url>
+    <url>
+         <loc>https://aegis-dq.github.io/aegis-dq/integrations/dbt/</loc>
+         <lastmod>2026-05-12</lastmod>
+    </url>
+    <url>
+         <loc>https://aegis-dq.github.io/aegis-dq/integrations/mcp/</loc>
          <lastmod>2026-05-12</lastmod>
     </url>
 </urlset>
