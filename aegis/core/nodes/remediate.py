@@ -48,14 +48,42 @@ def _build_user_prompt(
 
 def _parse_response(text: str) -> tuple[str, str, str]:
     """Parse LLM response into (sql, confidence, caveat). Returns defaults on parse failure."""
+    import re
     sql = confidence = caveat = ""
-    for line in text.splitlines():
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
         if line.startswith("SQL:"):
-            sql = line[4:].strip()
+            inline = line[4:].strip()
+            if inline.startswith("```"):
+                # Multi-line fenced block: collect until closing ```
+                i += 1
+                sql_lines = []
+                while i < len(lines) and not lines[i].startswith("```"):
+                    sql_lines.append(lines[i])
+                    i += 1
+                sql = " ".join(sql_lines).strip()
+            elif inline:
+                sql = inline
+            else:
+                # SQL might be on next line(s), grab until CONFIDENCE
+                i += 1
+                sql_lines = []
+                while i < len(lines) and not lines[i].startswith(("CONFIDENCE:", "CAVEAT:", "```")):
+                    cleaned = lines[i].strip().strip("`")
+                    if cleaned:
+                        sql_lines.append(cleaned)
+                    i += 1
+                sql = " ".join(sql_lines).strip()
+                continue
         elif line.startswith("CONFIDENCE:"):
             confidence = line[11:].strip().lower()
         elif line.startswith("CAVEAT:"):
             caveat = line[7:].strip()
+        i += 1
+    # Strip any residual markdown fences
+    sql = re.sub(r"^```\w*\s*", "", sql).rstrip("`").strip()
     if confidence not in ("high", "medium", "low"):
         confidence = "low"
     if not sql:
