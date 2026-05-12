@@ -311,7 +311,7 @@ The job fails automatically if any rules fail. Set `fail-on-failure: 'false'` to
 |---|---|---|---|
 | Foundation | v0.1 | Core agent, DuckDB, CLI, audit trail | ✅ Done |
 | Differentiate | v0.5 | BigQuery, Databricks, Athena, Airflow, Ollama, RCA, ShareGPT export, FTS5 search, dbt, MCP | ✅ Done |
-| Mature | v1.0 | ~~Postgres~~, ~~REST API~~, ~~GitHub Action~~, parallel subagents, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
+| Mature | v1.0 | ~~Postgres~~, ~~REST API~~, ~~GitHub Action~~, ~~parallel subagents~~, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
 
 Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aegis-dq/aegis-dq/issues)
 
