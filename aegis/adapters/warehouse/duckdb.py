@@ -588,6 +588,73 @@ class DuckDBAdapter(WarehouseAdapter):
                     duration_ms=(time.monotonic() - start) * 1000,
                 )
 
+            elif logic.type == RuleType.RECONCILE_ROW_COUNT:
+                src = logic.source_table or ""
+                tol = logic.tolerance_pct / 100.0
+                src_count = conn.execute(f"SELECT COUNT(*) FROM {src}").fetchone()[0]
+                tgt_count = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                if src_count == 0:
+                    passed = tgt_count == 0
+                else:
+                    deviation = abs(src_count - tgt_count) / src_count
+                    passed = deviation <= tol
+                sample = [] if passed else [{"source_rows": src_count, "target_rows": tgt_count}]
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=src_count,
+                    row_count_failed=abs(src_count - tgt_count),
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.RECONCILE_COLUMN_SUM:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else ""
+                src = logic.source_table or ""
+                tol = logic.tolerance_pct / 100.0
+                src_sum = conn.execute(f"SELECT COALESCE(SUM({col}), 0) FROM {src}").fetchone()[0]
+                tgt_sum = conn.execute(f"SELECT COALESCE(SUM({col}), 0) FROM {t}").fetchone()[0]
+                src_sum = float(src_sum)
+                tgt_sum = float(tgt_sum)
+                if src_sum == 0:
+                    passed = tgt_sum == 0
+                else:
+                    deviation = abs(src_sum - tgt_sum) / abs(src_sum)
+                    passed = deviation <= tol
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                sample = [] if passed else [{"source_sum": src_sum, "target_sum": tgt_sum, "column": col}]
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.RECONCILE_KEY_MATCH:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else ""
+                src = logic.source_table or ""
+                total = conn.execute(f"SELECT COUNT(*) FROM {src}").fetchone()[0]
+                missing_in_tgt = conn.execute(
+                    f"SELECT COUNT(*) FROM {src} WHERE {col} NOT IN (SELECT {col} FROM {t})"
+                ).fetchone()[0]
+                missing_in_src = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} NOT IN (SELECT {col} FROM {src})"
+                ).fetchone()[0]
+                passed = missing_in_tgt == 0 and missing_in_src == 0
+                sample = []
+                if not passed:
+                    sample = [{"missing_in_target": missing_in_tgt, "missing_in_source": missing_in_src, "key_column": col}]
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=missing_in_tgt + missing_in_src,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
             else:
                 return RuleResult(
                     rule_id=rule.metadata.id,

@@ -39,6 +39,7 @@ class AegisState(TypedDict):
     rule_results: list[RuleResult]
     failures: list[RuleFailure]
     classified_failures: dict[str, list[RuleFailure]]  # severity -> failures
+    reconciliation_summary: dict[str, Any]
     diagnoses: list[Diagnosis]
     report: dict[str, Any]
     trajectory: list[AgentDecision]

@@ -62,6 +62,9 @@ _REQUIRED_FIELDS: dict[RuleType, list[str]] = {
     RuleType.ROW_COUNT:             ["threshold"],
     RuleType.SQL_EXPRESSION:        ["expression"],
     RuleType.CUSTOM_SQL:            ["query"],
+    RuleType.RECONCILE_ROW_COUNT:   ["source_table"],
+    RuleType.RECONCILE_COLUMN_SUM:  ["source_table"],
+    RuleType.RECONCILE_KEY_MATCH:   ["source_table"],
 }
 
 # Rules that require at least one column in scope.columns
@@ -86,6 +89,8 @@ _REQUIRES_COLUMN: set[RuleType] = {
     RuleType.CONDITIONAL_NOT_NULL,
     RuleType.DATE_ORDER,
     RuleType.COLUMN_SUM_BETWEEN,
+    RuleType.RECONCILE_COLUMN_SUM,
+    RuleType.RECONCILE_KEY_MATCH,
 }
 
 
