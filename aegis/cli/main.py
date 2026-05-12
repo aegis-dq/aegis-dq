@@ -271,11 +271,30 @@ async def _run(
 def validate(
     config: Path = typer.Argument(..., help="Path to rules YAML file"),
     warnings: bool = typer.Option(True, "--warnings/--no-warnings", help="Show warnings"),
+    check_sql: bool = typer.Option(False, "--check-sql", help="Verify SQL syntax for sql_expression / custom_sql rules"),
+    db: str = typer.Option("", "--db", help="DuckDB file path — enables schema-aware + dry-run SQL checks"),
 ) -> None:
-    """Check rule YAML syntax and schema correctness without hitting any warehouse."""
+    """Check rule YAML syntax and schema correctness without hitting any warehouse.
+
+    Add --check-sql for sqlglot syntax verification of SQL rules.
+    Add --db path/to/db.duckdb to also verify column names and dry-run.
+    """
     from ..rules.validator import validate_file
 
-    report = validate_file(config)
+    conn = None
+    if db:
+        try:
+            import duckdb
+            conn = duckdb.connect(db, read_only=True)
+            check_sql = True
+            console.print(f"[dim]SQL check: connected to [cyan]{db}[/cyan] (read-only)[/dim]")
+        except Exception as exc:
+            console.print(f"[red]Could not open DB '{db}': {exc}[/red]")
+            raise typer.Exit(1)
+    elif check_sql:
+        console.print("[dim]SQL check: syntax-only (no --db provided)[/dim]")
+
+    report = validate_file(config, check_sql=check_sql, conn=conn)
 
     console.print(f"\n[bold blue]Aegis validate[/bold blue] — {config}\n")
 

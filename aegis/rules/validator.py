@@ -1,4 +1,9 @@
-"""Dry-run rule validation — checks YAML syntax and schema correctness offline."""
+"""Dry-run rule validation — checks YAML syntax and schema correctness offline.
+
+With --check-sql / conn supplied the validator also runs the SQL verification
+pipeline (sqlglot syntax → schema check → DuckDB dry-run) for every
+sql_expression and custom_sql rule.
+"""
 
 from __future__ import annotations
 
@@ -121,6 +126,41 @@ def _semantic_errors(rule: DataQualityRule) -> tuple[list[str], list[str]]:
     return errors, warnings
 
 
+def _sql_errors(
+    rule: DataQualityRule,
+    conn=None,
+) -> list[str]:
+    """Run the SQL verification pipeline for sql_expression / custom_sql rules.
+
+    Stage 1 (always):   sqlglot syntax parse
+    Stage 2 (conn):     schema-aware column check
+    Stage 3 (conn):     0-row dry-run execution
+
+    Returns a list of human-readable error strings.
+    """
+    from .sql_verify import (
+        get_duckdb_schema,
+        verify_expression_sync,
+        verify_query_sync,
+    )
+
+    logic = rule.spec_logic
+    table = rule.spec_scope.table
+    schema = get_duckdb_schema(conn, table) if conn is not None else None
+
+    if logic.type == RuleType.SQL_EXPRESSION and logic.expression:
+        result = verify_expression_sync(logic.expression, table, conn=conn, schema=schema)
+        if not result.passed:
+            return [f"[sql] {e.stage}: {e.message}" for e in result.errors]
+
+    elif logic.type == RuleType.CUSTOM_SQL and logic.query:
+        result = verify_query_sync(logic.query, table, conn=conn, schema=schema)
+        if not result.passed:
+            return [f"[sql] {e.stage}: {e.message}" for e in result.errors]
+
+    return []
+
+
 def _parse_raw_doc(data: dict) -> dict:
     """Flatten nested spec structure (mirrors parser._parse_rule logic)."""
     data = dict(data)
@@ -134,13 +174,26 @@ def _parse_raw_doc(data: dict) -> dict:
     return data
 
 
-def validate_file(path: str | Path) -> FileValidationReport:
-    """
-    Validate all rules in a YAML file without connecting to any warehouse.
+def validate_file(
+    path: str | Path,
+    check_sql: bool = False,
+    conn=None,
+) -> FileValidationReport:
+    """Validate all rules in a YAML file.
+
+    Args:
+        path:      Path to the rules YAML file.
+        check_sql: When True, run the SQL verification pipeline for
+                   sql_expression and custom_sql rules (Stage 1 always;
+                   Stages 2 + 3 require *conn*).
+        conn:      Live DuckDB connection for schema-aware + dry-run checks.
+                   Implies check_sql=True when provided.
 
     Returns a FileValidationReport with per-rule results. Never raises —
     all errors are captured and returned as structured results.
     """
+    if conn is not None:
+        check_sql = True
     path = Path(path)
     results: list[RuleValidationResult] = []
 
@@ -199,6 +252,8 @@ def validate_file(path: str | Path) -> FileValidationReport:
             rule = DataQualityRule.model_validate(flat, from_attributes=False)
             rule_id = rule.metadata.id
             sem_errors, warnings = _semantic_errors(rule)
+            if check_sql:
+                sem_errors = sem_errors + _sql_errors(rule, conn=conn)
             results.append(RuleValidationResult(
                 index=i,
                 rule_id=rule_id,

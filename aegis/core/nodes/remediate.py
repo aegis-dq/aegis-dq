@@ -93,6 +93,31 @@ def _parse_response(text: str) -> tuple[str, str, str]:
     return sql, confidence, caveat
 
 
+def _is_placeholder(sql: str) -> bool:
+    return not sql or sql.startswith("--")
+
+
+async def _verify_and_fix_sql(sql: str, table: str, llm: LLMAdapter) -> tuple[str, int]:
+    """Run syntax check; auto-correct via LLM if it fails.
+
+    Returns (final_sql, fixes_applied).  Only syntax is checked here —
+    schema and dry-run require a warehouse connection not available in
+    this node.
+    """
+    from ...rules.sql_verify import verify_and_fix
+
+    result = await verify_and_fix(
+        sql=sql,
+        mode="statement",
+        table=table,
+        llm=llm,
+        conn=None,
+        schema=None,
+        max_retries=2,
+    )
+    return result.sql, result.fixes_applied
+
+
 async def _remediate_one(
     failure_id: str,
     table: str,
@@ -110,13 +135,20 @@ async def _remediate_one(
         text = f"SQL: -- LLM error: {e}\nCONFIDENCE: low\nCAVEAT: LLM call failed."
         in_tok = out_tok = 0
     sql, confidence, caveat = _parse_response(text)
+
+    # Stage 1 + LLM self-correction: verify SQL syntax and auto-fix if possible
+    fixes = 0
+    if not _is_placeholder(sql):
+        sql, fixes = await _verify_and_fix_sql(sql, table, llm)
+
     duration = (time.monotonic() - start) * 1000
     cost = (in_tok * 0.00000025) + (out_tok * 0.00000125)
+    fix_note = f" (auto-fixed in {fixes} attempt{'s' if fixes != 1 else ''})" if fixes > 0 else ""
     await log_decision(
         run_id=run_id,
         step="remediate",
         input_summary=f"{failure_id} ({table}): {diagnosis.get('likely_cause', '')[:100]}",
-        output_summary=f"SQL={sql[:80]} CONFIDENCE={confidence}",
+        output_summary=f"SQL={sql[:80]} CONFIDENCE={confidence}{fix_note}",
         model=getattr(llm, "_model", None),
         input_tokens=in_tok,
         output_tokens=out_tok,
