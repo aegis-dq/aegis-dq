@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from ...audit.logger import log_decision
 from ..state import AegisState
 
 
@@ -31,7 +32,7 @@ async def report_node(state: AegisState) -> AegisState:
             detail["diagnosis"] = diag_map[rid]
         failure_details.append(detail)
 
-    state["report"] = {
+    report = {
         "run_id": state["run_id"],
         "timestamp": datetime.now(UTC).isoformat(),
         "triggered_by": state["triggered_by"],
@@ -45,4 +46,12 @@ async def report_node(state: AegisState) -> AegisState:
         "cost_usd": round(state.get("cost_total_usd", 0.0), 6),
         "tokens_total": state.get("tokens_total", 0),
     }
+    state["report"] = report
+
+    await log_decision(
+        run_id=state["run_id"],
+        step="report",
+        input_summary=f"rules={total} passed={passed} failed={failed}",
+        output_summary=f"pass_rate={report['summary']['pass_rate']}% cost=${report['cost_usd']}",
+    )
     return state

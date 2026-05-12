@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+import time
 
 from ...adapters.llm.base import LLMAdapter
+from ...audit.logger import log_decision
 from ..state import AegisState, Diagnosis
 
 SYSTEM_PROMPT = """You are a senior data engineer performing data quality diagnosis.
@@ -42,7 +44,9 @@ Failure sample: {sample_str}
 Common causes hint: {", ".join(rule.diagnosis.common_causes) if rule.diagnosis.common_causes else "None provided"}
 Error: {result.error or "None"}"""
 
+        t0 = time.monotonic()
         text, in_tok, out_tok = await llm.complete(SYSTEM_PROMPT, user_msg, max_tokens=512)
+        duration_ms = (time.monotonic() - t0) * 1000
 
         lines = {
             line.split(": ", 1)[0]: line.split(": ", 1)[1]
@@ -56,6 +60,21 @@ Error: {result.error or "None"}"""
             "likely_cause": lines.get("LIKELY_CAUSE", "Unknown"),
             "suggested_action": lines.get("SUGGESTED_ACTION", "Investigate manually"),
         }
+
+        # claude-haiku-4-5 pricing: $0.80/M input, $4.00/M output
+        decision_cost = (in_tok * 0.80 + out_tok * 4.00) / 1_000_000
+        await log_decision(
+            run_id=state["run_id"],
+            step="diagnose",
+            input_summary=f"[{rule.metadata.id}] {user_msg[:500]}",
+            output_summary=text[:500],
+            model=getattr(llm, "_model", None),
+            input_tokens=in_tok,
+            output_tokens=out_tok,
+            cost_usd=decision_cost,
+            duration_ms=duration_ms,
+        )
+
         return diag, in_tok, out_tok
 
     tasks = [diagnose_one(f) for f in state["failures"]]
