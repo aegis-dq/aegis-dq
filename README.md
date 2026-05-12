@@ -7,6 +7,8 @@
 [![Tests](https://img.shields.io/badge/tests-292%20passing-brightgreen)](.github/workflows/ci.yml)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aegis-dq/aegis-dq/blob/main/notebooks/quickstart.ipynb)
 
+![Aegis DQ Demo](docs/demo.gif)
+
 **Open-source agentic data quality: validate, diagnose, and explain data failures — with an LLM that tells you exactly why.**
 
 ---
