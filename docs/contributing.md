@@ -5,7 +5,7 @@ Thanks for your interest in contributing. Aegis is an early-stage project and ev
 ## Getting started
 
 ```bash
-git clone https://github.com/Shivakoreddi/aegis-dq
+git clone https://github.com/aegis-dq/aegis-dq
 cd aegis-dq
 pip install -e ".[dev]"
 ```
@@ -25,7 +25,7 @@ ruff check aegis tests --fix   # auto-fix
 
 ## What to work on
 
-Check [open issues](https://github.com/Shivakoreddi/aegis-dq/issues) — especially those labeled [`good first issue`](https://github.com/Shivakoreddi/aegis-dq/issues?q=label%3A%22good+first+issue%22).
+Check [open issues](https://github.com/aegis-dq/aegis-dq/issues) — especially those labeled [`good first issue`](https://github.com/aegis-dq/aegis-dq/issues?q=label%3A%22good+first+issue%22).
 
 Good entry points for new contributors:
 
@@ -51,7 +51,7 @@ Good entry points for new contributors:
 
 ## Community
 
-Questions and discussion: open a [GitHub Discussion](https://github.com/Shivakoreddi/aegis-dq/discussions).
+Questions and discussion: open a [GitHub Discussion](https://github.com/aegis-dq/aegis-dq/discussions).
 
 ## Code of Conduct
 

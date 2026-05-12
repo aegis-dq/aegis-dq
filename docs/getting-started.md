@@ -326,5 +326,5 @@ asyncio.run(main())
 ## Next steps
 
 - **Rule schema reference** — [docs/rule-schema-reference.md](rule-schema-reference.md)
-- **GitHub Issues** — [track upcoming features](https://github.com/Shivakoreddi/aegis-dq/issues)
+- **GitHub Issues** — [track upcoming features](https://github.com/aegis-dq/aegis-dq/issues)
 - **v0.5 roadmap** — RCA node, reconciliation, BigQuery, Airflow operator, retail industry pack

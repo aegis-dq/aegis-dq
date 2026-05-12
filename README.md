@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
-[![CI](https://github.com/Shivakoreddi/aegis-dq/actions/workflows/ci.yml/badge.svg)](https://github.com/Shivakoreddi/aegis-dq/actions)
+[![CI](https://github.com/aegis-dq/aegis-dq/actions/workflows/ci.yml/badge.svg)](https://github.com/aegis-dq/aegis-dq/actions)
 [![Tests](https://img.shields.io/badge/tests-101%20passing-brightgreen)](#)
 
 Aegis runs a **LangGraph-orchestrated agent** that validates your data, diagnoses failures with an LLM, and logs every decision to an audit trail — with every cost metered and every finding exportable.
@@ -33,7 +33,7 @@ pip install aegis-dq
 For development:
 
 ```bash
-git clone https://github.com/Shivakoreddi/aegis-dq
+git clone https://github.com/aegis-dq/aegis-dq
 cd aegis-dq
 pip install -e ".[dev]"
 ```
@@ -190,14 +190,14 @@ aegis rules list --category validity
 | Differentiate | v0.5 | Planned — RCA, reconciliation, BigQuery, Airflow, industry packs |
 | Mature | v1.0 | Planned — ML rules, banking/healthcare packs, VS Code extension |
 
-Full issue tracker: [github.com/Shivakoreddi/aegis-dq/issues](https://github.com/Shivakoreddi/aegis-dq/issues)
+Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aegis-dq/aegis-dq/issues)
 
 ---
 
 ## Contributing
 
 Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
-Good first issues: [label:good first issue](https://github.com/Shivakoreddi/aegis-dq/issues?q=label%3A%22good+first+issue%22)
+Good first issues: [label:good first issue](https://github.com/aegis-dq/aegis-dq/issues?q=label%3A%22good+first+issue%22)
 
 ## License
 

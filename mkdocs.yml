@@ -1,8 +1,8 @@
 site_name: Aegis
 site_description: Open, audit-grade agentic data quality framework
 site_url: https://Shivakoreddi.github.io/aegis-dq
-repo_url: https://github.com/Shivakoreddi/aegis-dq
-repo_name: Shivakoreddi/aegis-dq
+repo_url: https://github.com/aegis-dq/aegis-dq
+repo_name: aegis-dq/aegis-dq
 edit_uri: edit/main/docs/
 
 theme:
@@ -63,8 +63,8 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/Shivakoreddi/aegis-dq
+      link: https://github.com/aegis-dq/aegis-dq
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/aegis-dq/
 
-copyright: Copyright &copy; 2026 Shivakoreddi — Apache 2.0
+copyright: Copyright &copy; 2026 Aegis Contributors — Apache 2.0

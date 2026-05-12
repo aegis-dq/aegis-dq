@@ -91,6 +91,6 @@ aegis run rules.yaml
 
 ## Links
 
-- [GitHub](https://github.com/Shivakoreddi/aegis-dq)
+- [GitHub](https://github.com/aegis-dq/aegis-dq)
 - [PyPI](https://pypi.org/project/aegis-dq/)
-- [Issue tracker](https://github.com/Shivakoreddi/aegis-dq/issues)
+- [Issue tracker](https://github.com/aegis-dq/aegis-dq/issues)

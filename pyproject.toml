@@ -24,10 +24,10 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://Shivakoreddi.github.io/aegis-dq"
-Repository = "https://github.com/Shivakoreddi/aegis-dq"
+Repository = "https://github.com/aegis-dq/aegis-dq"
 Documentation = "https://Shivakoreddi.github.io/aegis-dq"
-"Issue Tracker" = "https://github.com/Shivakoreddi/aegis-dq/issues"
-Changelog = "https://github.com/Shivakoreddi/aegis-dq/releases"
+"Issue Tracker" = "https://github.com/aegis-dq/aegis-dq/issues"
+Changelog = "https://github.com/aegis-dq/aegis-dq/releases"
 dependencies = [
   "langgraph>=0.2",
   "langchain-anthropic>=0.3",
