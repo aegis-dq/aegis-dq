@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Validate data quality
-        uses: aegis-dq/aegis-dq@v0.5.0
+        uses: aegis-dq/aegis-dq@v0.6.0
         with:
           rules-file: rules.yaml
           db: data/warehouse.duckdb
@@ -47,7 +47,7 @@ The step **fails the job automatically** when any rules fail, blocking broken da
 
 ```yaml
       - name: Validate data quality (offline)
-        uses: aegis-dq/aegis-dq@v0.5.0
+        uses: aegis-dq/aegis-dq@v0.6.0
         with:
           rules-file: rules.yaml
           db: data/warehouse.duckdb
@@ -85,7 +85,7 @@ The step **fails the job automatically** when any rules fail, blocking broken da
 ```yaml
       - name: Validate data quality
         id: dq
-        uses: aegis-dq/aegis-dq@v0.5.0
+        uses: aegis-dq/aegis-dq@v0.6.0
         with:
           rules-file: rules.yaml
 
