@@ -63,7 +63,7 @@ dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.4", "mypy>=1.10", "openai>=
 aegis = "aegis.cli.main:app"
 
 [tool.hatch.build.targets.wheel]
-packages = ["aegis"]
+packages = ["aegis", "aegis_benchmark"]
 
 [tool.ruff]
 line-length = 100
