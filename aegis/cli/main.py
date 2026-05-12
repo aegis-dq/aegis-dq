@@ -4,12 +4,19 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 from pathlib import Path
 
 import typer
 from rich.console import Console
 from rich.table import Table
+
+# Redirect warnings to logging and silence — LangChain installs its own
+# warning filters at import time that would shadow filterwarnings() calls.
+logging.captureWarnings(True)
+logging.getLogger("py.warnings").addHandler(logging.NullHandler())
+logging.getLogger("py.warnings").propagate = False
 
 app = typer.Typer(help="Aegis — agentic data quality framework")
 console = Console()
@@ -158,7 +165,8 @@ async def _run(
     table.add_row("Passed", f"[green]{s.get('passed', 0)}[/green]")
     table.add_row("Failed", f"[red]{s.get('failed', 0)}[/red]")
     table.add_row("Pass rate", f"{s.get('pass_rate', 0)}%")
-    table.add_row("LLM cost", f"${report.get('cost_usd', 0):.6f}")
+    if not no_llm:
+        table.add_row("LLM cost", f"${report.get('cost_usd', 0):.6f}")
     console.print(table)
 
     # Print failures
