@@ -66,21 +66,40 @@ def run(
     config: Path = typer.Argument(..., help="Path to rules YAML file"),
     db: str = typer.Option(":memory:", "--db", help="DuckDB path (or :memory:)"),
     no_llm: bool = typer.Option(False, "--no-llm", help="Skip LLM diagnosis (offline mode)"),
+    llm: str = typer.Option("anthropic", "--llm", help="LLM provider: anthropic|openai"),
+    llm_model: str | None = typer.Option(None, "--llm-model", help="Override default model name"),
     output_json: Path | None = typer.Option(
         None, "--output-json", "-o", help="Write JSON report to file"
     ),
 ) -> None:
     """Run data quality checks defined in a YAML config file."""
-    asyncio.run(_run(config, db, no_llm, output_json))
+    asyncio.run(_run(config, db, no_llm, llm, llm_model, output_json))
+
+
+def _build_llm_adapter(provider: str, model: str | None):
+    """Resolve provider name to an LLMAdapter instance."""
+    if provider == "anthropic":
+        from ..adapters.llm.anthropic import AnthropicAdapter
+        return AnthropicAdapter(**({"model": model} if model else {}))
+    if provider == "openai":
+        try:
+            from ..adapters.llm.openai import OpenAIAdapter
+        except ImportError:
+            console.print("[red]openai package not installed. Run: pip install aegis-dq[openai][/red]")
+            raise typer.Exit(1)
+        return OpenAIAdapter(**({"model": model} if model else {}))
+    console.print(f"[red]Unknown LLM provider '{provider}'. Choose: anthropic|openai[/red]")
+    raise typer.Exit(1)
 
 
 async def _run(
     config: Path,
     db: str,
     no_llm: bool,
+    llm_provider: str,
+    llm_model: str | None,
     output_json: Path | None,
 ) -> None:
-    from ..adapters.llm.anthropic import AnthropicAdapter
     from ..adapters.warehouse.duckdb import DuckDBAdapter
     from ..core.agent import AegisAgent
     from ..memory.store import save_run
@@ -97,7 +116,12 @@ async def _run(
     console.print(f"Loaded [bold]{len(rules)}[/bold] rules")
 
     warehouse = DuckDBAdapter(db)
-    llm = None if no_llm else AnthropicAdapter()
+    llm = None if no_llm else _build_llm_adapter(llm_provider, llm_model)
+
+    if llm:
+        provider_label = type(llm).__name__.replace("Adapter", "")
+        model_label = getattr(llm, "_model", "")
+        console.print(f"LLM: [bold]{provider_label}[/bold] ({model_label})")
 
     agent = AegisAgent(warehouse_adapter=warehouse, llm_adapter=llm)
 
