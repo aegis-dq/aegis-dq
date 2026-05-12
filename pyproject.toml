@@ -48,6 +48,7 @@ Changelog = "https://github.com/aegis-dq/aegis-dq/releases"
 [project.optional-dependencies]
 openai = ["openai>=1.30"]
 snowflake = ["snowflake-connector-python>=3.0"]
+bigquery = ["google-cloud-bigquery>=3.0"]
 docs = ["mkdocs-material>=9.0"]
 dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.4", "mypy>=1.10", "openai>=1.30"]
 
