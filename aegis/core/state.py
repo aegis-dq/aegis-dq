@@ -41,6 +41,15 @@ class RCAResult(TypedDict):
     fix: str
 
 
+class RemediationProposal(TypedDict):
+    failure_id: str
+    table: str
+    rule_type: str
+    proposed_sql: str       # the actual SQL statement
+    confidence: str         # "high" | "medium" | "low"
+    caveat: str             # one sentence — what to check before running
+
+
 class AegisState(TypedDict):
     run_id: str
     triggered_by: str
@@ -53,6 +62,7 @@ class AegisState(TypedDict):
     reconciliation_summary: dict[str, Any]
     diagnoses: list[Diagnosis]
     rca_results: list[RCAResult]
+    remediation_proposals: list[RemediationProposal]
     report: dict[str, Any]
     trajectory: list[AgentDecision]
     cost_total_usd: float

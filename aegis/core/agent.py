@@ -18,6 +18,7 @@ from .nodes.execute import execute_node
 from .nodes.plan import plan_node
 from .nodes.rca import rca_node
 from .nodes.reconcile import reconcile_node
+from .nodes.remediate import remediate_node
 from .nodes.report import report_node
 from .state import AegisState
 
@@ -63,12 +64,16 @@ class AegisAgent:
         async def _rca(state: AegisState) -> AegisState:
             return await rca_node(state, llm, lineage)
 
+        async def _remediate(state: AegisState) -> AegisState:
+            return await remediate_node(state, llm)
+
         builder.add_node("plan", plan_node)
         builder.add_node("execute", _execute)
         builder.add_node("reconcile", reconcile_node)
         builder.add_node("classify", _classify)
         builder.add_node("diagnose", _diagnose)
         builder.add_node("rca", _rca)
+        builder.add_node("remediate", _remediate)
         builder.add_node("report", report_node)
 
         builder.set_entry_point("plan")
@@ -77,7 +82,8 @@ class AegisAgent:
         builder.add_edge("reconcile", "classify")
         builder.add_edge("classify", "diagnose")
         builder.add_edge("diagnose", "rca")
-        builder.add_edge("rca", "report")
+        builder.add_edge("rca", "remediate")
+        builder.add_edge("remediate", "report")
         builder.add_edge("report", END)
 
         return builder.compile()
@@ -104,6 +110,7 @@ class AegisAgent:
             "reconciliation_summary": {},
             "diagnoses": [],
             "rca_results": [],
+            "remediation_proposals": [],
             "report": {},
             "trajectory": [],
             "cost_total_usd": 0.0,
