@@ -11,10 +11,6 @@ import duckdb
 from ...rules.schema import DataQualityRule, RuleResult, RuleType
 from .base import WarehouseAdapter
 
-# Single-threaded executor — DuckDB connections are not thread-safe, so we
-# serialise all sync work onto one dedicated thread that owns the connection.
-_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix="duckdb")
-
 
 class DuckDBAdapter(WarehouseAdapter):
     """Warehouse adapter backed by DuckDB (in-memory or file-based)."""
@@ -23,6 +19,11 @@ class DuckDBAdapter(WarehouseAdapter):
         self._path = path
         self._lock = threading.Lock()
         self._conn: duckdb.DuckDBPyConnection | None = None
+        # Each adapter owns its thread — connection is always created and used
+        # in the same thread, avoiding DuckDB cross-thread connection issues.
+        self._executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=1, thread_name_prefix="duckdb"
+        )
 
     def _get_conn(self) -> duckdb.DuckDBPyConnection:
         with self._lock:
@@ -34,7 +35,7 @@ class DuckDBAdapter(WarehouseAdapter):
         import asyncio
 
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(_EXECUTOR, self._execute_sync, rule)
+        return await loop.run_in_executor(self._executor, self._execute_sync, rule)
 
     def _execute_sync(self, rule: DataQualityRule) -> RuleResult:  # noqa: C901
         conn = self._get_conn()

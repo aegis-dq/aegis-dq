@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 
 from aegis.adapters.warehouse.duckdb import DuckDBAdapter
@@ -19,6 +21,18 @@ from aegis.rules.schema import (
 # Helpers
 # ──────────────────────────────────────────────────────────────────────────────
 
+async def _setup(adapter: DuckDBAdapter, *statements: str) -> None:
+    """Run SQL in the adapter's executor thread — ensures connection lives there."""
+    loop = asyncio.get_running_loop()
+
+    def _run() -> None:
+        conn = adapter._get_conn()
+        for sql in statements:
+            conn.execute(sql)
+
+    await loop.run_in_executor(adapter._executor, _run)
+
+
 def make_rule(rule_type: RuleType, table: str = "t", columns: list[str] | None = None, **kwargs) -> DataQualityRule:
     return DataQualityRule(
         apiVersion="aegis.dev/v1",
@@ -33,11 +47,13 @@ def make_rule(rule_type: RuleType, table: str = "t", columns: list[str] | None =
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_strings():
+async def adapter_strings():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (name VARCHAR)")
-    conn.execute("INSERT INTO t VALUES ('Alice'), (''), ('  '), (NULL), ('Bob')")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (name VARCHAR)",
+        "INSERT INTO t VALUES ('Alice'), (''), ('  '), (NULL), ('Bob')",
+    )
     return adapter
 
 
@@ -52,9 +68,11 @@ async def test_not_empty_string_fails(adapter_strings):
 @pytest.mark.asyncio
 async def test_not_empty_string_passes():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (name VARCHAR)")
-    conn.execute("INSERT INTO t VALUES ('Alice'), ('Bob'), ('Charlie')")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (name VARCHAR)",
+        "INSERT INTO t VALUES ('Alice'), ('Bob'), ('Charlie')",
+    )
     rule = make_rule(RuleType.NOT_EMPTY_STRING, columns=["name"])
     result = await adapter.execute_rule(rule)
     assert result.passed
@@ -66,11 +84,13 @@ async def test_not_empty_string_passes():
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_numbers():
+async def adapter_numbers():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (val FLOAT)")
-    conn.execute("INSERT INTO t VALUES (1.0), (5.0), (10.0), (15.0), (-3.0)")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (val FLOAT)",
+        "INSERT INTO t VALUES (1.0), (5.0), (10.0), (15.0), (-3.0)",
+    )
     return adapter
 
 
@@ -85,9 +105,11 @@ async def test_between_fails_outside_range(adapter_numbers):
 @pytest.mark.asyncio
 async def test_between_passes_inside_range():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (val FLOAT)")
-    conn.execute("INSERT INTO t VALUES (1.0), (5.0), (9.9)")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (val FLOAT)",
+        "INSERT INTO t VALUES (1.0), (5.0), (9.9)",
+    )
     rule = make_rule(RuleType.BETWEEN, columns=["val"], min_value=0.0, max_value=10.0)
     result = await adapter.execute_rule(rule)
     assert result.passed
@@ -99,11 +121,13 @@ async def test_between_passes_inside_range():
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_emails():
+async def adapter_emails():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (email VARCHAR)")
-    conn.execute("INSERT INTO t VALUES ('user@example.com'), ('bad-email'), ('another@test.org')")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (email VARCHAR)",
+        "INSERT INTO t VALUES ('user@example.com'), ('bad-email'), ('another@test.org')",
+    )
     return adapter
 
 
@@ -121,9 +145,11 @@ async def test_regex_match_fails_invalid_email(adapter_emails):
 @pytest.mark.asyncio
 async def test_regex_match_passes_valid_emails():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (email VARCHAR)")
-    conn.execute("INSERT INTO t VALUES ('alice@example.com'), ('bob@test.co.uk')")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (email VARCHAR)",
+        "INSERT INTO t VALUES ('alice@example.com'), ('bob@test.co.uk')",
+    )
     rule = make_rule(RuleType.REGEX_MATCH, columns=["email"], pattern=EMAIL_PATTERN)
     result = await adapter.execute_rule(rule)
     assert result.passed
@@ -134,11 +160,13 @@ async def test_regex_match_passes_valid_emails():
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_status():
+async def adapter_status():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (status VARCHAR)")
-    conn.execute("INSERT INTO t VALUES ('active'), ('inactive'), ('banned'), ('pending')")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (status VARCHAR)",
+        "INSERT INTO t VALUES ('active'), ('inactive'), ('banned'), ('pending')",
+    )
     return adapter
 
 
@@ -157,9 +185,11 @@ async def test_accepted_values_fails_unknown(adapter_status):
 @pytest.mark.asyncio
 async def test_accepted_values_passes():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (status VARCHAR)")
-    conn.execute("INSERT INTO t VALUES ('active'), ('inactive')")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (status VARCHAR)",
+        "INSERT INTO t VALUES ('active'), ('inactive')",
+    )
     rule = make_rule(
         RuleType.ACCEPTED_VALUES,
         columns=["status"],
@@ -174,13 +204,15 @@ async def test_accepted_values_passes():
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_fk():
+async def adapter_fk():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE customers (id INT)")
-    conn.execute("INSERT INTO customers VALUES (1), (2), (3)")
-    conn.execute("CREATE TABLE orders (customer_id INT)")
-    conn.execute("INSERT INTO orders VALUES (1), (2), (99)")  # 99 is orphan
+    await _setup(
+        adapter,
+        "CREATE TABLE customers (id INT)",
+        "INSERT INTO customers VALUES (1), (2), (3)",
+        "CREATE TABLE orders (customer_id INT)",
+        "INSERT INTO orders VALUES (1), (2), (99)",  # 99 is orphan
+    )
     return adapter
 
 
@@ -204,11 +236,13 @@ async def test_foreign_key_fails_orphan(adapter_fk):
 @pytest.mark.asyncio
 async def test_foreign_key_passes_valid():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE customers (id INT)")
-    conn.execute("INSERT INTO customers VALUES (1), (2), (3)")
-    conn.execute("CREATE TABLE orders (customer_id INT)")
-    conn.execute("INSERT INTO orders VALUES (1), (2), (3)")
+    await _setup(
+        adapter,
+        "CREATE TABLE customers (id INT)",
+        "INSERT INTO customers VALUES (1), (2), (3)",
+        "CREATE TABLE orders (customer_id INT)",
+        "INSERT INTO orders VALUES (1), (2), (3)",
+    )
     rule = DataQualityRule(
         apiVersion="aegis.dev/v1",
         metadata=RuleMetadata(id="test_fk_pass", severity=Severity.HIGH),
@@ -228,12 +262,14 @@ async def test_foreign_key_passes_valid():
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_nulls():
+async def adapter_nulls():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (val INT)")
     # 4 NULLs out of 10 = 40%
-    conn.execute("INSERT INTO t VALUES (1),(2),(3),(4),(5),(6),(NULL),(NULL),(NULL),(NULL)")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (val INT)",
+        "INSERT INTO t VALUES (1),(2),(3),(4),(5),(6),(NULL),(NULL),(NULL),(NULL)",
+    )
     return adapter
 
 
@@ -257,11 +293,13 @@ async def test_null_pct_passes_below_threshold(adapter_nulls):
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_dates():
+async def adapter_dates():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (dt DATE)")
-    conn.execute("INSERT INTO t VALUES ('2020-01-01'), ('2023-06-15'), ('2099-12-31')")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (dt DATE)",
+        "INSERT INTO t VALUES ('2020-01-01'), ('2023-06-15'), ('2099-12-31')",
+    )
     return adapter
 
 
@@ -276,9 +314,11 @@ async def test_no_future_dates_fails(adapter_dates):
 @pytest.mark.asyncio
 async def test_no_future_dates_passes():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (dt DATE)")
-    conn.execute("INSERT INTO t VALUES ('2020-01-01'), ('2023-06-15')")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (dt DATE)",
+        "INSERT INTO t VALUES ('2020-01-01'), ('2023-06-15')",
+    )
     rule = make_rule(RuleType.NO_FUTURE_DATES, columns=["dt"])
     result = await adapter.execute_rule(rule)
     assert result.passed
@@ -289,12 +329,14 @@ async def test_no_future_dates_passes():
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_composite():
+async def adapter_composite():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (a INT, b INT)")
     # (1,1) appears twice — duplicate combo
-    conn.execute("INSERT INTO t VALUES (1,1),(1,2),(1,1),(2,2)")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (a INT, b INT)",
+        "INSERT INTO t VALUES (1,1),(1,2),(1,1),(2,2)",
+    )
     return adapter
 
 
@@ -314,9 +356,11 @@ async def test_composite_unique_fails_duplicate_combo(adapter_composite):
 @pytest.mark.asyncio
 async def test_composite_unique_passes():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (a INT, b INT)")
-    conn.execute("INSERT INTO t VALUES (1,1),(1,2),(2,1),(2,2)")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (a INT, b INT)",
+        "INSERT INTO t VALUES (1,1),(1,2),(2,1),(2,2)",
+    )
     rule = DataQualityRule(
         apiVersion="aegis.dev/v1",
         metadata=RuleMetadata(id="test_comp_unique_pass", severity=Severity.HIGH),
@@ -332,11 +376,13 @@ async def test_composite_unique_passes():
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_schema():
+async def adapter_schema():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (real_col INT)")
-    conn.execute("INSERT INTO t VALUES (1)")
+    await _setup(
+        adapter,
+        "CREATE TABLE t (real_col INT)",
+        "INSERT INTO t VALUES (1)",
+    )
     return adapter
 
 
@@ -361,11 +407,13 @@ async def test_column_exists_fails_missing(adapter_schema):
 # ──────────────────────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def adapter_mean():
+async def adapter_mean():
     adapter = DuckDBAdapter(":memory:")
-    conn = adapter._get_conn()
-    conn.execute("CREATE TABLE t (score FLOAT)")
-    conn.execute("INSERT INTO t VALUES (10.0),(20.0),(30.0),(40.0),(50.0)")  # mean = 30
+    await _setup(
+        adapter,
+        "CREATE TABLE t (score FLOAT)",
+        "INSERT INTO t VALUES (10.0),(20.0),(30.0),(40.0),(50.0)",  # mean = 30
+    )
     return adapter
 
 
