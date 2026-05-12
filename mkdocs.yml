@@ -1,6 +1,6 @@
 site_name: Aegis
 site_description: Open, audit-grade agentic data quality framework
-site_url: https://aegis-dq.github.io/aegis-dq
+site_url: https://aegis-dq.dev
 repo_url: https://github.com/aegis-dq/aegis-dq
 repo_name: aegis-dq/aegis-dq
 edit_uri: edit/main/docs/
