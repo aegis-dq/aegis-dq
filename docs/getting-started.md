@@ -346,18 +346,51 @@ The demo script is at [`demo/realworld_demo.py`](../demo/realworld_demo.py).
 
 ## 12. Generate rules with the LLM (v0.6.0)
 
-Instead of writing rules by hand, let Aegis introspect your table and generate a draft rules file:
+Instead of writing rules by hand, let Aegis introspect your table schema and generate a draft rules file:
 
 ```bash
 aegis generate orders --db demo.db --output orders_rules.yaml
 ```
 
-Add a business-context document to get domain-specific validation rules alongside structural ones:
+This generates **structural rules** based on what Aegis observes in the schema: `not_null` on non-nullable columns, `between` from observed min/max, `unique` on ID columns, null percentage thresholds.
+
+### Business validation rules with --kb
+
+Pass a plain-text or markdown file describing your business logic and the LLM generates **business validation rules** alongside the structural ones:
 
 ```bash
 aegis generate orders --db demo.db \
-  --kb docs/orders_business_rules.md \
+  --kb docs/orders_policy.md \
   --output orders_rules.yaml
+```
+
+**Example KB file (`docs/orders_policy.md`):**
+
+```markdown
+- status must be one of: placed, confirmed, shipped, delivered, cancelled
+- amount must be greater than 0; refunds are handled in a separate table
+- customer_id must reference a valid customer (no test accounts: id > 1000)
+- order_date must not be in the future
+- discount_pct must be between 0 and 0.5 (max 50% discount)
+- email must match standard email format
+```
+
+From this, Aegis generates rules like:
+
+```yaml
+- logic:
+    type: accepted_values
+    values: [placed, confirmed, shipped, delivered, cancelled]
+- logic:
+    type: sql_expression
+    expression: "amount > 0"
+- logic:
+    type: between
+    min_value: 0
+    max_value: 0.5
+- logic:
+    type: regex_match
+    pattern: "^[^@]+@[^@]+\\.[^@]+$"
 ```
 
 Generated rules are stamped `status: draft` and `generated_by: <model>`. Review them, promote to `active`, and commit to version control.

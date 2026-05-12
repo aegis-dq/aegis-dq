@@ -262,6 +262,52 @@ rules:
 
 ---
 
+## Generate rules with the LLM
+
+Instead of writing rules by hand, let Aegis introspect your table schema and generate a draft rules file:
+
+```bash
+# Schema-aware structural rules (not_null, between, unique, accepted_values...)
+aegis generate orders --db warehouse.duckdb --output orders_rules.yaml
+```
+
+Add a `--kb` document — any plain text or markdown file describing your business logic — and the LLM generates **business validation rules** alongside structural ones:
+
+```bash
+aegis generate orders \
+  --db warehouse.duckdb \
+  --kb docs/orders_policy.md \
+  --output orders_rules.yaml
+```
+
+**What goes in a KB file?** Anything your team knows about the data:
+
+```
+# orders_policy.md
+- status must be one of: placed, confirmed, shipped, delivered, cancelled
+- amount must be greater than 0; refunds are handled in a separate table
+- customer_id must reference a valid customer (no test accounts: id > 1000)
+- order_date must not be in the future
+- discount_pct must be between 0 and 0.5 (max 50% discount)
+```
+
+The LLM turns these into `accepted_values`, `sql_expression`, `between`, and `foreign_key` rules automatically. Generated rules are stamped `status: draft` — review, promote to `active`, and commit.
+
+**All `aegis generate` options:**
+
+| Flag | Default | Description |
+|---|---|---|
+| `--db` | — | DuckDB file for schema introspection |
+| `--kb` | — | Business-context file (text/markdown) |
+| `--output` | `rules.yaml` | Output YAML file |
+| `--max-rules` | `20` | Cap on number of rules generated |
+| `--no-verify` | `false` | Skip SQL verification of generated rules |
+| `--save-versions` | `false` | Persist rules to version store |
+| `--provider` | `anthropic` | LLM provider |
+| `--model` | *(default)* | Override model |
+
+---
+
 ## Warehouse adapters
 
 | Adapter | Install | Status |

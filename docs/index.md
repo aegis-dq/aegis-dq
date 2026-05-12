@@ -55,7 +55,7 @@ Remediation SQL (LLM-generated)
 | **4 LLM providers** | Anthropic Claude, OpenAI, Ollama (local/offline), AWS Bedrock |
 | **SQL verification** | 3-stage pipeline — syntax, schema-aware, dry-run — with LLM self-correction |
 | **Rule versioning** | `version`, `status` (draft/active/deprecated), `generated_by` on every rule |
-| **LLM rule generation** | `aegis generate TABLE` — introspects schema, generates draft rules, accepts KB docs |
+| **LLM rule generation** | `aegis generate TABLE --db path --kb policy.md` — schema-aware structural rules + business validation rules from a KB document |
 | **Full audit trail** | Every LLM call and decision logged to SQLite with FTS5 search |
 | **GitHub Action** | CI/CD gate — fails the job when rules fail, outputs pass-rate and report JSON |
 | **MCP server** | Use Aegis as a Claude tool — run checks from Claude Desktop |
