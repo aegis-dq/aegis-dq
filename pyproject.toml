@@ -23,9 +23,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://Shivakoreddi.github.io/aegis-dq"
+Homepage = "https://aegis-dq.github.io/aegis-dq"
 Repository = "https://github.com/aegis-dq/aegis-dq"
-Documentation = "https://Shivakoreddi.github.io/aegis-dq"
+Documentation = "https://aegis-dq.github.io/aegis-dq"
 "Issue Tracker" = "https://github.com/aegis-dq/aegis-dq/issues"
 Changelog = "https://github.com/aegis-dq/aegis-dq/releases"
 dependencies = [
