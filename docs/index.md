@@ -12,28 +12,17 @@ Aegis orchestrates a **5-node LangGraph pipeline** that validates your data, dia
 ## See it in action
 
 ```
-$ python demo/realworld_demo.py --aws-profile mcal-research
-
 ╭──────────────────────────────────────────────────────╮
 │ Aegis DQ  —  RetailCo E-commerce Demo                │
 │ LLM: amazon.nova-pro-v1:0 via AWS Bedrock            │
 ╰──────────────────────────────────────────────────────╯
 
-✓ Database ready: 4 tables, realistic dirty data injected
-  Rules loaded: 12 rules across 4 tables
-
-Running Aegis pipeline...
-  plan → parallel_table → reconcile → remediate → report
-
-✓ Pipeline complete in 7.1s
+✓ Pipeline complete in 7.1s · 12 rules · $0.0056 LLM cost
 
 ╭──────────────── Validation Summary ─────────────────╮
 │  Rules checked  │  12                               │
-│  Passed         │  1                                │
-│  Failed         │  11                               │
-│  Pass rate      │  8%                               │
-│  LLM cost       │  $0.005576                        │
-│  Total tokens   │  3,614                            │
+│  Passed         │  1   │  Failed  │  11             │
+│  Pass rate      │  8%  │  Cost    │  $0.005576      │
 ╰─────────────────────────────────────────────────────╯
 
 Failures by Severity
@@ -44,16 +33,14 @@ Failures by Severity
                   orders_status_valid · products_stock_non_negative
   ● MEDIUM   (1)  customers_tier_accepted
 
-LLM Diagnoses ──────────────────────────────────────────
-  orders_customer_fk → orders
-  Explanation:  Order placed with customer_id=99 that does not exist in customers.
-  Likely cause: Customer deleted or test account not cleaned up.
-  Action:       Verify customer_id=99; check for recent deletions or orphan test data.
+LLM Diagnoses
+  orders_customer_fk  →  Order placed with customer_id=99 that does not exist.
+                         Likely cause: customer deleted or test record not cleaned up.
 
-Remediation SQL ────────────────────────────────────────
-  orders_status_valid        UPDATE orders SET status = 'SHIPPED' WHERE status = 'DISPATCHED';
-  products_price_positive    UPDATE products SET price = ABS(price) WHERE product_id = 5 AND price < 0;
-  products_stock_non_negative UPDATE products SET stock_quantity = 0 WHERE stock_quantity < 0 AND product_sku = 'SKU-010';
+Remediation SQL (LLM-generated)
+  orders_status_valid          UPDATE orders SET status = 'SHIPPED' WHERE status = 'DISPATCHED';
+  products_price_positive      UPDATE products SET price = ABS(price) WHERE price < 0;
+  products_stock_non_negative  UPDATE products SET stock_quantity = 0 WHERE stock_quantity < 0;
 ```
 
 ---
@@ -64,9 +51,13 @@ Remediation SQL ─────────────────────�
 |---|---|
 | **5-node pipeline** | plan → parallel_table → reconcile → remediate → report (tables run concurrently) |
 | **31 rule types** | completeness, uniqueness, validity, referential, statistical, timeliness, volume, ML anomaly |
-| **4 warehouse adapters** | DuckDB, BigQuery, Databricks, Athena |
-| **3 LLM providers** | Anthropic, OpenAI, Ollama (local/offline) |
+| **6 warehouse adapters** | DuckDB, Postgres/Redshift, BigQuery, Databricks, Athena, Snowflake |
+| **4 LLM providers** | Anthropic Claude, OpenAI, Ollama (local/offline), AWS Bedrock |
+| **SQL verification** | 3-stage pipeline — syntax, schema-aware, dry-run — with LLM self-correction |
+| **Rule versioning** | `version`, `status` (draft/active/deprecated), `generated_by` on every rule |
+| **LLM rule generation** | `aegis generate TABLE` — introspects schema, generates draft rules, accepts KB docs |
 | **Full audit trail** | Every LLM call and decision logged to SQLite with FTS5 search |
+| **GitHub Action** | CI/CD gate — fails the job when rules fail, outputs pass-rate and report JSON |
 | **MCP server** | Use Aegis as a Claude tool — run checks from Claude Desktop |
 | **Fine-tuning export** | `aegis audit export-dataset` dumps ShareGPT JSONL for model training |
 | **Apache 2.0** | Fully open source, self-hosted, no SaaS required |
@@ -81,8 +72,13 @@ Remediation SQL ─────────────────────�
 | Self-hosted | ✅ | ✅ | ✅ | ❌ | ✅ |
 | LLM-powered diagnosis | ✅ | ❌ | ❌ | Partial | ❌ |
 | Root cause analysis | ✅ | ❌ | ❌ | ✅ | ❌ |
+| SQL auto-fix proposals | ✅ | ❌ | ❌ | ❌ | ❌ |
+| LLM rule generation | ✅ | ❌ | ❌ | ❌ | ❌ |
+| ML anomaly detection | ✅ | ❌ | ❌ | ✅ | ❌ |
 | Audit trail | ✅ | Partial | Partial | ✅ | ❌ |
 | Local LLM (Ollama) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| AWS Bedrock | ✅ | ❌ | ❌ | ❌ | ❌ |
+| GitHub Action | ✅ | ❌ | Partial | ❌ | ✅ |
 | Fine-tuning export | ✅ | ❌ | ❌ | ❌ | ❌ |
 | MCP server | ✅ | ❌ | ❌ | ❌ | ❌ |
 
@@ -111,7 +107,7 @@ rules.yaml
 
 ```
 LLM adapters:        Anthropic  •  OpenAI  •  Ollama (local)  •  AWS Bedrock
-Warehouse adapters:  DuckDB  •  BigQuery  •  Databricks  •  Athena
+Warehouse adapters:  DuckDB  •  Postgres/Redshift  •  BigQuery  •  Databricks  •  Athena  •  Snowflake
 ```
 
 [Full architecture docs →](architecture.md)

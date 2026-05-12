@@ -335,9 +335,45 @@ The demo script is at [`demo/realworld_demo.py`](../demo/realworld_demo.py).
 
 ## 11. Next steps
 
-- [Rule Schema Reference](rule-schema-reference.md) — all 28 rule types with full field definitions
+- [Rule Schema Reference](rule-schema-reference.md) — all 31 rule types with full field definitions
 - [Architecture](architecture.md) — deep dive into the 7-node pipeline
 - [dbt Integration](integrations/dbt.md) — auto-generate Aegis rules from your dbt manifest
 - [Airflow Integration](integrations/airflow.md) — run Aegis as an Airflow operator
 - [MCP Server](integrations/mcp.md) — use Aegis as a Claude Desktop tool
 - [vs Competitors](vs-competitors.md) — how Aegis compares to Great Expectations, Soda, and Monte Carlo
+
+---
+
+## 12. Generate rules with the LLM (v0.6.0)
+
+Instead of writing rules by hand, let Aegis introspect your table and generate a draft rules file:
+
+```bash
+aegis generate orders --db demo.db --output orders_rules.yaml
+```
+
+Add a business-context document to get domain-specific validation rules alongside structural ones:
+
+```bash
+aegis generate orders --db demo.db \
+  --kb docs/orders_business_rules.md \
+  --output orders_rules.yaml
+```
+
+Generated rules are stamped `status: draft` and `generated_by: <model>`. Review them, promote to `active`, and commit to version control.
+
+---
+
+## 13. Validate SQL expressions (v0.6.0)
+
+Run the SQL verification pipeline against your rules without executing a full run:
+
+```bash
+# Stage 1 — syntax only (no DB needed)
+aegis validate rules.yaml --check-sql
+
+# Stages 1-3 — syntax + schema + dry-run
+aegis validate rules.yaml --db demo.db
+```
+
+Any `sql_expression` or `custom_sql` rule with a broken expression is caught here before it reaches production.

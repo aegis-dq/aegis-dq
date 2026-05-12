@@ -396,9 +396,9 @@ logic:
 Rather than writing logic from scratch, reference a named template from the catalog:
 
 ```bash
-aegis rules list                        # see all 30 templates
+aegis rules list                        # see all 31 templates
 aegis rules list --category validity    # filter by category
 aegis rules list --json                 # machine-readable output
 ```
 
-Each template maps directly to one of the 25 rule types above with sensible defaults already set.
+Each template maps directly to one of the 31 rule types above with sensible defaults already set.

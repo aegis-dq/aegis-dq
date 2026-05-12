@@ -340,7 +340,8 @@ aegis run rules.yaml --llm bedrock --llm-model amazon.nova-pro-v1:0
 |---|---|---|---|
 | Foundation | v0.1 | Core agent, DuckDB, CLI, audit trail | ✅ Done |
 | Differentiate | v0.5 | BigQuery, Databricks, Athena, Airflow, Ollama, RCA, ShareGPT export, FTS5 search, dbt, MCP | ✅ Done |
-| Mature | v1.0 | Postgres, REST API, GitHub Action, parallel subagents, VS Code extension, eval suite, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
+| Quality | v0.6 | SQL verification pipeline, rule versioning, `aegis generate` (LLM + KB), GitHub Action, ML anomaly detection | ✅ Done |
+| Mature | v1.0 | Postgres, REST API, parallel subagents, VS Code extension, eval suite, banking/healthcare packs | 🚧 In progress |
 
 Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aegis-dq/aegis-dq/issues)
 
