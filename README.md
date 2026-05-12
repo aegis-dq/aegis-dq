@@ -78,6 +78,7 @@ pip install aegis-dq
 | `aegis-dq[databricks]` | Databricks adapter |
 | `aegis-dq[athena]` | AWS Athena adapter |
 | `aegis-dq[postgres]` | PostgreSQL / Redshift adapter |
+| `aegis-dq[rest]` | REST API server (FastAPI + uvicorn) |
 | `aegis-dq[openai]` | OpenAI LLM provider |
 | `aegis-dq[ollama]` | Ollama (local) LLM provider |
 | `aegis-dq[airflow]` | Airflow `AegisOperator` |
@@ -220,6 +221,7 @@ aegis run rules.yaml --llm ollama --llm-model llama3.2
 
 | Integration | What it does |
 |---|---|
+| `aegis-dq[rest]` | REST API server — `aegis serve` |
 | `aegis-dq[airflow]` | `AegisOperator` — drop-in Airflow task |
 | `aegis-dq[mcp]` | MCP server for Claude Desktop / tool use |
 | `aegis dbt generate` | Convert dbt `manifest.json` to Aegis rules |
@@ -309,7 +311,7 @@ The job fails automatically if any rules fail. Set `fail-on-failure: 'false'` to
 |---|---|---|---|
 | Foundation | v0.1 | Core agent, DuckDB, CLI, audit trail | ✅ Done |
 | Differentiate | v0.5 | BigQuery, Databricks, Athena, Airflow, Ollama, RCA, ShareGPT export, FTS5 search, dbt, MCP | ✅ Done |
-| Mature | v1.0 | ~~Postgres~~, REST API, ~~GitHub Action~~, parallel subagents, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
+| Mature | v1.0 | ~~Postgres~~, ~~REST API~~, ~~GitHub Action~~, parallel subagents, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
 
 Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aegis-dq/aegis-dq/issues)
 

@@ -560,5 +560,37 @@ def rules_pack(
     )
 
 
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", "--host", help="Bind host"),
+    port: int = typer.Option(8000, "--port", "-p", help="Bind port"),
+    db: str = typer.Option(":memory:", "--db", help="DuckDB file path (or :memory:)"),
+    warehouse: str = typer.Option("duckdb", "--warehouse", "-w", help="Warehouse: duckdb|postgres"),
+    pg_dsn: str | None = typer.Option(None, "--pg-dsn", help="Postgres/Redshift DSN"),
+    no_llm: bool = typer.Option(False, "--no-llm", help="Disable LLM diagnosis"),
+    llm: str = typer.Option("anthropic", "--llm", help="LLM provider: anthropic|openai|ollama"),
+    llm_model: str | None = typer.Option(None, "--llm-model", help="Override model name"),
+    reload: bool = typer.Option(False, "--reload", help="Auto-reload on code changes (dev mode)"),
+) -> None:
+    """Start the Aegis REST API server."""
+    try:
+        import uvicorn
+    except ImportError:
+        console.print("[red]uvicorn not installed. Run: pip install aegis-dq[rest][/red]")
+        raise typer.Exit(1)
+
+    warehouse_adapter = _build_warehouse_adapter(
+        warehouse, db,
+        pg_dsn, "localhost", 5432, "postgres", "postgres", "", "public",
+    )
+    llm_adapter = None if no_llm else _build_llm_adapter(llm, llm_model, "http://localhost:11434")
+
+    from ..server.app import create_app
+    api = create_app(warehouse_adapter=warehouse_adapter, llm_adapter=llm_adapter)
+
+    console.print(f"[bold blue]Aegis DQ API[/bold blue] → http://{host}:{port}/docs")
+    uvicorn.run(api, host=host, port=port, reload=reload)
+
+
 if __name__ == "__main__":
     app()
