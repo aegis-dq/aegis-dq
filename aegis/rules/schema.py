@@ -115,6 +115,10 @@ class RuleMetadata(BaseModel):
     owner: str | None = None
     tags: list[str] = []
     description: str | None = None
+    # Versioning (Stage 4)
+    version: str = "1.0.0"
+    status: Literal["draft", "active", "deprecated"] = "draft"
+    generated_by: str | None = None
 
 
 class DataQualityRule(BaseModel):

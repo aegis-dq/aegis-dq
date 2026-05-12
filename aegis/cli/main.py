@@ -326,6 +326,122 @@ def validate(
         raise typer.Exit(1)
 
 
+@app.command()
+def generate(
+    table: str = typer.Argument(..., help="Table name to generate rules for"),
+    db: str = typer.Option("", "--db", help="DuckDB file path for schema introspection"),
+    output: Path = typer.Option(Path("rules.yaml"), "--output", "-o", help="Output YAML file"),
+    kb: Path = typer.Option(None, "--kb", help="Knowledge-base file (text/markdown) with business rules context"),
+    provider: str = typer.Option("anthropic", "--provider", help="LLM provider: anthropic | bedrock | openai | ollama"),
+    model: str = typer.Option(None, "--model", "-m", help="LLM model override"),
+    max_rules: int = typer.Option(20, "--max-rules", help="Maximum number of rules to generate"),
+    no_verify: bool = typer.Option(False, "--no-verify", help="Skip SQL verification of generated rules"),
+    save_versions: bool = typer.Option(False, "--save-versions", help="Persist generated rules to version store"),
+) -> None:
+    """Generate Aegis DQ rules for TABLE using an LLM.
+
+    Introspects TABLE schema from --db (DuckDB), optionally enriches with --kb
+    business-context, calls the LLM, verifies any SQL rules, and writes YAML.
+
+    Examples:
+      aegis generate orders --db warehouse.duckdb --output orders_rules.yaml
+      aegis generate orders --db warehouse.duckdb --kb docs/orders_spec.md
+    """
+    import asyncio
+
+    from ..rules.generator import generate_rules, introspect_table
+    from ..rules.validator import validate_file
+
+    # --- LLM ---
+    llm = _build_llm_adapter(provider, model)
+
+    # --- Schema introspection ---
+    conn = None
+    schema_info: dict = {"table": table, "row_count": 0, "columns": []}
+    if db:
+        try:
+            import duckdb
+            conn = duckdb.connect(db, read_only=True)
+            schema_info = introspect_table(conn, table)
+            col_count = len(schema_info["columns"])
+            console.print(
+                f"[dim]Introspected [cyan]{table}[/cyan]: "
+                f"{col_count} column(s), {schema_info['row_count']:,} rows[/dim]"
+            )
+        except Exception as exc:
+            console.print(f"[red]Could not open DB '{db}': {exc}[/red]")
+            raise typer.Exit(1)
+    else:
+        console.print(
+            "[yellow]No --db provided — generating rules without schema stats.[/yellow]"
+        )
+        schema_info = {"table": table, "row_count": 0, "columns": []}
+
+    # --- KB context ---
+    kb_text: str | None = None
+    if kb:
+        if not kb.exists():
+            console.print(f"[red]KB file not found: {kb}[/red]")
+            raise typer.Exit(1)
+        kb_text = kb.read_text()
+        console.print(f"[dim]Loaded KB: [cyan]{kb}[/cyan] ({len(kb_text):,} chars)[/dim]")
+
+    # --- Generate ---
+    console.print(f"\n[bold blue]Generating rules for [cyan]{table}[/cyan]...[/bold blue]")
+    raw_yaml, rules = asyncio.run(
+        generate_rules(table, schema_info, llm, kb_text=kb_text, max_rules=max_rules)
+    )
+
+    if not rules:
+        console.print("[red]LLM returned no parseable rules — check your LLM config.[/red]")
+        raise typer.Exit(1)
+
+    # --- Write output ---
+    output.write_text(raw_yaml)
+    console.print(f"[green]Generated {len(rules)} rule(s) → {output}[/green]")
+
+    # --- Optional SQL verification ---
+    if not no_verify:
+        report = validate_file(output, check_sql=True, conn=conn)
+        sql_errors = sum(
+            len([e for e in r.errors if e.startswith("[sql]")]) for r in report.results
+        )
+        if sql_errors:
+            console.print(
+                f"[yellow]{sql_errors} SQL issue(s) found in generated rules "
+                f"— review {output} before using.[/yellow]"
+            )
+        else:
+            console.print("[green]All generated SQL rules passed verification.[/green]")
+
+    # --- Optional version store ---
+    if save_versions:
+        import asyncio as _aio
+        from ..memory.rule_versions import save_rule_version
+
+        model_id = getattr(llm, "_model", "llm/unknown")
+
+        async def _save_all() -> None:
+            for rule in rules:
+                meta = rule.get("metadata", {})
+                rule_id = meta.get("id", "unknown")
+                version = meta.get("version", "1.0.0")
+                import yaml as _yaml
+                await save_rule_version(
+                    rule_id=rule_id,
+                    version=version,
+                    status="draft",
+                    yaml_content=_yaml.dump(rule, default_flow_style=False),
+                    generated_by=model_id,
+                )
+
+        _aio.run(_save_all())
+        console.print(f"[dim]Saved {len(rules)} rule version(s) to version store.[/dim]")
+
+    if conn:
+        conn.close()
+
+
 audit_app = typer.Typer(help="Inspect audit trails and trajectories")
 app.add_typer(audit_app, name="audit")
 
