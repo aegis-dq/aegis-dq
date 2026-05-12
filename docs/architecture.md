@@ -1,45 +1,55 @@
 # Architecture
 
-Aegis is a LangGraph-orchestrated agent that runs a deterministic 7-node pipeline. Each node is a discrete step with a defined input state and output state. Nodes that call an LLM are skippable (`--no-llm`) without affecting the others.
+Aegis is a LangGraph-orchestrated agent that runs a deterministic 5-node pipeline. Each node is a discrete step with a defined input state and output state. Nodes that call an LLM are skippable (`--no-llm`) without affecting the others.
 
 ---
 
-## The 7-node pipeline
+## The 5-node pipeline
 
 ```
 rules.yaml
     │
     ▼
-  plan ──► execute ──► reconcile ──► classify ──► diagnose ──► rca ──► report
+  plan ──► parallel_table ──► reconcile ──► remediate ──► report
+                 │
+         ┌──────────────────┐
+         │  per table:      │
+         │  execute         │
+         │  classify        │
+         │  diagnose        │  ← tables run concurrently
+         │  rca             │
+         └──────────────────┘
 ```
 
 ### 1. plan
 
-Reads `rules.yaml`, validates each rule against the schema, groups rules by warehouse, and produces an **execution plan** — an ordered list of (warehouse, rule) pairs. Rules targeting the same warehouse are batched to reuse a single connection. Rules with `depends_on` are topologically sorted.
+Reads rules (YAML or Python objects), validates each against the Pydantic schema, and builds an execution plan — an ordered list grouped by table. Rules with shared scope are batched; the output is a `{table → [rules]}` mapping consumed by the next node.
 
-### 2. execute
+### 2. parallel_table
 
-Runs each rule against its warehouse adapter using the appropriate SQL template for that rule type. Supports all 28 rule types. Returns a list of **check results**, each containing: `passed` (bool), `rows_failed`, `rows_checked`, `failed_sample` (up to 20 sample rows), and `execution_ms`.
+The core fan-out node. Groups rules by target table and launches a full mini-pipeline for **each table concurrently** using `asyncio.gather`:
+
+```
+per table (concurrent):
+  execute  → run all rules for this table against the warehouse adapter
+  classify → heuristic severity triage (escalates if >5% rows fail or blast radius is high)
+  diagnose → LLM writes plain-English explanation + likely cause + recommended action
+  rca      → LLM traces root cause through the OpenLineage lineage graph
+```
+
+Results from all tables are merged back into a single state before the next node. With N tables, the wall-clock time is bounded by the slowest table, not the sum of all tables.
 
 ### 3. reconcile
 
-Handles **reconciliation rules** that compare a source table to a target table (e.g. row counts match, checksum matches). Runs source and target queries in parallel and computes the delta. Non-reconciliation rules pass through this node unchanged.
+Handles **cross-table reconciliation rules** (`reconcile_row_count`, `reconcile_column_sum`, `reconcile_key_match`). Runs source and target queries in parallel and computes the delta against a configurable tolerance. Non-reconciliation rules pass through unchanged.
 
-### 4. classify
+### 4. remediate
 
-Assigns or upgrades severity for each failure using a heuristic + optional LLM triage. A failure affecting more than 5% of rows in a critical table is automatically escalated. The **blast radius** (estimated downstream table count from the lineage graph) is factored into the final severity score. This node does not require an LLM — heuristics run even in `--no-llm` mode.
+For each diagnosed failure, calls the LLM with the rule type, diagnosis, and RCA context to generate a **targeted SQL fix**. Returns a `RemediationProposal` with `proposed_sql`, `confidence` (high / medium / low), and a `caveat` explaining what to verify before running. Skipped when `remediation.proposal_strategy = "none"` or when `--no-llm` is set.
 
-### 5. diagnose
+### 5. report
 
-For each failed check, calls the configured LLM with a structured prompt containing: the rule definition, the check result, the failed sample rows, and any `common_causes` from the rule's `diagnosis` block. Returns a plain-English **explanation**, **likely cause**, and **recommended action** for each failure.
-
-### 6. rca
-
-Performs **root cause analysis** using the OpenLineage lineage graph to trace a failed table upstream. Calls the LLM with the lineage path to identify which upstream dataset, job, or transformation introduced the issue. Produces a lineage-annotated root cause string that is included in the final report.
-
-### 7. report
-
-Assembles the final JSON report: run metadata, severity breakdown, per-rule results with LLM diagnosis and RCA, total LLM cost, and run duration. Writes the report to stdout (table + diagnosis text via Rich), to `--output-json` if specified, and to the audit trail.
+Assembles the final report: run metadata, severity breakdown, per-rule results with LLM diagnosis, RCA, and remediation SQL, total LLM cost, and run duration. Writes to stdout via Rich, to `--output-json` if specified, and to the SQLite audit trail (`~/.aegis/history.db`).
 
 ---
 
@@ -61,6 +71,10 @@ LLM adapters
               (llama3.2, mistral, phi3, etc.)
               runs on http://localhost:11434
 
+  AWS Bedrock amazon.nova-pro-v1:0 (default, no approval needed)
+              any Converse API-compatible model
+              uses ~/.aws/credentials profile
+
 Warehouse adapters
 ─────────────────────────────────────────────────
   DuckDB      local file or in-memory
@@ -78,7 +92,7 @@ Implementing a new warehouse adapter requires a single Python class with three m
 Every LLM call made during a run is recorded in `~/.aegis/history.db` (SQLite). The schema has two tables:
 
 - **runs** — one row per `aegis run` invocation: `run_id`, `started_at`, `rules_file`, `warehouse`, `llm`, `total_cost_usd`, `summary_json`
-- **decisions** — one row per LLM call: `run_id`, `node` (diagnose / rca / classify), `rule_id`, `prompt`, `response`, `model`, `input_tokens`, `output_tokens`, `cost_usd`, `latency_ms`
+- **decisions** — one row per LLM call: `run_id`, `node` (diagnose / rca / classify / remediate), `rule_id`, `prompt`, `response`, `model`, `input_tokens`, `output_tokens`, `cost_usd`, `latency_ms`
 
 The `decisions` table has an FTS5 virtual table on `(prompt, response)`, enabling full-text search:
 

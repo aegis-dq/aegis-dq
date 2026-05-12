@@ -12,8 +12,9 @@ Choosing a data quality tool comes down to four questions: does it explain *why*
 | **Self-hosted** | ✅ | ✅ | ✅ | ❌ | ✅ |
 | **LLM-powered diagnosis** | ✅ | ❌ | ❌ | Partial (proprietary) | ❌ |
 | **Root cause analysis** | ✅ (lineage-aware) | ❌ | ❌ | ✅ (proprietary) | ❌ |
+| **ML anomaly detection** | ✅ zscore, isolation forest, learned threshold | ❌ | ❌ | Partial (proprietary) | ❌ |
 | **Audit trail (every decision logged)** | ✅ SQLite + FTS5 | Partial (run docs) | Partial (scan results) | ✅ (proprietary) | ❌ |
-| **Pluggable LLM (bring your own)** | ✅ Anthropic / OpenAI / Ollama | ❌ | ❌ | ❌ | ❌ |
+| **Pluggable LLM (bring your own)** | ✅ Anthropic / OpenAI / Ollama / Bedrock | ❌ | ❌ | ❌ | ❌ |
 | **Local LLM (Ollama / fully offline)** | ✅ | ❌ | ❌ | ❌ | ❌ |
 | **Warehouse support** | DuckDB, BigQuery, Databricks, Athena | 20+ (Great Expectations Cloud) | 10+ | 15+ | dbt-supported only |
 | **dbt integration** | ✅ manifest parser | ✅ native | ✅ | ✅ | ✅ native |
@@ -32,9 +33,10 @@ Choosing a data quality tool comes down to four questions: does it explain *why*
 
 - You want to know **why** a check failed, not just that it did — Aegis gives you an LLM-written diagnosis with a root cause and a concrete action for every failure.
 - You need a **full, searchable audit trail** of every validation decision, LLM call, and cost — useful for regulated industries and debugging.
-- You want to run **completely offline** with a local Ollama model and no external API calls.
+- You want to run **completely offline or cloud-native** — Ollama for zero-cost local inference, or AWS Bedrock for no-API-key usage with your existing AWS credentials profile.
 - You are building **tooling on top of a DQ framework** — the MCP server lets Claude Desktop run checks, and the ShareGPT export lets you fine-tune a model on your own diagnostic reasoning.
 - You want **YAML-first rules** that look like Kubernetes CRDs and are easy to version-control and code-review.
+- You want **statistical and ML-based anomaly detection** without hard-coding thresholds — `zscore_outlier`, `isolation_forest`, and `learned_threshold` rules learn from historical runs stored in `~/.aegis/history.db`.
 
 ### Choose Great Expectations when:
 

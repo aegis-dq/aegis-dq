@@ -4,7 +4,7 @@
 [![Downloads](https://img.shields.io/pypi/dm/aegis-dq)](https://pypi.org/project/aegis-dq/)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-323%20passing-brightgreen)](.github/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-535%20passing-brightgreen)](.github/workflows/ci.yml)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aegis-dq/aegis-dq/blob/main/notebooks/quickstart.ipynb)
 
 ![Aegis DQ Demo](docs/demo.gif)
@@ -14,41 +14,57 @@
 ---
 
 ```
-$ aegis run demo/rules.yaml --db demo.db
+$ python demo/realworld_demo.py --aws-profile mcal-research
 
-Aegis DQ — loading rules from demo/rules.yaml
-Loaded 3 rules
-LLM: Anthropic (claude-haiku-4-5-20251001)
+╭──────────────────────────────────────────────────────╮
+│ Aegis DQ  —  RetailCo E-commerce Demo                │
+│ LLM: amazon.nova-pro-v1:0 via AWS Bedrock            │
+╰──────────────────────────────────────────────────────╯
 
- Aegis Validation Report
-┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
-┃ Metric        ┃ Value      ┃
-┡━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
-│ Rules checked │ 3          │
-│ Passed        │ 1          │
-│ Failed        │ 2          │
-│ Pass rate     │ 33.3%      │
-│ LLM cost      │ $0.000241  │
-└───────────────┴────────────┘
+✓ Database ready: 4 tables, realistic dirty data injected
+  Rules loaded: 12 rules across 4 tables
 
-Failures:
+  Running Aegis pipeline...
+    plan → parallel_table → reconcile → remediate → report
 
-  orders_no_null_order_id (critical) — orders
-  Rows failed: 50 / 10,000
-  Explanation:  50 rows have NULL order_id, violating the completeness rule.
-  Likely cause: ETL pipeline failed to populate order_id for a batch of
-                orders, leaving primary keys unset.
-  Action:       Identify the ingestion job that produced NULL order_ids and
-                re-run it with a backfill for the affected window.
+✓ Pipeline complete in 7.1s
 
-  orders_positive_revenue (high) — orders
-  Rows failed: 20 / 10,000
-  Explanation:  20 rows have negative revenue values, which violates the
-                business rule that all transactions must be non-negative.
-  Likely cause: A refund or adjustment record was written with a negative
-                amount instead of a separate credit entry.
-  Action:       Audit the revenue column for refund records and apply the
-                correct accounting treatment.
+╭──────────────── Validation Summary ─────────────────╮
+│  Rules checked  │  12                               │
+│  Passed         │  1                                │
+│  Failed         │  11                               │
+│  Pass rate      │  8%                               │
+│  LLM cost       │  $0.005576                        │
+│  Total tokens   │  3,614                            │
+╰─────────────────────────────────────────────────────╯
+
+Failures by Severity
+  ● CRITICAL (6)  customers_email_not_null · orders_amount_positive
+                  orders_customer_fk · payments_order_fk
+                  products_price_positive · products_sku_unique
+  ● HIGH     (4)  customers_email_not_empty · orders_date_order
+                  orders_status_valid · products_stock_non_negative
+  ● MEDIUM   (1)  customers_tier_accepted
+
+LLM Diagnoses ─────────────────────────────────────────────
+  orders_customer_fk → orders
+  Explanation:  Order placed with customer_id=99 that does not exist in customers.
+  Likely cause: Customer was deleted or is a test account not cleaned up.
+  Action:       Verify customer_id=99; check for recent deletions or orphan test data.
+
+  products_sku_unique → products
+  Explanation:  Duplicate SKU-001 found — two products share the same identifier.
+  Likely cause: Duplicate import from supplier feed or product versioning reused old SKU.
+  Action:       Investigate recent import logs and product versioning history.
+
+Root-Cause Analysis ────────────────────────────────────────
+  products_price_positive  Root cause: data entry error or promo discount bug
+                           Fix: implement validation on price > 0 before insert
+
+Remediation Proposals (LLM-generated SQL) ─────────────────
+  orders_status_valid        UPDATE orders SET status = 'SHIPPED' WHERE status = 'DISPATCHED';
+  products_price_positive    UPDATE products SET price = ABS(price) WHERE product_id = 5 AND price < 0;
+  products_stock_non_negative UPDATE products SET stock_quantity = 0 WHERE stock_quantity < 0 AND product_sku = 'SKU-010';
 ```
 
 ---
@@ -83,6 +99,7 @@ pip install aegis-dq
 | `aegis-dq[ollama]` | Ollama (local) LLM provider |
 | `aegis-dq[airflow]` | Airflow `AegisOperator` |
 | `aegis-dq[mcp]` | MCP server for Claude Desktop |
+| `aegis-dq[ml]` | scikit-learn anomaly detection (`zscore_outlier`, `isolation_forest`, `learned_threshold`) |
 
 ---
 
@@ -131,29 +148,32 @@ aegis run rules.yaml --db demo.db --no-llm
 
 ## Pipeline
 
-Every `aegis run` passes your data through a 7-node LangGraph pipeline:
+Every `aegis run` passes your data through a LangGraph pipeline:
 
 ```
-rules.yaml
+rules (Python / YAML)
     │
     ▼
-  plan → execute → reconcile → classify → diagnose → rca → report
-           │                       │           │        │       │
-        28 rule               heuristic    LLM asks  lineage  JSON +
-        types                  + LLM       "why?"    context  Slack
+  plan ──► parallel_table ──► reconcile ──► remediate ──► report
+                 │
+         ┌──────────────────┐
+         │  per table:      │
+         │  execute         │
+         │  classify        │
+         │  diagnose        │  ← concurrent across all tables
+         │  rca             │
+         └──────────────────┘
 ```
 
-- **plan** — parse and validate rules.yaml, build an execution graph
-- **execute** — run all 28 rule types against your warehouse
+- **plan** — parse and validate rules, build an execution graph
+- **parallel_table** — Concurrently fans out per table: execute all rules, classify failures by severity, diagnose with LLM, and trace root causes — all tables run in parallel via `asyncio.gather`
 - **reconcile** — compare results against expected thresholds
-- **classify** — heuristic triage (severity, category, affected rows)
-- **diagnose** — LLM writes a plain-English explanation per failure
-- **rca** — root-cause analysis using lineage context and run history
+- **remediate** — LLM proposes a targeted SQL fix for each diagnosed failure based on the rule type, diagnosis, and RCA context
 - **report** — structured JSON + optional Slack notification
 
 ---
 
-## Rule types (28 total)
+## Rule types (31 total)
 
 | Category | Types |
 |---|---|
@@ -164,7 +184,8 @@ rules.yaml
 | Statistical | `mean_between` `stddev_below` `column_sum_between` |
 | Timeliness | `freshness` `date_order` |
 | Volume | `row_count` `row_count_between` `custom_sql` |
-| Cross-table | `row_count_match` `column_sum_match` `set_inclusion` `set_equality` |
+| Cross-table | `reconcile_row_count` `reconcile_column_sum` `reconcile_key_match` |
+| ML / Anomaly | `zscore_outlier` `isolation_forest` `learned_threshold` |
 
 Example rule:
 
@@ -207,12 +228,18 @@ rules:
 | Anthropic (Claude) | built-in | claude-haiku-4-5 |
 | OpenAI | `aegis-dq[openai]` | gpt-4o-mini |
 | Ollama (local) | `aegis-dq[ollama]` | llama3.2 |
+| AWS Bedrock | `pip install boto3` | amazon.nova-pro-v1:0 |
 
 Switch providers at the CLI:
 
 ```bash
 aegis run rules.yaml --llm openai --llm-model gpt-4o
 aegis run rules.yaml --llm ollama --llm-model llama3.2
+```
+
+```bash
+# AWS Bedrock (Nova Pro, no approval form required)
+python demo/realworld_demo.py --aws-profile your-profile
 ```
 
 ---
@@ -311,7 +338,7 @@ The job fails automatically if any rules fail. Set `fail-on-failure: 'false'` to
 |---|---|---|---|
 | Foundation | v0.1 | Core agent, DuckDB, CLI, audit trail | ✅ Done |
 | Differentiate | v0.5 | BigQuery, Databricks, Athena, Airflow, Ollama, RCA, ShareGPT export, FTS5 search, dbt, MCP | ✅ Done |
-| Mature | v1.0 | ~~Postgres~~, ~~REST API~~, ~~GitHub Action~~, ~~parallel subagents~~, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
+| Mature | v1.0 | ~~Postgres~~, ~~REST API~~, ~~GitHub Action~~, ~~parallel subagents~~, ~~VS Code extension~~, ~~eval suite~~, ~~ML anomaly detection~~, banking/healthcare packs | 🚧 In progress |
 
 Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aegis-dq/aegis-dq/issues)
 

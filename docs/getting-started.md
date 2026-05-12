@@ -192,6 +192,13 @@ export ANTHROPIC_API_KEY=sk-ant-...
 aegis run rules.yaml --db demo.db
 ```
 
+**AWS Bedrock (no API key — uses AWS credentials profile):**
+
+```bash
+# Uses the Bedrock Converse API with Amazon Nova Pro (no use-case form needed)
+python demo/realworld_demo.py --aws-profile your-aws-profile
+```
+
 Expected output (additional LLM section appended after the summary table):
 
 ```
@@ -299,7 +306,34 @@ Each line in `output.jsonl` is one conversation turn: the rule context as a user
 
 ---
 
-## 10. Next steps
+## 10. Real-world end-to-end demo
+
+The repository ships a complete RetailCo e-commerce demo that exercises every pipeline node against a 4-table DuckDB database with realistic dirty data. Use it to see the full agentic output — diagnosis, root-cause analysis, and LLM-generated remediation SQL — in one command.
+
+```bash
+# Validation only (no LLM, instant)
+python demo/realworld_demo.py --no-llm
+
+# Full pipeline with AWS Bedrock (requires ~/.aws/credentials profile)
+python demo/realworld_demo.py --aws-profile your-profile
+
+# Full pipeline with Anthropic
+export ANTHROPIC_API_KEY=sk-ant-...
+python demo/realworld_demo.py --no-llm   # swap in AnthropicAdapter in the script
+```
+
+What runs:
+- **4 tables** — customers, products, orders, payments (10 rows each, dirty data injected)
+- **12 rules** — not_null, not_empty_string, accepted_values, sql_expression, unique, min_value_check, foreign_key, date_order
+- **11 failures** detected: NULL email, empty email, invalid tier, negative price, duplicate SKU, negative stock, orphan FK, date inversion, invalid status, orphan payment, negative payment
+- **Full LLM output** per failure: explanation + likely_cause + suggested_action + root_cause + propagation + fix + proposed SQL
+- **Run time**: ~7s | **LLM cost**: ~$0.006 (Amazon Nova Pro) | **Tokens**: ~3,600
+
+The demo script is at [`demo/realworld_demo.py`](../demo/realworld_demo.py).
+
+---
+
+## 11. Next steps
 
 - [Rule Schema Reference](rule-schema-reference.md) — all 28 rule types with full field definitions
 - [Architecture](architecture.md) — deep dive into the 7-node pipeline
