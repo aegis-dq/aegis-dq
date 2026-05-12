@@ -13,6 +13,9 @@ from rich.table import Table
 app = typer.Typer(help="Aegis — agentic data quality framework")
 console = Console()
 
+rules_app = typer.Typer(help="Manage built-in rule templates")
+app.add_typer(rules_app, name="rules")
+
 
 @app.command()
 def init(
@@ -140,6 +143,38 @@ async def _run(
     # Exit with non-zero if failures
     if s.get("failed", 0) > 0:
         raise typer.Exit(1)
+
+
+@rules_app.command("list")
+def rules_list(
+    category: str | None = typer.Option(None, "--category", "-c", help="Filter by category"),
+    json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
+) -> None:
+    """List all 30 built-in rule templates."""
+    from ..rules.builtin.catalog import CATALOG
+
+    templates = CATALOG
+    if category:
+        templates = [t for t in templates if t.category == category]
+
+    if json_output:
+        import dataclasses
+
+        data = [dataclasses.asdict(t) for t in templates]
+        console.print_json(json.dumps(data))
+        return
+
+    table = Table(title="Aegis Built-in Rule Templates")
+    table.add_column("Name", style="cyan", no_wrap=True)
+    table.add_column("Category", style="magenta")
+    table.add_column("Description", style="white")
+    table.add_column("Severity", style="yellow")
+
+    for t in templates:
+        table.add_row(t.name, t.category, t.description, t.default_severity)
+
+    console.print(table)
+    console.print(f"\n[bold]{len(templates)}[/bold] template(s) shown")
 
 
 if __name__ == "__main__":

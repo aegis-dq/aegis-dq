@@ -168,6 +168,426 @@ class DuckDBAdapter(WarehouseAdapter):
                     duration_ms=(time.monotonic() - start) * 1000,
                 )
 
+            elif logic.type == RuleType.NOT_EMPTY_STRING:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL OR TRIM(CAST({col} AS VARCHAR)) = ''"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE {col} IS NULL OR TRIM(CAST({col} AS VARCHAR)) = '' LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.COMPOSITE_UNIQUE:
+                if not rule.spec_scope.columns:
+                    raise ValueError("columns required for COMPOSITE_UNIQUE rule")
+                cols = ", ".join(rule.spec_scope.columns)
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COALESCE(SUM(cnt - 1), 0) FROM "
+                    f"(SELECT COUNT(*) as cnt FROM {t} GROUP BY {cols} HAVING COUNT(*) > 1)"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT {cols}, COUNT(*) as cnt FROM {t} GROUP BY {cols} HAVING COUNT(*) > 1 LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=int(fail_count),
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.BETWEEN:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                min_v = logic.min_value
+                max_v = logic.max_value
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL OR {col} < {min_v} OR {col} > {max_v}"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE {col} IS NULL OR {col} < {min_v} OR {col} > {max_v} LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.MIN_VALUE_CHECK:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                min_v = logic.min_value
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL OR {col} < {min_v}"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE {col} IS NULL OR {col} < {min_v} LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.MAX_VALUE_CHECK:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                max_v = logic.max_value
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL OR {col} > {max_v}"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE {col} IS NULL OR {col} > {max_v} LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.REGEX_MATCH:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                pattern = logic.pattern or ""
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL OR NOT regexp_matches(CAST({col} AS VARCHAR), '{pattern}')"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE {col} IS NULL OR NOT regexp_matches(CAST({col} AS VARCHAR), '{pattern}') LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.ACCEPTED_VALUES:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NOT NULL AND CAST({col} AS VARCHAR) NOT IN ({values_list})"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE {col} IS NOT NULL AND CAST({col} AS VARCHAR) NOT IN ({values_list}) LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.NOT_ACCEPTED_VALUES:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NOT NULL AND CAST({col} AS VARCHAR) IN ({values_list})"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE {col} IS NOT NULL AND CAST({col} AS VARCHAR) IN ({values_list}) LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.FOREIGN_KEY:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                ref_table = logic.reference_table or ""
+                ref_col = logic.reference_column or col
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NOT NULL AND {col} NOT IN (SELECT {ref_col} FROM {ref_table})"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE {col} IS NOT NULL AND {col} NOT IN (SELECT {ref_col} FROM {ref_table}) LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.NULL_PERCENTAGE_BELOW:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                threshold = logic.threshold or 0.0
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                nulls = conn.execute(f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL").fetchone()[0]
+                pct = (nulls * 100.0 / total) if total > 0 else 0.0
+                passed = pct <= threshold
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=nulls,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.DUPLICATE_PERCENTAGE_BELOW:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                threshold = logic.threshold or 0.0
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                dups = conn.execute(
+                    f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}"
+                ).fetchone()[0]
+                pct = (dups * 100.0 / total) if total > 0 else 0.0
+                passed = pct <= threshold
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=int(dups),
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.MEAN_BETWEEN:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                min_v = logic.min_value
+                max_v = logic.max_value
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                mean = conn.execute(f"SELECT AVG({col}) FROM {t}").fetchone()[0]
+                mean = float(mean) if mean is not None else 0.0
+                passed = (min_v is None or mean >= min_v) and (max_v is None or mean <= max_v)
+                sample = []
+                if not passed:
+                    sample = [{"mean": mean, "min_allowed": min_v, "max_allowed": max_v}]
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.STDDEV_BELOW:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                threshold = logic.threshold or 0.0
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                stddev = conn.execute(f"SELECT STDDEV({col}) FROM {t}").fetchone()[0]
+                stddev = float(stddev) if stddev is not None else 0.0
+                passed = stddev <= threshold
+                sample = []
+                if not passed:
+                    sample = [{"stddev": stddev, "max_allowed": threshold}]
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.NO_FUTURE_DATES:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} > current_date"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(f"SELECT * FROM {t} WHERE {col} > current_date LIMIT 5")
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.ROW_COUNT_BETWEEN:
+                min_v = logic.min_value or 0
+                max_v = logic.max_value or float("inf")
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                passed = min_v <= total <= max_v
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=[] if passed else [{"row_count": total, "min_allowed": min_v, "max_allowed": max_v}],
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.COLUMN_SUM_BETWEEN:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                min_v = logic.min_value
+                max_v = logic.max_value
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                total_sum = conn.execute(f"SELECT SUM({col}) FROM {t}").fetchone()[0]
+                total_sum = float(total_sum) if total_sum is not None else 0.0
+                passed = (min_v is None or total_sum >= min_v) and (max_v is None or total_sum <= max_v)
+                sample = []
+                if not passed:
+                    sample = [{"sum": total_sum, "min_allowed": min_v, "max_allowed": max_v}]
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.CONDITIONAL_NOT_NULL:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                condition = logic.condition or "TRUE"
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE ({condition}) AND {col} IS NULL"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE ({condition}) AND {col} IS NULL LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.DATE_ORDER:
+                col_a = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col_b = logic.column_b or ""
+                total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                fail_count = conn.execute(
+                    f"SELECT COUNT(*) FROM {t} WHERE {col_a} IS NOT NULL AND {col_b} IS NOT NULL AND {col_a} > {col_b}"
+                ).fetchone()[0]
+                sample = []
+                if fail_count > 0:
+                    sample = (
+                        conn.execute(
+                            f"SELECT * FROM {t} WHERE {col_a} IS NOT NULL AND {col_b} IS NOT NULL AND {col_a} > {col_b} LIMIT 5"
+                        )
+                        .df()
+                        .to_dict("records")
+                    )
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
+            elif logic.type == RuleType.COLUMN_EXISTS:
+                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else ""
+                try:
+                    conn.execute(f"SELECT {col} FROM {t} LIMIT 0")
+                    passed = True
+                except Exception:
+                    passed = False
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=0,
+                    row_count_failed=0 if passed else 1,
+                    duration_ms=(time.monotonic() - start) * 1000,
+                )
+
             else:
                 return RuleResult(
                     rule_id=rule.metadata.id,
