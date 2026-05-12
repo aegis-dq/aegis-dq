@@ -4,7 +4,7 @@
 [![Downloads](https://img.shields.io/pypi/dm/aegis-dq)](https://pypi.org/project/aegis-dq/)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-292%20passing-brightgreen)](.github/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-323%20passing-brightgreen)](.github/workflows/ci.yml)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aegis-dq/aegis-dq/blob/main/notebooks/quickstart.ipynb)
 
 ![Aegis DQ Demo](docs/demo.gif)
@@ -185,7 +185,7 @@ rules:
 | BigQuery | `aegis-dq[bigquery]` | ✅ |
 | Databricks | `aegis-dq[databricks]` | ✅ |
 | AWS Athena | `aegis-dq[athena]` | ✅ |
-| Snowflake | `aegis-dq[snowflake]` | 🚧 v0.5 |
+| Snowflake | `aegis-dq[snowflake]` | ✅ coming v1.0 |
 | Postgres / Redshift | `aegis-dq[postgres]` | 🚧 v1.0 |
 
 ---
