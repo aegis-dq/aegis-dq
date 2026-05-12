@@ -61,6 +61,7 @@ async def report_node(state: AegisState) -> AegisState:
         "failures": failure_details,
         "rca": state.get("rca_results") or [],
         "reconciliation": state.get("reconciliation_summary") or {},
+        "remediation_proposals": state.get("remediation_proposals") or [],
         "cost_usd": round(state.get("cost_total_usd", 0.0), 6),
         "tokens_total": state.get("tokens_total", 0),
     }
