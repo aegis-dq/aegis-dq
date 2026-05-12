@@ -9,6 +9,25 @@ description = "Open, audit-grade agentic data quality framework with portable in
 readme = "README.md"
 license = {text = "Apache-2.0"}
 requires-python = ">=3.11"
+keywords = ["data quality", "data validation", "llm", "agentic", "langgraph", "duckdb"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Quality Assurance",
+]
+
+[project.urls]
+Homepage = "https://Shivakoreddi.github.io/aegis-dq"
+Repository = "https://github.com/Shivakoreddi/aegis-dq"
+Documentation = "https://Shivakoreddi.github.io/aegis-dq"
+"Issue Tracker" = "https://github.com/Shivakoreddi/aegis-dq/issues"
+Changelog = "https://github.com/Shivakoreddi/aegis-dq/releases"
 dependencies = [
   "langgraph>=0.2",
   "langchain-anthropic>=0.3",
@@ -29,6 +48,7 @@ dependencies = [
 [project.optional-dependencies]
 openai = ["openai>=1.30"]
 snowflake = ["snowflake-connector-python>=3.0"]
+docs = ["mkdocs-material>=9.0"]
 dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.4", "mypy>=1.10", "openai>=1.30"]
 
 [project.scripts]
