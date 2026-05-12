@@ -1,26 +1,58 @@
-# Aegis
+# Aegis DQ
 
-**Open, audit-grade agentic data quality framework with portable industry packs.**
-
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/aegis-dq)](https://pypi.org/project/aegis-dq/)
 [![Downloads](https://img.shields.io/pypi/dm/aegis-dq)](https://pypi.org/project/aegis-dq/)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-292%20passing-brightgreen)](.github/workflows/ci.yml)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aegis-dq/aegis-dq/blob/main/notebooks/quickstart.ipynb)
 
-Aegis runs a **LangGraph-orchestrated agent** that validates your data, diagnoses failures with an LLM, and logs every decision to an audit trail — with every cost metered and every finding exportable.
+**Open-source agentic data quality: validate, diagnose, and explain data failures — with an LLM that tells you exactly why.**
+
+---
+
+```
+$ aegis run rules.yaml
+
+Aegis DQ — loading rules from rules.yaml
+Loaded 3 rules
+LLM: Anthropic (claude-haiku-4-5-20251001)
+
+╭─────────────────────────────────────────────────╮
+│         Aegis Validation Report                  │
+├──────────────────┬──────────────────────────────┤
+│ Metric           │ Value                        │
+├──────────────────┼──────────────────────────────┤
+│ Rules checked    │ 3                            │
+│ Passed           │ 2                            │
+│ Failed           │ 1                            │
+│ Pass rate        │ 66.67%                       │
+│ LLM cost         │ $0.000183                    │
+╰──────────────────┴──────────────────────────────╯
+
+Failures:
+
+  orders_no_nulls (critical) — orders
+  Rows failed: 47 / 10,000
+  Explanation:  47 rows have NULL order_id, violating the completeness rule.
+  Likely cause: ETL pipeline failed to populate order_id for orders placed via
+                the mobile API between 2024-01-14 02:00–04:00 UTC.
+  Action:       Re-run the mobile-api ingestion job for that window and
+                backfill the missing order_ids from the events table.
+```
 
 ---
 
 ## Why Aegis?
 
-| | Aegis | Great Expectations / Soda | Monte Carlo / Anomalo |
+| | Aegis DQ | Great Expectations / Soda | Monte Carlo / Anomalo |
 |---|---|---|---|
 | Open source | ✅ Apache 2.0 | ✅ | ❌ Commercial |
-| Agentic (LLM diagnosis + RCA) | ✅ | ❌ Rule execution only | ✅ Proprietary |
+| Agentic LLM diagnosis + RCA | ✅ | ❌ | ✅ Proprietary |
 | Audit trail (per-decision log) | ✅ | Partial | ✅ Proprietary |
-| Pluggable LLM (Anthropic, OpenAI) | ✅ | ❌ | ❌ |
-| Industry packs | ✅ Planned | ❌ | ❌ |
-| Portable open rule standard (ODCS-aligned) | ✅ | Partial | ❌ |
+| Pluggable LLM (Anthropic, OpenAI, Ollama) | ✅ | ❌ | ❌ |
+| dbt integration | ✅ | ✅ | Partial |
+| Portable open rule standard | ✅ | Partial | ❌ |
 
 ---
 
@@ -30,145 +62,86 @@ Aegis runs a **LangGraph-orchestrated agent** that validates your data, diagnose
 pip install aegis-dq
 ```
 
-For development:
-
-```bash
-git clone https://github.com/aegis-dq/aegis-dq
-cd aegis-dq
-pip install -e ".[dev]"
-```
-
-Optional extras:
-
-```bash
-pip install aegis-dq[openai]     # OpenAI LLM provider
-pip install aegis-dq[snowflake]  # Snowflake warehouse adapter (coming in v0.5)
-```
+| Extra | What it adds |
+|---|---|
+| `aegis-dq[bigquery]` | BigQuery adapter |
+| `aegis-dq[databricks]` | Databricks adapter |
+| `aegis-dq[athena]` | AWS Athena adapter |
+| `aegis-dq[openai]` | OpenAI LLM provider |
+| `aegis-dq[ollama]` | Ollama (local) LLM provider |
+| `aegis-dq[airflow]` | Airflow `AegisOperator` |
+| `aegis-dq[mcp]` | MCP server for Claude Desktop |
 
 ---
 
 ## 5-minute quickstart
 
 ```bash
-# 1. Generate an example rules file
-aegis init
-
-# 2. Validate syntax before touching any warehouse (offline, no API key)
-aegis validate rules.yaml
-
-# 3. Run checks offline
-aegis run rules.yaml --no-llm
-
-# 4. Run with LLM diagnosis (Anthropic by default)
-export ANTHROPIC_API_KEY=sk-ant-...
-aegis run rules.yaml
-
-# 5. Use OpenAI instead
-export OPENAI_API_KEY=sk-...
-aegis run rules.yaml --llm openai
-
-# 6. Write a JSON report and notify Slack on failure
-aegis run rules.yaml \
-  --output-json report.json \
-  --notify https://hooks.slack.com/services/...
+pip install aegis-dq
 ```
 
-**Full walkthrough with real data:** [docs/getting-started.md](docs/getting-started.md)
+Seed a demo DuckDB database:
 
----
+```python
+import duckdb
 
-## Architecture
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  TIER 1 — INTERFACES                                         │
-│  CLI (aegis run/validate/init)  •  Python SDK  •  REST API   │
-│  Triggers: Airflow • dbt • Dagster • cron • webhook          │
-│  Outputs:  Slack • Email • PagerDuty • Jira • file           │
-└───────────────────────────┬──────────────────────────────────┘
-                            ▼
-┌──────────────────────────────────────────────────────────────┐
-│  TIER 2 — AGENT CORE  (LangGraph state machine)              │
-│                                                              │
-│  plan → execute → diagnose → report                          │
-│            ↓          ↓         ↓                            │
-│       Rule Engine  LLM Router  Audit Logger                  │
-│       25 types     Anthropic   SQLite + ShareGPT export      │
-│                    OpenAI                                     │
-│                                                              │
-│  Memory: run history • failure patterns • rule catalog       │
-└───────────────────────────┬──────────────────────────────────┘
-                            ▼
-┌──────────────────────────────────────────────────────────────┐
-│  TIER 3 — EXECUTION BACKENDS                                 │
-│  DuckDB (local/free)  •  Snowflake  •  BigQuery              │
-│  Databricks  •  Athena  •  Postgres  •  Redshift             │
-└──────────────────────────────────────────────────────────────┘
+con = duckdb.connect("demo.db")
+con.execute("""
+    CREATE TABLE orders AS
+    SELECT i AS order_id, 'placed' AS status, i * 9.99 AS revenue
+    FROM range(1, 10001) t(i)
+""")
+# introduce some bad data
+con.execute("UPDATE orders SET order_id = NULL WHERE order_id % 200 = 0")
+con.execute("UPDATE orders SET revenue = -5.00 WHERE order_id % 500 = 0")
+con.close()
 ```
 
----
-
-## Rule format
-
-```yaml
-rules:
-  - apiVersion: aegis.dev/v1
-    kind: DataQualityRule
-    metadata:
-      id: orders_revenue_non_negative
-      severity: critical          # critical | high | medium | low | info
-      domain: retail
-      owner: revenue-team
-      tags: [revenue, validity]
-      description: Revenue must be >= 0
-    scope:
-      warehouse: duckdb
-      table: orders
-    logic:
-      type: sql_expression
-      expression: "revenue >= 0"
-    diagnosis:
-      common_causes:
-        - "Refund logic inverted the sign"
-        - "Currency conversion failure"
-```
-
-All 25 rule types with examples: [docs/rule-schema-reference.md](docs/rule-schema-reference.md)
-
-Browse the 30 built-in templates:
+Generate a starter rules file and run:
 
 ```bash
-aegis rules list
-aegis rules list --category validity
+# create rules.yaml
+aegis init
+
+# edit rules.yaml — set warehouse: duckdb and table: orders
+# then run validation
+export ANTHROPIC_API_KEY=sk-ant-...
+aegis run rules.yaml --db demo.db
+```
+
+Run without an API key (validation only, no LLM diagnosis):
+
+```bash
+aegis run rules.yaml --db demo.db --no-llm
 ```
 
 ---
 
-## CLI reference
+## Pipeline
 
-| Command | Description |
-|---|---|
-| `aegis init` | Generate a starter `rules.yaml` |
-| `aegis validate <config>` | Check YAML syntax + schema offline (no warehouse needed) |
-| `aegis run <config>` | Run validation, diagnose failures, produce a report |
-| `aegis rules list` | Browse the 30 built-in rule templates |
-| `aegis audit trajectory <run-id>` | Inspect the LLM decision trail for a past run |
+Every `aegis run` passes your data through a 7-node LangGraph pipeline:
 
-**`aegis run` flags:**
+```
+rules.yaml
+    │
+    ▼
+  plan → execute → reconcile → classify → diagnose → rca → report
+           │                       │           │        │       │
+        28 rule               heuristic    LLM asks  lineage  JSON +
+        types                  + LLM       "why?"    context  Slack
+```
 
-| Flag | Default | Description |
-|---|---|---|
-| `--db` | `:memory:` | DuckDB file path |
-| `--llm` | `anthropic` | LLM provider: `anthropic` \| `openai` |
-| `--llm-model` | *(provider default)* | Override model name |
-| `--no-llm` | `false` | Skip LLM diagnosis entirely |
-| `--output-json` | *(none)* | Write full JSON report to file |
-| `--notify` | *(none)* | Slack webhook URL |
-| `--notify-on` | `failures` | When to notify: `all` \| `failures` \| `critical` |
+- **plan** — parse and validate rules.yaml, build an execution graph
+- **execute** — run all 28 rule types against your warehouse
+- **reconcile** — compare results against expected thresholds
+- **classify** — heuristic triage (severity, category, affected rows)
+- **diagnose** — LLM writes a plain-English explanation per failure
+- **rca** — root-cause analysis using lineage context and run history
+- **report** — structured JSON + optional Slack notification
 
 ---
 
-## Rule types (25 total)
+## Rule types (28 total)
 
 | Category | Types |
 |---|---|
@@ -179,16 +152,104 @@ aegis rules list --category validity
 | Statistical | `mean_between` `stddev_below` `column_sum_between` |
 | Timeliness | `freshness` `date_order` |
 | Volume | `row_count` `row_count_between` `custom_sql` |
+| Cross-table | `row_count_match` `column_sum_match` `set_inclusion` `set_equality` |
+
+Example rule:
+
+```yaml
+rules:
+  - apiVersion: aegis.dev/v1
+    kind: DataQualityRule
+    metadata:
+      id: orders_revenue_non_negative
+      severity: critical
+      owner: revenue-team
+      tags: [revenue, validity]
+    scope:
+      warehouse: duckdb
+      table: orders
+    logic:
+      type: sql_expression
+      expression: "revenue >= 0"
+```
+
+---
+
+## Warehouse adapters
+
+| Adapter | Install | Status |
+|---|---|---|
+| DuckDB | built-in | ✅ |
+| BigQuery | `aegis-dq[bigquery]` | ✅ |
+| Databricks | `aegis-dq[databricks]` | ✅ |
+| AWS Athena | `aegis-dq[athena]` | ✅ |
+| Snowflake | `aegis-dq[snowflake]` | 🚧 v0.5 |
+| Postgres / Redshift | `aegis-dq[postgres]` | 🚧 v1.0 |
+
+---
+
+## LLM providers
+
+| Provider | Install | Default model |
+|---|---|---|
+| Anthropic (Claude) | built-in | claude-haiku-4-5 |
+| OpenAI | `aegis-dq[openai]` | gpt-4o-mini |
+| Ollama (local) | `aegis-dq[ollama]` | llama3.2 |
+
+Switch providers at the CLI:
+
+```bash
+aegis run rules.yaml --llm openai --llm-model gpt-4o
+aegis run rules.yaml --llm ollama --llm-model llama3.2
+```
+
+---
+
+## Integrations
+
+| Integration | What it does |
+|---|---|
+| `aegis-dq[airflow]` | `AegisOperator` — drop-in Airflow task |
+| `aegis-dq[mcp]` | MCP server for Claude Desktop / tool use |
+| `aegis dbt generate` | Convert dbt `manifest.json` to Aegis rules |
+| GitHub Action (#27) | CI/CD gate on PRs *(coming v1.0)* |
+
+---
+
+## CLI reference
+
+| Command | Description |
+|---|---|
+| `aegis init` | Generate a starter `rules.yaml` |
+| `aegis validate <config>` | Check YAML syntax + schema (no warehouse needed) |
+| `aegis run <config>` | Run validation, diagnose failures, produce a report |
+| `aegis rules list` | Browse built-in rule templates |
+| `aegis audit trajectory <run-id>` | Inspect the LLM decision trail for a past run |
+| `aegis audit search <query>` | Full-text search across audit logs (FTS5) |
+| `aegis dbt generate <manifest>` | Convert a dbt manifest to Aegis rules |
+| `aegis mcp serve` | Start the MCP server for Claude Desktop |
+
+**`aegis run` flags:**
+
+| Flag | Default | Description |
+|---|---|---|
+| `--db` | `:memory:` | DuckDB file path |
+| `--llm` | `anthropic` | LLM provider: `anthropic` \| `openai` \| `ollama` |
+| `--llm-model` | *(provider default)* | Override model name |
+| `--no-llm` | `false` | Skip LLM diagnosis entirely |
+| `--output-json` | *(none)* | Write full JSON report to file |
+| `--notify` | *(none)* | Slack webhook URL |
+| `--notify-on` | `failures` | When to notify: `all` \| `failures` \| `critical` |
 
 ---
 
 ## Roadmap
 
-| Phase | Version | Status |
-|---|---|---|
-| Foundation | v0.1 | 🚧 In progress |
-| Differentiate | v0.5 | Planned — RCA, reconciliation, BigQuery, Airflow, industry packs |
-| Mature | v1.0 | Planned — ML rules, banking/healthcare packs, VS Code extension |
+| Phase | Version | Items | Status |
+|---|---|---|---|
+| Foundation | v0.1 | Core agent, DuckDB, CLI, audit trail | ✅ Done |
+| Differentiate | v0.5 | BigQuery, Databricks, Athena, Airflow, Ollama, RCA, ShareGPT export, FTS5 search, dbt, MCP | ✅ Done |
+| Mature | v1.0 | Postgres, REST API, GitHub Action, parallel subagents, ML anomaly detection, banking/healthcare packs | 🚧 In progress |
 
 Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aegis-dq/aegis-dq/issues)
 
@@ -197,6 +258,7 @@ Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aeg
 ## Contributing
 
 Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
+
 Good first issues: [label:good first issue](https://github.com/aegis-dq/aegis-dq/issues?q=label%3A%22good+first+issue%22)
 
 ## License

@@ -1,51 +1,70 @@
-# Getting Started with Aegis
+# Getting Started
 
-This guide walks you from zero to your first data quality validation run in under 10 minutes, using a local DuckDB database — no cloud account or API key required to start.
-
----
-
-## Prerequisites
-
-- Python 3.11+
-- A terminal
+Get from zero to a working data quality pipeline in 5 minutes. No cloud account required — everything runs locally with DuckDB.
 
 ---
 
-## Step 1 — Install
+## 1. Install
 
 ```bash
 pip install aegis-dq
 ```
 
-Verify the install:
+Verify:
 
 ```bash
 aegis --help
 ```
 
-You should see the `init`, `validate`, `run`, `rules`, and `audit` commands.
+You should see the `init`, `validate`, `run`, `audit`, and `rules` commands listed.
 
 ---
 
-## Step 2 — Generate a rules file
+## 2. Seed demo data
 
-```bash
-aegis init
+Create a local DuckDB file with 10 000 orders and intentional data quality issues baked in:
+
+```python
+# seed.py
+import duckdb
+
+con = duckdb.connect("demo.db")
+
+con.execute("""
+    CREATE TABLE orders AS
+    SELECT
+        i          AS order_id,
+        'placed'   AS status,
+        i * 9.99   AS revenue
+    FROM range(1, 10001) t(i)
+""")
+
+# Inject nulls: every 200th order loses its order_id
+con.execute("UPDATE orders SET order_id = NULL WHERE order_id % 200 = 0")
+
+# Inject negatives: every 500th order has negative revenue
+con.execute("UPDATE orders SET revenue = -5.00 WHERE order_id % 500 = 0")
+
+con.close()
+print("Created demo.db  (10 000 rows, 50 null order_ids, 20 negative revenues)")
 ```
 
-This creates `rules.yaml` in your current directory with two example rules. Open it — the format is self-explanatory YAML.
-
-For this tutorial, use the retail example that ships with the repo:
-
 ```bash
-# If you cloned the repo:
-cp examples/retail_basic/rules_full.yaml rules.yaml
+python seed.py
+# Created demo.db  (10 000 rows, 50 null order_ids, 20 negative revenues)
 ```
 
-Or paste this into `rules.yaml`:
+> DuckDB ships as a Python wheel — no separate install needed.
+
+---
+
+## 3. Create rules.yaml
+
+Paste this into `rules.yaml` in your working directory:
 
 ```yaml
 rules:
+
   - apiVersion: aegis.dev/v1
     kind: DataQualityRule
     metadata:
@@ -72,7 +91,7 @@ rules:
       severity: high
       domain: retail
       owner: revenue-team
-      description: Revenue must be >= 0
+      description: Revenue must be non-negative
     scope:
       warehouse: duckdb
       table: orders
@@ -90,20 +109,20 @@ rules:
       id: orders_minimum_rows
       severity: medium
       domain: retail
-      description: Orders table must not be empty
+      description: Orders table must have at least 1 000 rows
     scope:
       warehouse: duckdb
       table: orders
     logic:
       type: row_count
-      threshold: 1
+      threshold: 1000
 ```
 
 ---
 
-## Step 3 — Validate syntax (offline)
+## 4. Validate syntax offline
 
-Before touching any data, check that your rules are correctly formed:
+Before touching any data, confirm your rules are correctly formed:
 
 ```bash
 aegis validate rules.yaml
@@ -115,216 +134,176 @@ Expected output:
 Aegis validate — rules.yaml
 
   ✓ orders_order_id_not_null
-  ✓ orders_revenue_positive  1 warning(s)
-      ⚠  metadata.owner is not set
+  ✓ orders_revenue_positive
   ✓ orders_minimum_rows
 
 All 3 rule(s) valid.
 ```
 
-Warnings are informational — rules still run. Errors (✗) must be fixed before running.
+Errors (`✗`) must be fixed before running. Warnings (`⚠`) are informational and do not block execution.
 
 ---
 
-## Step 4 — Create test data
+## 5. Run without LLM
 
-Create a local DuckDB file with intentional data quality issues:
-
-```python
-# seed.py
-import duckdb
-
-con = duckdb.connect("warehouse.duckdb")
-con.execute("CREATE OR REPLACE TABLE orders (order_id INT, revenue FLOAT)")
-con.execute("""
-    INSERT INTO orders VALUES
-    (1,   100.0),
-    (2,   -50.0),   -- negative revenue: will fail orders_revenue_positive
-    (3,   200.0),
-    (NULL, 75.0)    -- null order_id: will fail orders_order_id_not_null
-""")
-con.close()
-print("Created warehouse.duckdb")
-```
+Run your rules against the demo database in offline mode — no API key needed:
 
 ```bash
-python seed.py
-```
-
-> **No DuckDB install needed** — it's bundled as a Python package.
-
----
-
-## Step 5 — Run validation (offline mode)
-
-```bash
-aegis run rules.yaml --db warehouse.duckdb --no-llm
+aegis run rules.yaml --db demo.db --no-llm
 ```
 
 Expected output:
 
 ```
 Aegis DQ — loading rules from rules.yaml
-Loaded 3 rules
+Loaded 3 rules  •  warehouse: duckdb  •  llm: disabled
+
+Running pipeline: plan → execute → reconcile → classify → diagnose → rca → report
+
+  ✓  orders_minimum_rows          passed    10 000 rows
+  ✗  orders_order_id_not_null     FAILED    50 / 10 000   critical
+  ✗  orders_revenue_positive      FAILED    20 / 10 000   high
+
 
    Aegis Validation Report
-┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
-┃ Metric        ┃ Value     ┃
-┡━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
-│ Rules checked │ 3         │
-│ Passed        │ 1         │
-│ Failed        │ 2         │
-│ Pass rate     │ 33.3%     │
-│ LLM cost      │ $0.000000 │
-└───────────────┴───────────┘
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric              ┃ Value                         ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Rules checked       │ 3                             │
+│ Passed              │ 1                             │
+│ Failed              │ 2                             │
+│ Pass rate           │ 33.3%                         │
+│ LLM cost            │ $0.000000                     │
+└─────────────────────┴───────────────────────────────┘
 
-Failures:
-
-  orders_order_id_not_null (critical) — orders
-  Rows failed: 1 / 4
-
-  orders_revenue_positive (high) — orders
-  Rows failed: 1 / 4
+Exit code: 1  (failures detected)
 ```
 
-The process exits with code 1 when any rule fails — useful for CI pipelines.
+The process exits with code `1` whenever any rule fails — useful for blocking CI pipelines.
 
 ---
 
-## Step 6 — Enable LLM diagnosis
+## 6. Run with LLM diagnosis
 
-Set your API key and re-run without `--no-llm`:
+Set your Anthropic API key and re-run. The `diagnose` and `rca` nodes will now call the LLM for each failure:
 
 ```bash
-# Anthropic (default)
 export ANTHROPIC_API_KEY=sk-ant-...
-aegis run rules.yaml --db warehouse.duckdb
-
-# Or use OpenAI
-export OPENAI_API_KEY=sk-...
-aegis run rules.yaml --db warehouse.duckdb --llm openai
+aegis run rules.yaml --db demo.db
 ```
 
-The diagnose node will now call the LLM for each failure and print:
+Expected output (additional LLM section appended after the summary table):
 
 ```
-  orders_revenue_positive (high) — orders
-  Rows failed: 1 / 4
-  Explanation: The orders table contains a row with revenue = -50.0, violating the non-negative constraint.
-  Likely cause: Refund logic inverted the sign instead of using a separate refunds table.
-  Action: Query SELECT * FROM orders WHERE revenue < 0 to identify affected records, then trace to the ETL job.
-```
+LLM Diagnosis
+─────────────────────────────────────────────────────────────────────
+Rule:    orders_order_id_not_null  (critical)
+Table:   orders
+Failed:  50 rows (0.5% of 10 000)
 
-Cost for 2 diagnoses with `claude-haiku-4-5`: typically under $0.001.
+Explanation:
+  50 rows in the orders table have a NULL order_id. Downstream joins
+  on order_id will silently drop these rows, causing undercounting in
+  revenue reports.
+
+Likely cause:
+  The ETL pipeline loads from the source OLTP database without a
+  NOT NULL guard. When the source emits a partial record (e.g. a
+  cart-abandonment event), order_id is omitted and lands as NULL.
+
+Recommended action:
+  1. Run: SELECT * FROM orders WHERE order_id IS NULL LIMIT 20
+  2. Check ETL logs for the most recent ingestion window
+  3. Add a NOT NULL constraint or COALESCE guard in staging
+─────────────────────────────────────────────────────────────────────
+Rule:    orders_revenue_positive  (high)
+Table:   orders
+Failed:  20 rows (0.2% of 10 000)
+
+Explanation:
+  20 rows have revenue = -5.00, violating the non-negative revenue
+  constraint.
+
+Likely cause:
+  Refund processing logic may have inverted the sign rather than
+  recording refunds in a separate table.
+
+Recommended action:
+  1. Run: SELECT * FROM orders WHERE revenue < 0 LIMIT 20
+  2. Verify refund handling in the ETL transform
+─────────────────────────────────────────────────────────────────────
+
+LLM cost: $0.000412  (claude-haiku-4-5, 2 diagnoses)
+```
 
 ---
 
-## Step 7 — Write a JSON report
+## 7. Use a local LLM (no API key)
+
+If you have [Ollama](https://ollama.com) running locally, you can run diagnosis entirely offline:
 
 ```bash
-aegis run rules.yaml --db warehouse.duckdb --no-llm --output-json report.json
-cat report.json
+# requires ollama running locally with llama3.2 pulled
+aegis run rules.yaml --db demo.db --llm ollama --llm-model llama3.2
 ```
 
-The report includes `run_id`, `summary`, per-failure `rows_failed`/`rows_checked`, and optionally LLM `diagnosis` for each failure. Use `run_id` to look up the audit trail later.
-
----
-
-## Step 8 — Inspect the audit trail
-
-Every run logs decisions to `~/.aegis/history.db`. View the trajectory for any run:
+Ollama runs on `http://localhost:11434` by default. To use a different host:
 
 ```bash
-# Get the run_id from the JSON report, then:
-aegis audit trajectory <run-id>
-aegis audit trajectory <run-id> --format json
-aegis audit trajectory <run-id> --format sharegpt
+aegis run rules.yaml --db demo.db --llm ollama --llm-model llama3.2 \
+  --llm-base-url http://my-ollama-host:11434
 ```
 
 ---
 
-## Step 9 — Add Slack notifications
+## 8. Inspect the audit trail
+
+Every run writes to `~/.aegis/history.db`. Use the `audit` subcommands to explore it:
 
 ```bash
-# Notify on any failure (default)
-aegis run rules.yaml --db warehouse.duckdb \
-  --notify https://hooks.slack.com/services/...
+# List all runs (newest first)
+aegis audit list-runs
 
-# Only notify on critical failures
-aegis run rules.yaml --db warehouse.duckdb \
-  --notify https://hooks.slack.com/services/... \
-  --notify-on critical
+# Show the full node-by-node trajectory for a specific run
+aegis audit trajectory run_20260511_143022_a1b2c3
 
-# Set webhook via env var (good for CI)
-export AEGIS_SLACK_WEBHOOK=https://hooks.slack.com/services/...
-aegis run rules.yaml --db warehouse.duckdb
+# Full-text search across all LLM decisions
+aegis audit search "null order_id"
+```
+
+Example `list-runs` output:
+
+```
+  run_id                           started              rules  passed  failed
+  run_20260511_143022_a1b2c3      2026-05-11 14:30:22      3       1       2
+  run_20260510_091500_d4e5f6      2026-05-10 09:15:00      3       3       0
 ```
 
 ---
 
-## Step 10 — Explore the built-in rule catalog
+## 9. Export for fine-tuning
 
-Browse 30 named rule templates:
+Dump the audit trail for a run as ShareGPT-format JSONL, ready for supervised fine-tuning:
 
 ```bash
-aegis rules list
-aegis rules list --category completeness
-aegis rules list --json
+aegis audit export-dataset output.jsonl --run-id run_20260511_143022_a1b2c3
 ```
 
-Reference any template by its `type` in your rules YAML. For example, to use `email_format`:
-
-```yaml
-logic:
-  type: regex_match
-  pattern: '^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
-```
-
----
-
-## Using the retail example
-
-The repo includes a fully-seeded retail example with 11 rules across 3 tables and intentional failures:
+Omit `--run-id` to export all runs:
 
 ```bash
-# Seed the database
-python examples/retail_basic/seed_data.py
-
-# Run all 11 rules
-aegis run examples/retail_basic/rules_full.yaml \
-  --db examples/retail_basic/retail.duckdb \
-  --no-llm
-
-# Run the demo script (same thing, programmatic)
-python examples/retail_basic/demo.py
+aegis audit export-dataset output.jsonl
 ```
+
+Each line in `output.jsonl` is one conversation turn: the rule context as a user message and the LLM diagnosis as an assistant message.
 
 ---
 
-## Using Aegis from Python
+## 10. Next steps
 
-```python
-import asyncio
-from aegis.rules.parser import load_rules
-from aegis.core.agent import AegisAgent
-from aegis.adapters.warehouse.duckdb import DuckDBAdapter
-
-async def main():
-    rules = load_rules("rules.yaml")
-    agent = AegisAgent(
-        warehouse_adapter=DuckDBAdapter("warehouse.duckdb"),
-        llm_adapter=None,   # offline mode
-    )
-    state = await agent.run(rules, triggered_by="my_script")
-    print(state["report"]["summary"])
-
-asyncio.run(main())
-```
-
----
-
-## Next steps
-
-- **Rule schema reference** — [docs/rule-schema-reference.md](rule-schema-reference.md)
-- **GitHub Issues** — [track upcoming features](https://github.com/aegis-dq/aegis-dq/issues)
-- **v0.5 roadmap** — RCA node, reconciliation, BigQuery, Airflow operator, retail industry pack
+- [Rule Schema Reference](rule-schema-reference.md) — all 28 rule types with full field definitions
+- [Architecture](architecture.md) — deep dive into the 7-node pipeline
+- [dbt Integration](integrations/dbt.md) — auto-generate Aegis rules from your dbt manifest
+- [Airflow Integration](integrations/airflow.md) — run Aegis as an Airflow operator
+- [MCP Server](integrations/mcp.md) — use Aegis as a Claude Desktop tool
+- [vs Competitors](vs-competitors.md) — how Aegis compares to Great Expectations, Soda, and Monte Carlo
