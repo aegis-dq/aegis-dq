@@ -243,6 +243,38 @@ def validate(
 audit_app = typer.Typer(help="Inspect audit trails and trajectories")
 app.add_typer(audit_app, name="audit")
 
+dbt_app = typer.Typer(help="dbt integration")
+app.add_typer(dbt_app, name="dbt")
+
+
+@dbt_app.command("generate")
+def dbt_generate(
+    manifest: Path = typer.Argument(..., help="Path to dbt manifest.json"),
+    output: Path = typer.Option(Path("rules.yaml"), "--output", "-o"),
+    warehouse: str = typer.Option("duckdb", "--warehouse", "-w", help="Warehouse type for generated rules"),
+) -> None:
+    """Generate Aegis rules YAML from a dbt manifest.json."""
+    from ..integrations.dbt.parser import load_manifest, manifest_to_yaml
+
+    if not manifest.exists():
+        console.print(f"[red]Manifest not found: {manifest}[/red]")
+        raise typer.Exit(1)
+
+    try:
+        mf = load_manifest(manifest)
+    except Exception as e:
+        console.print(f"[red]Failed to parse manifest: {e}[/red]")
+        raise typer.Exit(1)
+
+    yaml_str = manifest_to_yaml(mf)
+
+    # Patch warehouse if user specified something other than the default
+    if warehouse != "duckdb":
+        yaml_str = yaml_str.replace("warehouse: duckdb", f"warehouse: {warehouse}")
+
+    output.write_text(yaml_str)
+    console.print(f"[green]Rules written to {output}[/green]")
+
 
 @audit_app.command("trajectory")
 def audit_trajectory(
@@ -346,6 +378,44 @@ async def _audit_export_dataset(
         f"({stats['skipped']} skipped by quality filter) — "
         f"{stats['total_turns']} turns, {stats['total_tokens']} tokens"
     )
+
+
+@audit_app.command("search")
+def audit_search(
+    query: str = typer.Argument(..., help="Full-text search query"),
+    run_id: str | None = typer.Option(None, "--run-id", "-r", help="Filter to specific run"),
+    limit: int = typer.Option(20, "--limit", "-n", help="Max results"),
+) -> None:
+    """Full-text search over audit decision trails."""
+    asyncio.run(_audit_search(query, run_id, limit))
+
+
+async def _audit_search(query: str, run_id: str | None, limit: int) -> None:
+    from ..audit.search import search_decisions
+
+    results = await search_decisions(query, run_id=run_id, limit=limit)
+    if not results:
+        console.print("[yellow]No results found[/yellow]")
+        return
+    table = Table(title=f"Search: {query!r}")
+    table.add_column("Run ID", style="cyan")
+    table.add_column("Step", style="magenta")
+    table.add_column("Output", style="white")
+    for r in results:
+        table.add_row(r["run_id"], r["step"], (r.get("output_summary") or "")[:80])
+    console.print(table)
+    console.print(f"[bold]{len(results)}[/bold] result(s)")
+
+
+@app.command()
+def mcp(
+    host: str = typer.Option("127.0.0.1", "--host", help="Host to bind to"),
+    port: int = typer.Option(8765, "--port", "-p", help="Port to listen on"),
+    transport: str = typer.Option("stdio", "--transport", help="Transport: stdio|sse"),
+) -> None:
+    """Start the Aegis MCP server for tool use by Claude and other LLMs."""
+    from .mcp_runner import run_mcp_server
+    run_mcp_server(host=host, port=port, transport=transport)
 
 
 @rules_app.command("list")
