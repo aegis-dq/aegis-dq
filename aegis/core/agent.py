@@ -15,6 +15,7 @@ from .nodes.classify import classify_node
 from .nodes.diagnose import diagnose_node
 from .nodes.execute import execute_node
 from .nodes.plan import plan_node
+from .nodes.reconcile import reconcile_node
 from .nodes.report import report_node
 from .state import AegisState
 
@@ -56,13 +57,15 @@ class AegisAgent:
 
         builder.add_node("plan", plan_node)
         builder.add_node("execute", _execute)
+        builder.add_node("reconcile", reconcile_node)
         builder.add_node("classify", _classify)
         builder.add_node("diagnose", _diagnose)
         builder.add_node("report", report_node)
 
         builder.set_entry_point("plan")
         builder.add_edge("plan", "execute")
-        builder.add_edge("execute", "classify")
+        builder.add_edge("execute", "reconcile")
+        builder.add_edge("reconcile", "classify")
         builder.add_edge("classify", "diagnose")
         builder.add_edge("diagnose", "report")
         builder.add_edge("report", END)
@@ -88,6 +91,7 @@ class AegisAgent:
             "rule_results": [],
             "failures": [],
             "classified_failures": {},
+            "reconciliation_summary": {},
             "diagnoses": [],
             "report": {},
             "trajectory": [],

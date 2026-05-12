@@ -43,6 +43,10 @@ class RuleType(StrEnum):
     DATE_ORDER = "date_order"
     COLUMN_EXISTS = "column_exists"
     STDDEV_BELOW = "stddev_below"
+    # Reconciliation
+    RECONCILE_ROW_COUNT = "reconcile_row_count"
+    RECONCILE_COLUMN_SUM = "reconcile_column_sum"
+    RECONCILE_KEY_MATCH = "reconcile_key_match"
 
 
 class RuleScope(BaseModel):
@@ -70,6 +74,8 @@ class RuleLogic(BaseModel):
     reference_column: str | None = None  # for foreign_key
     condition: str | None = None         # SQL expression for conditional_not_null
     column_b: str | None = None          # second column for date_order
+    source_table: str | None = None      # reconciliation: table to compare against
+    tolerance_pct: float = 0.0           # reconciliation: allowed % deviation (0.0 = exact)
 
 
 class ReconciliationConfig(BaseModel):
