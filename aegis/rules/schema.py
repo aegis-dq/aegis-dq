@@ -2,10 +2,20 @@
 
 from __future__ import annotations
 
+import re
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from .sql_safety import validate_custom_sql, validate_expression
+
+# Strict identifier patterns — enforced on all user-provided table/column names.
+# Allows schema.table and db.schema.table but rejects SQL metacharacters.
+_TABLE_IDENT = re.compile(
+    r"^[A-Za-z_][A-Za-z0-9_-]*(\.[A-Za-z_][A-Za-z0-9_-]*){0,2}$"
+)
+_COLUMN_IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 class Severity(StrEnum):
@@ -62,6 +72,27 @@ class RuleScope(BaseModel):
 
     model_config = {"populate_by_name": True}
 
+    @field_validator("table")
+    @classmethod
+    def _validate_table(cls, v: str) -> str:
+        if not _TABLE_IDENT.match(v):
+            raise ValueError(
+                f"Invalid table identifier {v!r}. "
+                "Must be alphanumeric with underscores, optionally qualified as schema.table."
+            )
+        return v
+
+    @field_validator("columns")
+    @classmethod
+    def _validate_columns(cls, v: list[str]) -> list[str]:
+        for col in v:
+            if not _COLUMN_IDENT.match(col):
+                raise ValueError(
+                    f"Invalid column identifier {col!r}. "
+                    "Must be alphanumeric with underscores only."
+                )
+        return v
+
 
 class RuleLogic(BaseModel):
     type: RuleType
@@ -84,6 +115,50 @@ class RuleLogic(BaseModel):
     zscore_threshold: float | None = None  # z-score cutoff (default 3.0)
     contamination: float | None = None     # isolation_forest: expected anomaly fraction (0.0–0.5)
     min_history_days: int | None = None    # learned_threshold: minimum history required
+
+    @field_validator("expression", "condition")
+    @classmethod
+    def _validate_sql_expression(cls, v: str | None) -> str | None:
+        if v is not None:
+            validate_expression(v)
+        return v
+
+    @field_validator("pattern")
+    @classmethod
+    def _validate_pattern(cls, v: str | None) -> str | None:
+        if v is not None:
+            try:
+                re.compile(v)
+            except re.error as e:
+                raise ValueError(f"Invalid regex pattern: {e}") from e
+        return v
+
+    @field_validator("column_b", "reference_column")
+    @classmethod
+    def _validate_column_ident(cls, v: str | None) -> str | None:
+        if v is not None and not _COLUMN_IDENT.match(v):
+            raise ValueError(
+                f"Invalid column identifier {v!r}. "
+                "Must be alphanumeric with underscores only."
+            )
+        return v
+
+    @field_validator("reference_table", "source_table")
+    @classmethod
+    def _validate_table_ident(cls, v: str | None) -> str | None:
+        if v is not None and not _TABLE_IDENT.match(v):
+            raise ValueError(
+                f"Invalid table identifier {v!r}. "
+                "Must be alphanumeric with underscores, optionally qualified as schema.table."
+            )
+        return v
+
+    @field_validator("query")
+    @classmethod
+    def _validate_custom_query(cls, v: str | None) -> str | None:
+        if v is not None:
+            validate_custom_sql(v)
+        return v
 
 
 class ReconciliationConfig(BaseModel):

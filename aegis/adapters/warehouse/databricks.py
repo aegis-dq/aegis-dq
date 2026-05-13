@@ -15,6 +15,7 @@ from typing import Any
 
 from ...rules.schema import DataQualityRule, RuleResult, RuleType
 from .base import WarehouseAdapter
+from .quoting import escape_string_literal, quote_qualified_spark
 
 
 class DatabricksAdapter(WarehouseAdapter):
@@ -111,7 +112,11 @@ class DatabricksAdapter(WarehouseAdapter):
 
     def _q(self, identifier: str) -> str:
         """Backtick-quote a Spark SQL identifier."""
-        return f"`{identifier}`"
+        return "`" + identifier.replace("`", "``") + "`"
+
+    def _qt(self, name: str) -> str:
+        """Quote a possibly-qualified table name (each dot-separated part)."""
+        return quote_qualified_spark(name)
 
     def _full_table(self, table: str) -> str:
         """Qualify table with catalog.schema if not already qualified."""
@@ -133,7 +138,7 @@ class DatabricksAdapter(WarehouseAdapter):
     # ------------------------------------------------------------------
 
     def _execute_sync(self, rule: DataQualityRule) -> RuleResult:  # noqa: C901
-        t = self._full_table(rule.spec_scope.table)
+        t = self._qt(self._full_table(rule.spec_scope.table))
         logic = rule.spec_logic
         start = time.monotonic()
 
@@ -324,7 +329,7 @@ class DatabricksAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.REGEX_MATCH:
                 col = self._q(rule.spec_scope.columns[0])
-                pattern = logic.pattern or ""
+                pattern = escape_string_literal(logic.pattern or "")
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
                     cursor,
@@ -340,7 +345,7 @@ class DatabricksAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.ACCEPTED_VALUES:
                 col = self._q(rule.spec_scope.columns[0])
-                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
+                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
                     cursor,
@@ -356,7 +361,7 @@ class DatabricksAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.NOT_ACCEPTED_VALUES:
                 col = self._q(rule.spec_scope.columns[0])
-                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
+                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
                     cursor,
@@ -372,7 +377,7 @@ class DatabricksAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.FOREIGN_KEY:
                 col = self._q(rule.spec_scope.columns[0])
-                ref_table = self._full_table(logic.reference_table or "")
+                ref_table = self._qt(self._full_table(logic.reference_table or rule.spec_scope.table))
                 ref_col = self._q(logic.reference_column or rule.spec_scope.columns[0])
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
@@ -543,7 +548,7 @@ class DatabricksAdapter(WarehouseAdapter):
             # RECONCILE_ROW_COUNT
             # ----------------------------------------------------------------
             elif logic.type == RuleType.RECONCILE_ROW_COUNT:
-                src = self._full_table(logic.source_table or "")
+                src = self._qt(self._full_table(logic.source_table or rule.spec_scope.table))
                 tol = logic.tolerance_pct / 100.0
                 src_count = self._scalar(cursor, f"SELECT COUNT(*) FROM {src}")
                 tgt_count = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
@@ -562,7 +567,7 @@ class DatabricksAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.RECONCILE_COLUMN_SUM:
                 col = self._q(rule.spec_scope.columns[0])
-                src = self._full_table(logic.source_table or "")
+                src = self._qt(self._full_table(logic.source_table or rule.spec_scope.table))
                 tol = logic.tolerance_pct / 100.0
                 src_sum = float(
                     self._scalar(cursor, f"SELECT COALESCE(SUM({col}), 0) FROM {src}") or 0
@@ -587,7 +592,7 @@ class DatabricksAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.RECONCILE_KEY_MATCH:
                 col = self._q(rule.spec_scope.columns[0])
-                src = self._full_table(logic.source_table or "")
+                src = self._qt(self._full_table(logic.source_table or rule.spec_scope.table))
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {src}")
                 missing_in_tgt = self._scalar(
                     cursor,
