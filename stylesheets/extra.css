@@ -1,5 +1,19 @@
 /* ── Aegis DQ — Landing + Docs Styles ── */
 
+/* Nav logo sizing and spacing */
+.md-header__button.md-logo {
+  padding: 0;
+  margin-right: 0;
+}
+.md-header__button.md-logo img {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+}
+.md-header__title {
+  margin-left: 0.4rem;
+}
+
 :root {
   --hp-bg:       #0f1117;
   --hp-bg-alt:   #161b27;
