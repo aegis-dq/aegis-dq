@@ -10,31 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://aegis-dq.dev/integrations/mcp/">
+        <link rel="canonical" href="https://aegis-dq.dev/cli-reference/">
       
       
-        <link rel="prev" href="../github-actions/">
+        <link rel="prev" href="../integrations/mcp/">
       
       
-        <link rel="next" href="../../cli-reference/">
+        <link rel="next" href="../audit-trail/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>MCP Server - Aegis</title>
+        <title>CLI Reference - Aegis</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,9 +53,9 @@
       
     
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mcp-server" class="md-skip">
+        <a href="#cli-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Aegis" class="md-header__button md-logo" aria-label="Aegis" data-md-component="logo">
+    <a href=".." title="Aegis" class="md-header__button md-logo" aria-label="Aegis" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              MCP Server
+              CLI Reference
             
           </span>
         </div>
@@ -227,7 +227,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -248,7 +248,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../getting-started/" class="md-tabs__link">
+        <a href="../getting-started/" class="md-tabs__link">
           
   
   
@@ -268,11 +268,31 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../rule-schema-reference/" class="md-tabs__link">
+        <a href="../rule-schema-reference/" class="md-tabs__link">
           
   
   
   Rules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../integrations/dbt/" class="md-tabs__link">
+          
+  
+  
+  Integrations
 
         </a>
       </li>
@@ -290,27 +310,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../dbt/" class="md-tabs__link">
-          
-  
-  
-  Integrations
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../cli-reference/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -330,7 +330,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../contributing/" class="md-tabs__link">
+        <a href="../contributing/" class="md-tabs__link">
           
   
   
@@ -364,7 +364,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Aegis" class="md-nav__button md-logo" aria-label="Aegis" data-md-component="logo">
+    <a href=".." title="Aegis" class="md-nav__button md-logo" aria-label="Aegis" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -394,7 +394,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -473,7 +473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   
@@ -501,7 +501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -588,7 +588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rule-schema-reference/" class="md-nav__link">
+      <a href="../rule-schema-reference/" class="md-nav__link">
         
   
   
@@ -596,6 +596,177 @@
     
   
     Rule Schema Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/dbt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    dbt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/airflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Airflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub Actions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Server
   
 
     
@@ -641,17 +812,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    Integrations
+    Reference
   
 
     
@@ -662,100 +833,16 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Integrations
+    Reference
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../dbt/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    dbt
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../airflow/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Airflow
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../github-actions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    GitHub Actions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -780,7 +867,7 @@
   <span class="md-ellipsis">
     
   
-    MCP Server
+    CLI Reference
   
 
     
@@ -798,7 +885,7 @@
   <span class="md-ellipsis">
     
   
-    MCP Server
+    CLI Reference
   
 
     
@@ -824,10 +911,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#start-the-mcp-server" class="md-nav__link">
+  <a href="#aegis-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Start the MCP server
+        aegis run
       
     </span>
   </a>
@@ -835,10 +922,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure-claude-desktop" class="md-nav__link">
+  <a href="#aegis-validate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure Claude Desktop
+        aegis validate
       
     </span>
   </a>
@@ -846,10 +933,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-tools" class="md-nav__link">
+  <a href="#aegis-generate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available tools
+        aegis generate
       
     </span>
   </a>
@@ -857,10 +944,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-prompts" class="md-nav__link">
+  <a href="#aegis-audit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example prompts
+        aegis audit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="aegis audit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aegis-audit-list-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis audit list-runs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aegis-audit-trajectory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis audit trajectory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aegis-audit-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis audit search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aegis-audit-export-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis audit export-dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aegis-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis init
       
     </span>
   </a>
@@ -868,10 +1016,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-with-other-mcp-clients" class="md-nav__link">
+  <a href="#aegis-validate-sql-stages" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Using with other MCP clients
+        aegis validate — SQL stages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aegis-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis mcp
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aegis-dbt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis dbt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
       
     </span>
   </a>
@@ -887,65 +1068,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Reference
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Reference
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
               
                 
   
@@ -953,35 +1075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli-reference/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CLI Reference
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../audit-trail/" class="md-nav__link">
+      <a href="../audit-trail/" class="md-nav__link">
         
   
   
@@ -1009,7 +1103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../vs-competitors/" class="md-nav__link">
+      <a href="../vs-competitors/" class="md-nav__link">
         
   
   
@@ -1096,7 +1190,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/" class="md-nav__link">
+      <a href="../contributing/" class="md-nav__link">
         
   
   
@@ -1151,10 +1245,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#start-the-mcp-server" class="md-nav__link">
+  <a href="#aegis-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Start the MCP server
+        aegis run
       
     </span>
   </a>
@@ -1162,10 +1256,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure-claude-desktop" class="md-nav__link">
+  <a href="#aegis-validate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure Claude Desktop
+        aegis validate
       
     </span>
   </a>
@@ -1173,10 +1267,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-tools" class="md-nav__link">
+  <a href="#aegis-generate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available tools
+        aegis generate
       
     </span>
   </a>
@@ -1184,10 +1278,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-prompts" class="md-nav__link">
+  <a href="#aegis-audit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example prompts
+        aegis audit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="aegis audit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aegis-audit-list-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis audit list-runs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aegis-audit-trajectory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis audit trajectory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aegis-audit-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis audit search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aegis-audit-export-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis audit export-dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aegis-init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis init
       
     </span>
   </a>
@@ -1195,10 +1350,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-with-other-mcp-clients" class="md-nav__link">
+  <a href="#aegis-validate-sql-stages" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Using with other MCP clients
+        aegis validate — SQL stages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aegis-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis mcp
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aegis-dbt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        aegis dbt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Environment variables
       
     </span>
   </a>
@@ -1225,80 +1413,382 @@
   
 
 
-<h1 id="mcp-server">MCP Server</h1>
-<p>Aegis ships a <a href="https://modelcontextprotocol.io">Model Context Protocol</a> (MCP) server that exposes five tools to any MCP-compatible client — including Claude Desktop. Once configured, you can ask Claude to run data quality checks, inspect audit trails, and search past diagnoses directly from the chat interface.</p>
+<h1 id="cli-reference">CLI Reference</h1>
+<p>All Aegis commands, flags, and options.</p>
 <hr />
-<h2 id="start-the-mcp-server">Start the MCP server</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>aegis<span class="w"> </span>mcp<span class="w"> </span>serve
+<h2 id="aegis-run"><code>aegis run</code></h2>
+<p>Run data quality checks defined in a YAML rules file.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb
 </code></pre></div>
-<p>The server listens on stdin/stdout using the MCP stdio transport (the default for Claude Desktop integrations).</p>
-<hr />
-<h2 id="configure-claude-desktop">Configure Claude Desktop</h2>
-<p>Add the following to your Claude Desktop configuration file:</p>
-<ul>
-<li><strong>macOS</strong>: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
-<li><strong>Windows</strong>: <code>%APPDATA%\Claude\claude_desktop_config.json</code></li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">&quot;aegis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aegis&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">        </span><span class="nt">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sk-ant-...&quot;</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="p">}</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
-</code></pre></div>
-<p>Restart Claude Desktop after saving. You should see "aegis" appear in the tool list.</p>
-<hr />
-<h2 id="available-tools">Available tools</h2>
 <table>
 <thead>
 <tr>
-<th>Tool</th>
-<th>What it does</th>
+<th>Flag</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>aegis_run</code></td>
-<td>Run a rules file against a warehouse and return the full validation report. Accepts <code>rules_file</code>, <code>db_path</code>, <code>no_llm</code>, and <code>llm</code> parameters.</td>
+<td><code>config</code></td>
+<td>path</td>
+<td>required</td>
+<td>Path to rules YAML file</td>
 </tr>
 <tr>
-<td><code>aegis_validate</code></td>
-<td>Validate a rules file offline (schema check only). Returns a list of errors and warnings without touching any data.</td>
+<td><code>--db</code></td>
+<td>text</td>
+<td><code>:memory:</code></td>
+<td>DuckDB file path</td>
 </tr>
 <tr>
-<td><code>aegis_list_runs</code></td>
-<td>Return a list of recent runs from the audit trail, newest first. Accepts an optional <code>limit</code> parameter.</td>
+<td><code>--warehouse</code>, <code>-w</code></td>
+<td>text</td>
+<td><code>duckdb</code></td>
+<td>Warehouse: <code>duckdb</code> | <code>postgres</code></td>
 </tr>
 <tr>
-<td><code>aegis_trajectory</code></td>
-<td>Return the full node-by-node trajectory for a given <code>run_id</code>, including every LLM prompt and response.</td>
+<td><code>--pg-dsn</code></td>
+<td>text</td>
+<td>—</td>
+<td>Postgres/Redshift DSN string</td>
 </tr>
 <tr>
-<td><code>aegis_search</code></td>
-<td>Full-text search across all LLM decisions in the audit trail. Accepts a <code>query</code> string and optional <code>limit</code>.</td>
+<td><code>--pg-host</code></td>
+<td>text</td>
+<td><code>localhost</code></td>
+<td>Postgres host</td>
+</tr>
+<tr>
+<td><code>--pg-port</code></td>
+<td>int</td>
+<td><code>5432</code></td>
+<td>Postgres port (use <code>5439</code> for Redshift)</td>
+</tr>
+<tr>
+<td><code>--pg-dbname</code></td>
+<td>text</td>
+<td><code>postgres</code></td>
+<td>Database name</td>
+</tr>
+<tr>
+<td><code>--pg-user</code></td>
+<td>text</td>
+<td><code>postgres</code></td>
+<td>Postgres user</td>
+</tr>
+<tr>
+<td><code>--pg-password</code></td>
+<td>text</td>
+<td>—</td>
+<td>Postgres password</td>
+</tr>
+<tr>
+<td><code>--pg-schema</code></td>
+<td>text</td>
+<td><code>public</code></td>
+<td>Default schema</td>
+</tr>
+<tr>
+<td><code>--no-llm</code></td>
+<td>flag</td>
+<td>off</td>
+<td>Skip LLM diagnosis — pure validation, $0</td>
+</tr>
+<tr>
+<td><code>--llm</code></td>
+<td>text</td>
+<td><code>anthropic</code></td>
+<td>LLM provider: <code>anthropic</code> | <code>openai</code> | <code>ollama</code></td>
+</tr>
+<tr>
+<td><code>--llm-model</code></td>
+<td>text</td>
+<td>—</td>
+<td>Override the default model name</td>
+</tr>
+<tr>
+<td><code>--ollama-host</code></td>
+<td>text</td>
+<td><code>http://localhost:11434</code></td>
+<td>Ollama base URL</td>
+</tr>
+<tr>
+<td><code>--output-json</code>, <code>-o</code></td>
+<td>path</td>
+<td>—</td>
+<td>Write JSON report to file</td>
+</tr>
+<tr>
+<td><code>--notify</code></td>
+<td>text</td>
+<td>—</td>
+<td>Slack webhook URL (or set <code>AEGIS_SLACK_WEBHOOK</code>)</td>
+</tr>
+<tr>
+<td><code>--notify-on</code></td>
+<td>text</td>
+<td><code>failures</code></td>
+<td>When to notify: <code>all</code> | <code>failures</code> | <code>critical</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Offline — no LLM, no API key</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb<span class="w"> </span>--no-llm
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># With Anthropic Claude</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>sk-ant-...
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># With Ollama (fully local)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb<span class="w"> </span>--llm<span class="w"> </span>ollama<span class="w"> </span>--llm-model<span class="w"> </span>llama3.2
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Against Postgres</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--warehouse<span class="w"> </span>postgres<span class="w"> </span>--pg-host<span class="w"> </span>localhost<span class="w"> </span>--pg-dbname<span class="w"> </span>mydb
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="c1"># Write JSON report for CI</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb<span class="w"> </span>--output<span class="w"> </span>report.json
+</code></pre></div>
+<hr />
+<h2 id="aegis-validate"><code>aegis validate</code></h2>
+<p>Check rule YAML syntax and schema without touching any warehouse.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>aegis<span class="w"> </span>validate<span class="w"> </span>rules.yaml
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config</code></td>
+<td>path</td>
+<td>required</td>
+<td>Path to rules YAML file</td>
+</tr>
+<tr>
+<td><code>--check-sql</code></td>
+<td>flag</td>
+<td>off</td>
+<td>Verify SQL syntax for <code>sql_expression</code> / <code>custom_sql</code> rules</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td>text</td>
+<td>—</td>
+<td>DuckDB path — enables schema-aware and dry-run SQL checks</td>
+</tr>
+<tr>
+<td><code>--warnings</code> / <code>--no-warnings</code></td>
+<td>flag</td>
+<td>on</td>
+<td>Show warnings</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Syntax check only (no DB needed)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>aegis<span class="w"> </span>validate<span class="w"> </span>rules.yaml
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Syntax + SQL verification</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>aegis<span class="w"> </span>validate<span class="w"> </span>rules.yaml<span class="w"> </span>--check-sql
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Full validation — syntax + schema + dry-run</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>aegis<span class="w"> </span>validate<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb
+</code></pre></div>
+<hr />
+<h2 id="aegis-generate"><code>aegis generate</code></h2>
+<p>Introspect a table schema and generate draft rules using an LLM.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>aegis<span class="w"> </span>generate<span class="w"> </span>orders<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb<span class="w"> </span>--output<span class="w"> </span>rules.yaml
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>table</code></td>
+<td>text</td>
+<td>required</td>
+<td>Table name to generate rules for</td>
+</tr>
+<tr>
+<td><code>--db</code></td>
+<td>text</td>
+<td>—</td>
+<td>DuckDB file path for schema introspection</td>
+</tr>
+<tr>
+<td><code>--output</code>, <code>-o</code></td>
+<td>path</td>
+<td><code>rules.yaml</code></td>
+<td>Output YAML file</td>
+</tr>
+<tr>
+<td><code>--kb</code></td>
+<td>path</td>
+<td>—</td>
+<td>Knowledge-base file (text/markdown) with business rules</td>
+</tr>
+<tr>
+<td><code>--provider</code></td>
+<td>text</td>
+<td><code>anthropic</code></td>
+<td>LLM provider: <code>anthropic</code> | <code>bedrock</code> | <code>openai</code> | <code>ollama</code></td>
+</tr>
+<tr>
+<td><code>--model</code>, <code>-m</code></td>
+<td>text</td>
+<td>—</td>
+<td>LLM model override</td>
+</tr>
+<tr>
+<td><code>--max-rules</code></td>
+<td>int</td>
+<td><code>20</code></td>
+<td>Maximum number of rules to generate</td>
+</tr>
+<tr>
+<td><code>--no-verify</code></td>
+<td>flag</td>
+<td>off</td>
+<td>Skip SQL verification of generated rules</td>
+</tr>
+<tr>
+<td><code>--save-versions</code></td>
+<td>flag</td>
+<td>off</td>
+<td>Persist generated rules to version store</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Structural rules from schema only</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>aegis<span class="w"> </span>generate<span class="w"> </span>orders<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb<span class="w"> </span>--output<span class="w"> </span>orders_rules.yaml
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Structural + business rules from a policy doc</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>aegis<span class="w"> </span>generate<span class="w"> </span>orders<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span>--kb<span class="w"> </span>docs/orders_policy.md<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span>--output<span class="w"> </span>orders_rules.yaml
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1"># Use Ollama for $0 generation</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>aegis<span class="w"> </span>generate<span class="w"> </span>orders<span class="w"> </span>--db<span class="w"> </span>warehouse.duckdb<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span>--provider<span class="w"> </span>ollama<span class="w"> </span>--model<span class="w"> </span>llama3.2
+</code></pre></div>
+<p>Generated rules are stamped <code>status: draft</code> — review and promote to <code>active</code> before committing.</p>
+<hr />
+<h2 id="aegis-audit"><code>aegis audit</code></h2>
+<p>Inspect the audit trail of all past runs.</p>
+<h3 id="aegis-audit-list-runs"><code>aegis audit list-runs</code></h3>
+<p>List all run IDs, newest first.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>list-runs
+</code></pre></div>
+<h3 id="aegis-audit-trajectory"><code>aegis audit trajectory</code></h3>
+<p>Show the full node-by-node decision trajectory for a run.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>trajectory<span class="w"> </span>&lt;run-id&gt;
+</code></pre></div>
+<h3 id="aegis-audit-search"><code>aegis audit search</code></h3>
+<p>Full-text search across all LLM decisions.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;null email&quot;</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>aegis<span class="w"> </span>audit<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;customer_id&quot;</span>
+</code></pre></div>
+<h3 id="aegis-audit-export-dataset"><code>aegis audit export-dataset</code></h3>
+<p>Export run trajectories as ShareGPT JSONL for fine-tuning.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Export a specific run</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>aegis<span class="w"> </span>audit<span class="w"> </span>export-dataset<span class="w"> </span>output.jsonl<span class="w"> </span>--run-id<span class="w"> </span>&lt;run-id&gt;
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Export all runs</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>aegis<span class="w"> </span>audit<span class="w"> </span>export-dataset<span class="w"> </span>output.jsonl
+</code></pre></div>
+<hr />
+<h2 id="aegis-init"><code>aegis init</code></h2>
+<p>Generate an example <code>rules.yaml</code> in the current directory.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>aegis<span class="w"> </span>init
+</code></pre></div>
+<hr />
+<h2 id="aegis-validate-sql-stages"><code>aegis validate</code> — SQL stages</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Flag</th>
+<th>What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stage 1</td>
+<td><code>--check-sql</code></td>
+<td>Syntax only via sqlglot</td>
+</tr>
+<tr>
+<td>Stage 2</td>
+<td><code>--db path</code></td>
+<td>Schema — column names exist in table</td>
+</tr>
+<tr>
+<td>Stage 3</td>
+<td><code>--db path</code></td>
+<td>Dry-run — SQL executes without error</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="example-prompts">Example prompts</h2>
-<p>Once connected, you can use natural language with Claude:</p>
-<ul>
-<li>"Run my rules.yaml against demo.db and tell me what failed."</li>
-<li>"Show me the last 5 validation runs."</li>
-<li>"Search the audit trail for anything about null order IDs."</li>
-<li>"Show me the full diagnosis for run run_20260511_143022_a1b2c3."</li>
-<li>"Validate my rules.yaml and fix any errors you find."</li>
-</ul>
-<hr />
-<h2 id="using-with-other-mcp-clients">Using with other MCP clients</h2>
-<p>The Aegis MCP server is a standard stdio-transport MCP server and works with any compliant client. For HTTP/SSE transport (e.g. for remote use), run:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>aegis<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span>--transport<span class="w"> </span>sse<span class="w"> </span>--port<span class="w"> </span><span class="m">8765</span>
+<h2 id="aegis-mcp"><code>aegis mcp</code></h2>
+<p>Start the Aegis MCP server for use with Claude Desktop.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>aegis<span class="w"> </span>mcp
 </code></pre></div>
+<p>See <a href="../integrations/mcp/">MCP Server →</a> for configuration details.</p>
+<hr />
+<h2 id="aegis-dbt"><code>aegis dbt</code></h2>
+<p>dbt integration commands.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Convert dbt manifest to Aegis rules</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>aegis<span class="w"> </span>dbt<span class="w"> </span>generate<span class="w"> </span>manifest.json<span class="w"> </span>--output<span class="w"> </span>rules.yaml
+</code></pre></div>
+<p>See <a href="../integrations/dbt/">dbt Integration →</a> for full usage.</p>
+<hr />
+<h2 id="environment-variables">Environment variables</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>Anthropic API key</td>
+</tr>
+<tr>
+<td><code>OPENAI_API_KEY</code></td>
+<td>OpenAI API key</td>
+</tr>
+<tr>
+<td><code>AEGIS_SLACK_WEBHOOK</code></td>
+<td>Slack webhook URL for notifications</td>
+</tr>
+<tr>
+<td><code>AWS_PROFILE</code></td>
+<td>AWS profile for Bedrock</td>
+</tr>
+<tr>
+<td><code>AWS_DEFAULT_REGION</code></td>
+<td>AWS region for Bedrock</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -1385,10 +1875,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.instant", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.instant", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

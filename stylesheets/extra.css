@@ -1,0 +1,330 @@
+/* ── Aegis DQ — Landing + Docs Styles ── */
+
+:root {
+  --hp-bg:       #0f1117;
+  --hp-bg-alt:   #161b27;
+  --hp-border:   rgba(255,255,255,0.07);
+  --hp-primary:  #6366f1;
+  --hp-accent:   #818cf8;
+  --hp-text:     #e2e8f0;
+  --hp-muted:    #64748b;
+  --hp-green:    #22c55e;
+  --hp-code-bg:  #1e2433;
+}
+
+/* ── RESET FOR HOMEPAGE ONLY ── */
+.hp-hero, .hp-section { box-sizing: border-box; }
+
+/* ── CONTAINER ── */
+.hp-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+.hp-container--narrow {
+  max-width: 780px;
+}
+
+/* ── HERO ── */
+.hp-hero {
+  background: var(--hp-bg);
+  border-bottom: 1px solid var(--hp-border);
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+}
+
+.hp-hero__badge {
+  display: inline-block;
+  border: 1px solid rgba(99,102,241,0.35);
+  background: rgba(99,102,241,0.08);
+  color: var(--hp-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.hp-hero__title {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.hp-hero__title em {
+  font-style: normal;
+  color: var(--hp-accent);
+}
+
+.hp-hero__sub {
+  color: var(--hp-muted);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 580px;
+  margin: 0 auto 2rem;
+}
+
+.hp-hero__ctas {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.hp-hero__install code {
+  background: var(--hp-code-bg);
+  border: 1px solid var(--hp-border);
+  color: var(--hp-accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  padding: 0.45rem 1.2rem;
+  border-radius: 6px;
+}
+
+/* ── BUTTONS ── */
+.hp-btn {
+  display: inline-block;
+  padding: 0.65rem 1.4rem;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.hp-btn--primary {
+  background: var(--hp-primary);
+  color: #fff;
+}
+.hp-btn--primary:hover {
+  background: var(--hp-accent);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.hp-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--hp-border);
+  color: var(--hp-text);
+}
+.hp-btn--ghost:hover {
+  border-color: var(--hp-accent);
+  color: var(--hp-accent);
+  transform: translateY(-1px);
+}
+
+/* ── SECTIONS ── */
+.hp-section {
+  padding: 4rem 0;
+  background: var(--hp-bg);
+}
+.hp-section--alt {
+  background: var(--hp-bg-alt);
+  border-top: 1px solid var(--hp-border);
+  border-bottom: 1px solid var(--hp-border);
+}
+
+.hp-section__title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2.5rem;
+  letter-spacing: -0.01em;
+}
+
+/* ── HOW IT WORKS ── */
+.hp-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.hp-step {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--hp-border);
+}
+.hp-step:last-child {
+  border-bottom: none;
+}
+
+.hp-step__num {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--hp-accent);
+  margin-top: 0.1rem;
+}
+
+.hp-step__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.hp-step__body strong {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.hp-step__body span {
+  color: var(--hp-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.hp-step__body code {
+  background: var(--hp-code-bg);
+  color: var(--hp-accent);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-size: 0.82em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── CARD GRID ── */
+.hp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.hp-card {
+  display: block;
+  background: var(--hp-bg);
+  border: 1px solid var(--hp-border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+.hp-card:hover {
+  border-color: rgba(99,102,241,0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+.hp-card__icon {
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+}
+.hp-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.35rem;
+}
+.hp-card__desc {
+  font-size: 0.83rem;
+  color: var(--hp-muted);
+  line-height: 1.55;
+}
+
+/* ── ADAPTERS ── */
+.hp-adapters {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.hp-adapter-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.hp-adapter-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--hp-muted);
+  min-width: 110px;
+  flex-shrink: 0;
+}
+
+.hp-adapter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.hp-adapter-chips span {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hp-border);
+  border-radius: 6px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+  color: var(--hp-text);
+}
+
+/* ── COST STRIP ── */
+.hp-cost-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  background: var(--hp-bg);
+  border: 1px solid var(--hp-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.hp-cost-item {
+  flex: 1;
+  min-width: 180px;
+  text-align: center;
+  padding: 1.75rem 1.5rem;
+}
+.hp-cost-item--highlight {
+  background: rgba(99,102,241,0.07);
+  border-left: 1px solid var(--hp-border);
+  border-right: 1px solid var(--hp-border);
+}
+
+.hp-cost-item__value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--hp-green);
+  margin-bottom: 0.3rem;
+}
+.hp-cost-item--highlight .hp-cost-item__value {
+  color: var(--hp-accent);
+}
+
+.hp-cost-item__label {
+  font-size: 0.78rem;
+  color: var(--hp-muted);
+  line-height: 1.5;
+}
+.hp-cost-item__label code {
+  background: var(--hp-code-bg);
+  color: var(--hp-accent);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  font-size: 0.82em;
+}
+
+.hp-cost-divider {
+  width: 1px;
+  height: 60px;
+  background: var(--hp-border);
+  flex-shrink: 0;
+}

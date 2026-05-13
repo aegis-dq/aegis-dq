@@ -1,0 +1,164 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+{{ super() }}
+
+<style>
+  .md-header { position: initial }
+  .md-main__inner { margin: 0 }
+  .md-content { display: none }
+  @media screen and (min-width: 60em) { .md-sidebar--secondary { display: none } }
+  @media screen and (min-width: 76.25em) { .md-sidebar--primary { display: none } }
+</style>
+
+<!-- HERO -->
+<section class="hp-hero">
+  <div class="hp-container">
+    <div class="hp-hero__badge">v0.6.0 · Apache 2.0 · 265 downloads</div>
+    <h1 class="hp-hero__title">
+      Data quality that tells you <em>why</em>
+    </h1>
+    <p class="hp-hero__sub">
+      Aegis DQ is an open-source agentic framework that diagnoses pipeline failures,
+      traces root causes, and proposes verified SQL fixes — automatically.
+    </p>
+    <div class="hp-hero__ctas">
+      <a href="{{ 'getting-started/' | url }}" class="hp-btn hp-btn--primary">Get started →</a>
+      <a href="https://github.com/aegis-dq/aegis-dq" class="hp-btn hp-btn--ghost" target="_blank">GitHub</a>
+    </div>
+    <div class="hp-hero__install">
+      <code>pip install aegis-dq</code>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="hp-section">
+  <div class="hp-container hp-container--narrow">
+    <h2 class="hp-section__title">How it works</h2>
+    <div class="hp-steps">
+      <div class="hp-step">
+        <div class="hp-step__num">1</div>
+        <div class="hp-step__body">
+          <strong>Define rules in YAML</strong>
+          <span>31 rule types — or run <code>aegis generate</code> to write them from your schema automatically.</span>
+        </div>
+      </div>
+      <div class="hp-step">
+        <div class="hp-step__num">2</div>
+        <div class="hp-step__body">
+          <strong>Run the pipeline</strong>
+          <span><code>aegis run rules.yaml --db warehouse.duckdb</code> — tables validate in parallel.</span>
+        </div>
+      </div>
+      <div class="hp-step">
+        <div class="hp-step__num">3</div>
+        <div class="hp-step__body">
+          <strong>Get LLM diagnosis on every failure</strong>
+          <span>Plain-English explanation, root cause trace, and a verified SQL fix — for each failed rule.</span>
+        </div>
+      </div>
+      <div class="hp-step">
+        <div class="hp-step__num">4</div>
+        <div class="hp-step__body">
+          <strong>Every decision is logged</strong>
+          <span>Full audit trail in SQLite — prompt, response, cost, latency. Searchable. Exportable.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- START HERE CARDS -->
+<section class="hp-section hp-section--alt">
+  <div class="hp-container">
+    <h2 class="hp-section__title">Start here</h2>
+    <div class="hp-cards">
+      <a href="{{ 'getting-started/' | url }}" class="hp-card">
+        <div class="hp-card__icon">🚀</div>
+        <div class="hp-card__title">Quickstart</div>
+        <div class="hp-card__desc">Get from zero to a passing pipeline in 5 minutes.</div>
+      </a>
+      <a href="{{ 'rule-schema-reference/' | url }}" class="hp-card">
+        <div class="hp-card__icon">📐</div>
+        <div class="hp-card__title">Rule Schema</div>
+        <div class="hp-card__desc">All 31 rule types with full field definitions and examples.</div>
+      </a>
+      <a href="{{ 'architecture/' | url }}" class="hp-card">
+        <div class="hp-card__icon">🏗</div>
+        <div class="hp-card__title">Architecture</div>
+        <div class="hp-card__desc">Deep dive into the 7-node LangGraph pipeline.</div>
+      </a>
+      <a href="{{ 'cli-reference/' | url }}" class="hp-card">
+        <div class="hp-card__icon">⌨️</div>
+        <div class="hp-card__title">CLI Reference</div>
+        <div class="hp-card__desc">Every command, flag, and option documented.</div>
+      </a>
+      <a href="{{ 'integrations/dbt/' | url }}" class="hp-card">
+        <div class="hp-card__icon">🔌</div>
+        <div class="hp-card__title">Integrations</div>
+        <div class="hp-card__desc">dbt, Airflow, GitHub Actions, MCP Server.</div>
+      </a>
+      <a href="{{ 'vs-competitors/' | url }}" class="hp-card">
+        <div class="hp-card__icon">🆚</div>
+        <div class="hp-card__title">vs Competitors</div>
+        <div class="hp-card__desc">How Aegis compares to GE, Soda, Monte Carlo, dbt tests.</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ADAPTERS -->
+<section class="hp-section">
+  <div class="hp-container hp-container--narrow">
+    <h2 class="hp-section__title">Works with your stack</h2>
+    <div class="hp-adapters">
+      <div class="hp-adapter-row">
+        <span class="hp-adapter-label">Warehouses</span>
+        <div class="hp-adapter-chips">
+          <span>DuckDB</span><span>Postgres</span><span>Redshift</span>
+          <span>BigQuery</span><span>Databricks</span><span>Snowflake</span><span>Athena</span>
+        </div>
+      </div>
+      <div class="hp-adapter-row">
+        <span class="hp-adapter-label">LLM providers</span>
+        <div class="hp-adapter-chips">
+          <span>Anthropic Claude</span><span>OpenAI</span>
+          <span>AWS Bedrock</span><span>Ollama (local, $0)</span>
+        </div>
+      </div>
+      <div class="hp-adapter-row">
+        <span class="hp-adapter-label">Integrations</span>
+        <div class="hp-adapter-chips">
+          <span>dbt</span><span>Airflow</span><span>GitHub Actions</span><span>MCP Server</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COST STRIP -->
+<section class="hp-section hp-section--alt">
+  <div class="hp-container hp-container--narrow">
+    <div class="hp-cost-strip">
+      <div class="hp-cost-item">
+        <div class="hp-cost-item__value">$0</div>
+        <div class="hp-cost-item__label"><code>--no-llm</code> mode</div>
+      </div>
+      <div class="hp-cost-divider"></div>
+      <div class="hp-cost-item">
+        <div class="hp-cost-item__value">$0</div>
+        <div class="hp-cost-item__label">Ollama (fully offline)</div>
+      </div>
+      <div class="hp-cost-divider"></div>
+      <div class="hp-cost-item hp-cost-item--highlight">
+        <div class="hp-cost-item__value">$0.005</div>
+        <div class="hp-cost-item__label">12 rules · 11 failures · Claude Haiku</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}{{ super() }}{% endblock %}

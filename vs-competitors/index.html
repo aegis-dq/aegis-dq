@@ -10,10 +10,10 @@
       
       
       
-        <link rel="canonical" href="https://aegis-dq.github.io/aegis-dq/vs-competitors/">
+        <link rel="canonical" href="https://aegis-dq.dev/vs-competitors/">
       
       
-        <link rel="prev" href="../integrations/mcp/">
+        <link rel="prev" href="../audit-trail/">
       
       
         <link rel="next" href="../contributing/">
@@ -53,6 +53,8 @@
       
     
     
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -69,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -125,20 +127,20 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
@@ -243,17 +245,18 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../getting-started/" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
   
-  Getting Started
+  
+  Overview
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -262,36 +265,18 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../architecture/" class="md-tabs__link">
-        
-  
-  
     
-  
-  Architecture
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../rule-schema-reference/" class="md-tabs__link">
-        
-  
-  
     
+      <li class="md-tabs__item">
+        <a href="../rule-schema-reference/" class="md-tabs__link">
+          
   
-  Rule Schema Reference
+  
+  Rules
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -322,17 +307,18 @@
     
   
   
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../cli-reference/" class="md-tabs__link">
+          
   
-  vs Competitors
+  
+  Reference
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -341,17 +327,18 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../contributing/" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/" class="md-tabs__link">
+          
   
-  Contributing
+  
+  Community
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -433,6 +420,58 @@
   
   
   
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../getting-started/" class="md-nav__link">
         
@@ -441,7 +480,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Quickstart
   
 
     
@@ -453,9 +492,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -480,30 +520,11 @@
     </li>
   
 
-    
+              
+            
+          </ul>
+        </nav>
       
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../rule-schema-reference/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rule Schema Reference
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -528,10 +549,97 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rule-schema-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rule Schema Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
@@ -549,8 +657,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -623,6 +731,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../integrations/github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub Actions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../integrations/mcp/" class="md-nav__link">
         
   
@@ -653,6 +789,119 @@
     
       
       
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../audit-trail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audit Trail
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
   
   
     
@@ -718,10 +967,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#full-comparison" class="md-nav__link">
+  <a href="#quick-comparison" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Full comparison
+        Quick comparison
       
     </span>
   </a>
@@ -729,22 +978,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#when-to-choose-each-tool" class="md-nav__link">
+  <a href="#detailed-teardowns" class="md-nav__link">
     <span class="md-ellipsis">
       
-        When to choose each tool
+        Detailed teardowns
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="When to choose each tool">
+    <nav class="md-nav" aria-label="Detailed teardowns">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#choose-aegis-when" class="md-nav__link">
+  <a href="#aegis-vs-great-expectations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose Aegis when:
+        Aegis vs Great Expectations
       
     </span>
   </a>
@@ -752,10 +1001,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-great-expectations-when" class="md-nav__link">
+  <a href="#aegis-vs-soda-core" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose Great Expectations when:
+        Aegis vs Soda Core
       
     </span>
   </a>
@@ -763,10 +1012,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-soda-when" class="md-nav__link">
+  <a href="#aegis-vs-monte-carlo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose Soda when:
+        Aegis vs Monte Carlo
       
     </span>
   </a>
@@ -774,10 +1023,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-monte-carlo-when" class="md-nav__link">
+  <a href="#aegis-vs-metaplane" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose Monte Carlo when:
+        Aegis vs Metaplane
       
     </span>
   </a>
@@ -785,10 +1034,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-dbt-tests-when" class="md-nav__link">
+  <a href="#aegis-vs-anomalo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose dbt tests when:
+        Aegis vs Anomalo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aegis-vs-dbt-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aegis vs dbt tests
       
     </span>
   </a>
@@ -800,6 +1060,50 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#setup-time-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup time comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cost-at-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cost at scale
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-not-to-use-aegis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When NOT to use Aegis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choose-aegis-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choose Aegis when
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -807,9 +1111,69 @@
     </li>
   
 
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
     
       
       
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Community
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
   
   
   
@@ -831,6 +1195,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -862,10 +1234,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#full-comparison" class="md-nav__link">
+  <a href="#quick-comparison" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Full comparison
+        Quick comparison
       
     </span>
   </a>
@@ -873,22 +1245,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#when-to-choose-each-tool" class="md-nav__link">
+  <a href="#detailed-teardowns" class="md-nav__link">
     <span class="md-ellipsis">
       
-        When to choose each tool
+        Detailed teardowns
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="When to choose each tool">
+    <nav class="md-nav" aria-label="Detailed teardowns">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#choose-aegis-when" class="md-nav__link">
+  <a href="#aegis-vs-great-expectations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose Aegis when:
+        Aegis vs Great Expectations
       
     </span>
   </a>
@@ -896,10 +1268,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-great-expectations-when" class="md-nav__link">
+  <a href="#aegis-vs-soda-core" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose Great Expectations when:
+        Aegis vs Soda Core
       
     </span>
   </a>
@@ -907,10 +1279,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-soda-when" class="md-nav__link">
+  <a href="#aegis-vs-monte-carlo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose Soda when:
+        Aegis vs Monte Carlo
       
     </span>
   </a>
@@ -918,10 +1290,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-monte-carlo-when" class="md-nav__link">
+  <a href="#aegis-vs-metaplane" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose Monte Carlo when:
+        Aegis vs Metaplane
       
     </span>
   </a>
@@ -929,10 +1301,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-dbt-tests-when" class="md-nav__link">
+  <a href="#aegis-vs-anomalo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choose dbt tests when:
+        Aegis vs Anomalo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aegis-vs-dbt-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aegis vs dbt tests
       
     </span>
   </a>
@@ -941,6 +1324,50 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-time-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup time comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cost-at-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cost at scale
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-not-to-use-aegis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When NOT to use Aegis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choose-aegis-when" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choose Aegis when
+      
+    </span>
+  </a>
   
 </li>
       
@@ -965,17 +1392,24 @@
 
 
 <h1 id="aegis-vs-the-alternatives">Aegis vs the alternatives</h1>
-<p>Choosing a data quality tool comes down to four questions: does it explain <em>why</em> a check failed (diagnosis capability), what does it cost to run at scale, can you bring your own LLM or run fully offline, and is it open source so you can audit and extend it? The tools below answer those questions very differently.</p>
+<p>The data quality tooling market splits into three tiers: <strong>rule-based validators</strong> (Great Expectations, Soda, dbt tests), <strong>commercial observability platforms</strong> (Monte Carlo, Metaplane, Anomalo, Bigeye), and <strong>agentic frameworks</strong> (Aegis). Each tier answers a different question.</p>
+<ul>
+<li><strong>Validators</strong> answer: <em>did this check pass or fail?</em></li>
+<li><strong>Observability platforms</strong> answer: <em>what changed in my data estate?</em></li>
+<li><strong>Aegis</strong> answers: <em>why did this fail, what caused it, and how do I fix it?</em></li>
+</ul>
 <hr />
-<h2 id="full-comparison">Full comparison</h2>
+<h2 id="quick-comparison">Quick comparison</h2>
 <table>
 <thead>
 <tr>
-<th>Feature</th>
+<th></th>
 <th style="text-align: center;"><strong>Aegis</strong></th>
 <th style="text-align: center;"><strong>Great Expectations</strong></th>
 <th style="text-align: center;"><strong>Soda Core</strong></th>
 <th style="text-align: center;"><strong>Monte Carlo</strong></th>
+<th style="text-align: center;"><strong>Metaplane</strong></th>
+<th style="text-align: center;"><strong>Anomalo</strong></th>
 <th style="text-align: center;"><strong>dbt tests</strong></th>
 </tr>
 </thead>
@@ -985,7 +1419,9 @@
 <td style="text-align: center;">Apache 2.0</td>
 <td style="text-align: center;">Apache 2.0</td>
 <td style="text-align: center;">Apache 2.0</td>
-<td style="text-align: center;">Commercial SaaS</td>
+<td style="text-align: center;">Commercial</td>
+<td style="text-align: center;">Commercial</td>
+<td style="text-align: center;">Commercial</td>
 <td style="text-align: center;">Apache 2.0</td>
 </tr>
 <tr>
@@ -994,147 +1430,348 @@
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
 <td style="text-align: center;">✅</td>
 </tr>
 <tr>
-<td><strong>LLM-powered diagnosis</strong></td>
+<td><strong>LLM diagnosis</strong></td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">❌</td>
 <td style="text-align: center;">❌</td>
-<td style="text-align: center;">Partial (proprietary)</td>
+<td style="text-align: center;">Partial</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">Partial</td>
 <td style="text-align: center;">❌</td>
 </tr>
 <tr>
 <td><strong>Root cause analysis</strong></td>
-<td style="text-align: center;">✅ (lineage-aware)</td>
+<td style="text-align: center;">✅</td>
 <td style="text-align: center;">❌</td>
 <td style="text-align: center;">❌</td>
-<td style="text-align: center;">✅ (proprietary)</td>
-<td style="text-align: center;">❌</td>
-</tr>
-<tr>
-<td><strong>Audit trail (every decision logged)</strong></td>
-<td style="text-align: center;">✅ SQLite + FTS5</td>
-<td style="text-align: center;">Partial (run docs)</td>
-<td style="text-align: center;">Partial (scan results)</td>
-<td style="text-align: center;">✅ (proprietary)</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">Partial</td>
+<td style="text-align: center;">✅</td>
 <td style="text-align: center;">❌</td>
 </tr>
 <tr>
-<td><strong>Pluggable LLM (bring your own)</strong></td>
-<td style="text-align: center;">✅ Anthropic / OpenAI / Ollama</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">❌</td>
-</tr>
-<tr>
-<td><strong>Local LLM (Ollama / fully offline)</strong></td>
+<td><strong>SQL auto-fix proposals</strong></td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">❌</td>
 <td style="text-align: center;">❌</td>
 <td style="text-align: center;">❌</td>
 <td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
 </tr>
 <tr>
-<td><strong>Warehouse support</strong></td>
-<td style="text-align: center;">DuckDB, BigQuery, Databricks, Athena</td>
-<td style="text-align: center;">20+ (Great Expectations Cloud)</td>
-<td style="text-align: center;">10+</td>
-<td style="text-align: center;">15+</td>
-<td style="text-align: center;">dbt-supported only</td>
+<td><strong>LLM rule generation</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td><strong>ML anomaly detection</strong></td>
+<td style="text-align: center;">✅ built-in</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td><strong>Audit trail</strong></td>
+<td style="text-align: center;">✅ SQLite + FTS5</td>
+<td style="text-align: center;">Partial</td>
+<td style="text-align: center;">Partial</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td><strong>Pluggable LLM</strong></td>
+<td style="text-align: center;">✅ 4 providers</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td><strong>Offline / local LLM</strong></td>
+<td style="text-align: center;">✅ Ollama</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td><strong>GitHub Action</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">Partial</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
 </tr>
 <tr>
 <td><strong>dbt integration</strong></td>
-<td style="text-align: center;">✅ manifest parser</td>
-<td style="text-align: center;">✅ native</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">✅</td>
 <td style="text-align: center;">✅ native</td>
 </tr>
 <tr>
-<td><strong>Airflow integration</strong></td>
-<td style="text-align: center;">✅ AegisOperator</td>
+<td><strong>MCP server</strong></td>
 <td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">✅</td>
-</tr>
-<tr>
-<td><strong>MCP server (Claude tool use)</strong></td>
-<td style="text-align: center;">✅ 5 tools</td>
 <td style="text-align: center;">❌</td>
 <td style="text-align: center;">❌</td>
 <td style="text-align: center;">❌</td>
 <td style="text-align: center;">❌</td>
-</tr>
-<tr>
-<td><strong>Fine-tuning data export</strong></td>
-<td style="text-align: center;">✅ ShareGPT JSONL</td>
 <td style="text-align: center;">❌</td>
 <td style="text-align: center;">❌</td>
-<td style="text-align: center;">❌</td>
-<td style="text-align: center;">❌</td>
-</tr>
-<tr>
-<td><strong>Python install</strong></td>
-<td style="text-align: center;"><code>pip install aegis-dq</code></td>
-<td style="text-align: center;"><code>pip install great-expectations</code></td>
-<td style="text-align: center;"><code>pip install soda-core</code></td>
-<td style="text-align: center;">Agent install</td>
-<td style="text-align: center;"><code>pip install dbt-core</code></td>
-</tr>
-<tr>
-<td><strong>YAML rule format</strong></td>
-<td style="text-align: center;">✅ Kubernetes-style CRD</td>
-<td style="text-align: center;">Partial (JSON/Python)</td>
-<td style="text-align: center;">✅</td>
-<td style="text-align: center;">UI-driven</td>
-<td style="text-align: center;">YAML (dbt schema.yml)</td>
 </tr>
 <tr>
 <td><strong>Pricing</strong></td>
-<td style="text-align: center;">Free / open source</td>
-<td style="text-align: center;">Free + paid Cloud</td>
-<td style="text-align: center;">Free + paid Cloud</td>
-<td style="text-align: center;">$$$  enterprise</td>
-<td style="text-align: center;">Free / open source</td>
+<td style="text-align: center;">Free</td>
+<td style="text-align: center;">Free + Cloud</td>
+<td style="text-align: center;">Free + Cloud</td>
+<td style="text-align: center;">$$$</td>
+<td style="text-align: center;">$$$</td>
+<td style="text-align: center;">$$$</td>
+<td style="text-align: center;">Free</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="when-to-choose-each-tool">When to choose each tool</h2>
-<h3 id="choose-aegis-when">Choose Aegis when:</h3>
+<h2 id="detailed-teardowns">Detailed teardowns</h2>
+<h3 id="aegis-vs-great-expectations">Aegis vs Great Expectations</h3>
+<p>Great Expectations is the most widely adopted open-source DQ framework. It has the broadest warehouse coverage, the largest community, and the deepest Python API. Aegis is not trying to replace it for teams that have already invested in GE.</p>
+<p><strong>Where GE wins:</strong>
+- 20+ warehouse connectors via GE Cloud
+- Mature Python API with rich expectation library
+- Large existing community and Stack Overflow coverage
+- GE Cloud for teams that want a managed UI</p>
+<p><strong>Where Aegis wins:</strong>
+- GE tells you <code>orders_amount_positive FAILED</code> — Aegis tells you <em>why</em>, proposes a SQL fix, and logs every decision
+- Zero-config start: <code>pip install aegis-dq &amp;&amp; aegis init &amp;&amp; aegis run rules.yaml</code>
+- <code>aegis generate</code> writes your first rules from schema — GE requires you to author expectations manually
+- Every LLM call is logged, costed, and searchable — full traceability GE has no equivalent for
+- Ollama support for fully offline LLM diagnosis at $0</p>
+<p><strong>Verdict:</strong> Use GE if you have an established expectation suite or need the broadest warehouse ecosystem. Start with Aegis if you're greenfield and want diagnosis + remediation out of the box.</p>
+<hr />
+<h3 id="aegis-vs-soda-core">Aegis vs Soda Core</h3>
+<p>Soda positions itself as a business-user-friendly alternative to GE, with a managed SaaS offering (Soda Cloud) and a YAML-based check language (SodaCL).</p>
+<p><strong>Where Soda wins:</strong>
+- SodaCL is readable by non-engineers — business analysts can write checks
+- Soda Cloud provides a managed UI, alerting, and enterprise support contracts
+- Strong Slack/Teams integration for failure notifications
+- Better suited for teams that want a vendor SLA</p>
+<p><strong>Where Aegis wins:</strong>
+- Aegis YAML is equally readable (Kubernetes CRD style) but adds LLM diagnosis
+- No vendor lock-in to a SaaS platform — Aegis runs entirely in your infra
+- SQL verification pipeline catches broken expressions before they hit production
+- Rule versioning with <code>status: draft/active/deprecated</code> — Soda has no equivalent</p>
+<p><strong>Verdict:</strong> Use Soda if your team includes non-engineers who need to write checks in a business-friendly language, or if you need enterprise support. Use Aegis if you want the same YAML simplicity plus LLM-powered diagnosis and full self-hosting.</p>
+<hr />
+<h3 id="aegis-vs-monte-carlo">Aegis vs Monte Carlo</h3>
+<p>Monte Carlo is a commercial data observability platform. It monitors your entire data estate automatically — without you writing rules — and alerts when metrics change unexpectedly.</p>
+<p><strong>Where Monte Carlo wins:</strong>
+- Automatic anomaly detection across all tables without writing any rules
+- Enterprise-grade catalog integration, table health scores, lineage visualization
+- Scales to thousands of tables with no configuration
+- Strong enterprise support, SLAs, and compliance features</p>
+<p><strong>Where Aegis wins:</strong>
+- Apache 2.0 — Monte Carlo is a six-figure commercial contract
+- You control the LLM: swap between Anthropic, OpenAI, Bedrock, or Ollama
+- Full audit trail of every AI decision — Monte Carlo's AI is a black box
+- <code>aegis generate</code> produces portable YAML rules you own; Monte Carlo's rules live in their platform
+- GitHub Actions CI gate for catching issues before data reaches the warehouse</p>
+<p><strong>Verdict:</strong> Monte Carlo is the right choice for large enterprises with budget for a managed platform and thousands of tables to monitor. Aegis is the right choice for teams that want open-source, auditable, LLM-powered DQ with zero vendor lock-in.</p>
+<hr />
+<h3 id="aegis-vs-metaplane">Aegis vs Metaplane</h3>
+<p>Metaplane focuses on data observability — monitoring your warehouse for anomalies, freshness issues, and schema changes automatically.</p>
+<p><strong>Where Metaplane wins:</strong>
+- No-code setup — connects to your warehouse and starts monitoring automatically
+- Strong Slack integration for real-time alerting
+- Good for teams that want observability without writing rules
+- Lineage visualization built-in</p>
+<p><strong>Where Aegis wins:</strong>
+- Rule-based validation gives deterministic pass/fail on business logic Metaplane can't encode
+- LLM generates the rules for you — similar "no-code" setup story without the SaaS cost
+- Self-hosted: your data never leaves your infra
+- <code>sql_expression</code> rules capture business logic (e.g. <code>discount_pct &lt;= 0.5</code>) that statistical anomaly detection misses</p>
+<p><strong>Verdict:</strong> Metaplane is strong for passive observability ("alert me when something changes"). Aegis is stronger for active contract enforcement ("this column must never be null; status must be one of these values").</p>
+<hr />
+<h3 id="aegis-vs-anomalo">Aegis vs Anomalo</h3>
+<p>Anomalo is an ML-based data quality platform that learns your data's normal patterns and alerts on deviations — no rules to write.</p>
+<p><strong>Where Anomalo wins:</strong>
+- Learns baselines automatically — no rules required
+- Strong at catching novel issues that rule-based systems miss
+- Enterprise integrations (Slack, PagerDuty, Jira)
+- Root cause analysis built into the platform</p>
+<p><strong>Where Aegis wins:</strong>
+- Business logic validation: <code>amount &gt; 0</code>, <code>status IN (...)</code> — things ML can't encode
+- Open source + self-hosted
+- Bring your own LLM for diagnosis
+- Aegis also has ML anomaly detection (<code>zscore_outlier</code>, <code>isolation_forest</code>, <code>learned_threshold</code>) — you get both approaches in one framework
+- Portable YAML rules you own and version-control</p>
+<p><strong>Verdict:</strong> Anomalo excels at unsupervised anomaly detection on large warehouse estates. Aegis combines rule-based validation with built-in ML anomaly detection and LLM diagnosis — covering the same ground in an open, self-hosted package.</p>
+<hr />
+<h3 id="aegis-vs-dbt-tests">Aegis vs dbt tests</h3>
+<p>dbt tests are the default choice for any team already using dbt. They're simple, co-located with your models, and run as part of <code>dbt build</code>.</p>
+<p><strong>Where dbt tests win:</strong>
+- Zero friction if you're already in dbt — tests live next to your models
+- <code>not_null</code>, <code>unique</code>, <code>accepted_values</code>, <code>relationships</code> cover 80% of use cases
+- No additional infrastructure to run or maintain
+- Community packages (dbt-utils, dbt-expectations) extend coverage significantly</p>
+<p><strong>Where Aegis wins:</strong>
+- dbt tests give you pass/fail only — Aegis adds LLM diagnosis, RCA, and SQL fix proposals
+- 31 rule types vs 4 built-in dbt test types
+- ML anomaly detection dbt has no equivalent for
+- Aegis has a dbt manifest parser — convert your existing dbt tests to Aegis rules with one command
+- GitHub Action with structured JSON output (<code>rules-checked</code>, <code>passed</code>, <code>failed</code>, <code>pass-rate</code>)</p>
+<p><strong>Verdict:</strong> Don't replace dbt tests with Aegis — use both. Run <code>aegis dbt generate manifest.json</code> to import your existing tests into Aegis and get diagnosis on top of what you already have.</p>
+<hr />
+<h2 id="setup-time-comparison">Setup time comparison</h2>
+<p>How long does it take to get your first passing rule?</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Time to first rule</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Aegis</strong></td>
+<td>~3 minutes</td>
+<td><code>pip install</code>, <code>aegis init</code>, <code>aegis run</code> — or <code>aegis generate</code> to skip writing rules entirely</td>
+</tr>
+<tr>
+<td><strong>dbt tests</strong></td>
+<td>~5 minutes (if dbt installed)</td>
+<td>Edit <code>schema.yml</code>, run <code>dbt test</code></td>
+</tr>
+<tr>
+<td><strong>Soda Core</strong></td>
+<td>~10 minutes</td>
+<td>Install, write SodaCL check, connect data source</td>
+</tr>
+<tr>
+<td><strong>Great Expectations</strong></td>
+<td>~20 minutes</td>
+<td>Checkpoint setup, expectation suite, data source config</td>
+</tr>
+<tr>
+<td><strong>Monte Carlo</strong></td>
+<td>Days–weeks</td>
+<td>Enterprise onboarding, warehouse connection approval, initial scan</td>
+</tr>
+<tr>
+<td><strong>Metaplane</strong></td>
+<td>Hours</td>
+<td>SaaS signup, warehouse connector setup, initial scan</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cost-at-scale">Cost at scale</h2>
+<p>Running 100 rules against 10 tables, daily.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Monthly cost</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Aegis (--no-llm)</strong></td>
+<td>$0</td>
+<td>Pure validation, no LLM</td>
+</tr>
+<tr>
+<td><strong>Aegis (Ollama)</strong></td>
+<td>$0</td>
+<td>Local LLM inference</td>
+</tr>
+<tr>
+<td><strong>Aegis (Claude Haiku)</strong></td>
+<td>~$1–5</td>
+<td>Depends on failure rate and token count</td>
+</tr>
+<tr>
+<td><strong>Aegis (GPT-4o-mini)</strong></td>
+<td>~$2–8</td>
+<td>Slightly higher than Haiku</td>
+</tr>
+<tr>
+<td><strong>dbt tests</strong></td>
+<td>$0</td>
+<td>Compute cost only</td>
+</tr>
+<tr>
+<td><strong>Great Expectations</strong></td>
+<td>$0 (OSS) / $$ (Cloud)</td>
+<td>Cloud pricing not public</td>
+</tr>
+<tr>
+<td><strong>Soda Core</strong></td>
+<td>$0 (OSS) / $$ (Cloud)</td>
+<td>Cloud pricing not public</td>
+</tr>
+<tr>
+<td><strong>Monte Carlo</strong></td>
+<td>$$$$</td>
+<td>Enterprise, typically $50k–$200k/year</td>
+</tr>
+<tr>
+<td><strong>Metaplane</strong></td>
+<td>$$$</td>
+<td>Mid-market, typically $20k–$80k/year</td>
+</tr>
+<tr>
+<td><strong>Anomalo</strong></td>
+<td>$$$$</td>
+<td>Enterprise, pricing on request</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-not-to-use-aegis">When NOT to use Aegis</h2>
+<p>Be honest about this — Aegis is not the right tool for every situation.</p>
 <ul>
-<li>You want to know <strong>why</strong> a check failed, not just that it did — Aegis gives you an LLM-written diagnosis with a root cause and a concrete action for every failure.</li>
-<li>You need a <strong>full, searchable audit trail</strong> of every validation decision, LLM call, and cost — useful for regulated industries and debugging.</li>
-<li>You want to run <strong>completely offline</strong> with a local Ollama model and no external API calls.</li>
-<li>You are building <strong>tooling on top of a DQ framework</strong> — the MCP server lets Claude Desktop run checks, and the ShareGPT export lets you fine-tune a model on your own diagnostic reasoning.</li>
-<li>You want <strong>YAML-first rules</strong> that look like Kubernetes CRDs and are easy to version-control and code-review.</li>
+<li><strong>You have 5,000+ tables to monitor</strong> — Aegis is rule-based. Writing rules for 5,000 tables is impractical even with <code>aegis generate</code>. A platform like Monte Carlo or Anomalo that auto-discovers anomalies is a better fit.</li>
+<li><strong>You need a business-user UI</strong> — Aegis is a CLI and Python framework. Non-engineers will not write YAML. Soda Cloud or a commercial platform serves that audience.</li>
+<li><strong>You need a vendor SLA</strong> — Aegis is open source. If your organization requires a support contract with SLA commitments, choose a commercial vendor.</li>
+<li><strong>You're fully committed to dbt</strong> — dbt tests + dbt-expectations cover most rule-based needs and add zero infrastructure.</li>
 </ul>
-<h3 id="choose-great-expectations-when">Choose Great Expectations when:</h3>
+<hr />
+<h2 id="choose-aegis-when">Choose Aegis when</h2>
 <ul>
-<li>Your team already has an established GE codebase and expectation suites and the migration cost outweighs the benefit of LLM diagnosis.</li>
-<li>You need the broadest warehouse coverage and are willing to use GE Cloud for the managed experience.</li>
-<li>You prefer a Python-native API (<code>expect_column_values_to_not_be_null(...)</code>) over YAML.</li>
-</ul>
-<h3 id="choose-soda-when">Choose Soda when:</h3>
-<ul>
-<li>Your team wants a <strong>managed SaaS offering</strong> with enterprise support contracts and an SLA.</li>
-<li>You need business-user-facing UI for non-engineers to write checks without touching YAML or Python.</li>
-<li>You are already using the Soda ecosystem for data observability across multiple platforms.</li>
-</ul>
-<h3 id="choose-monte-carlo-when">Choose Monte Carlo when:</h3>
-<ul>
-<li>You need <strong>enterprise-scale data observability</strong> with catalog integration, table health scores, and anomaly detection across a large warehouse estate.</li>
-<li>You have budget for a commercial platform and want vendor-supported root cause analysis built into the product.</li>
-<li>Your primary concern is proactive anomaly detection rather than rule-based validation.</li>
-</ul>
-<h3 id="choose-dbt-tests-when">Choose dbt tests when:</h3>
-<ul>
-<li>You just need <strong>simple pass/fail assertions</strong> co-located with your dbt models and you have no need for LLM diagnosis or audit trails.</li>
-<li>Your entire data transformation stack lives in dbt and you want the smallest possible footprint.</li>
-<li>You want tests that run automatically as part of <code>dbt build</code> with no additional infrastructure.</li>
+<li>You want to know <strong>why</strong> a check failed — diagnosis + root cause + SQL fix in one run</li>
+<li>You need a <strong>full audit trail</strong> of every AI decision, cost, and output — regulated industries, debugging, compliance</li>
+<li>You want <strong>zero vendor lock-in</strong> — your rules are portable YAML, your LLM is swappable, your data never leaves your infra</li>
+<li>You want <strong>LLM rule generation</strong> — <code>aegis generate</code> writes draft rules from your schema and business docs</li>
+<li>You want <strong>ML anomaly detection + rule validation</strong> in a single framework without two separate tools</li>
+<li>You want a <strong>GitHub Actions CI gate</strong> that catches data issues on every PR before they hit production</li>
+<li>You run <strong>AWS Bedrock or Ollama</strong> and want no monthly LLM bill</li>
 </ul>
 
 

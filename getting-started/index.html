@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://aegis-dq.github.io/aegis-dq/getting-started/">
+        <link rel="canonical" href="https://aegis-dq.dev/getting-started/">
       
       
         <link rel="prev" href="..">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Getting Started - Aegis</title>
+        <title>Quickstart - Aegis</title>
       
     
     
@@ -53,6 +53,8 @@
       
     
     
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -69,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -112,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting Started
+              Quickstart
             
           </span>
         </div>
@@ -125,20 +127,20 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
@@ -245,17 +247,18 @@
     
   
   
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
   
-  Getting Started
+  
+  Overview
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -264,36 +267,18 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../architecture/" class="md-tabs__link">
-        
-  
-  
     
-  
-  Architecture
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../rule-schema-reference/" class="md-tabs__link">
-        
-  
-  
     
+      <li class="md-tabs__item">
+        <a href="../rule-schema-reference/" class="md-tabs__link">
+          
   
-  Rule Schema Reference
+  
+  Rules
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -322,17 +307,18 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../vs-competitors/" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item">
+        <a href="../cli-reference/" class="md-tabs__link">
+          
   
-  vs Competitors
+  
+  Reference
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -341,17 +327,18 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../contributing/" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/" class="md-tabs__link">
+          
   
-  Contributing
+  
+  Community
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -435,6 +422,63 @@
   
   
   
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
@@ -450,7 +494,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Quickstart
   
 
     
@@ -468,7 +512,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Quickstart
   
 
     
@@ -593,10 +637,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10-next-steps" class="md-nav__link">
+  <a href="#10-real-world-end-to-end-demo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. Next steps
+        10. Real-world end-to-end demo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-generate-rules-with-the-llm-v060" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Generate rules with the LLM (v0.6.0)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Generate rules with the LLM (v0.6.0)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#business-validation-rules-with-kb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Business validation rules with --kb
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-validate-sql-expressions-v060" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Validate SQL expressions (v0.6.0)
       
     </span>
   </a>
@@ -610,9 +704,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -637,30 +732,11 @@
     </li>
   
 
-    
+              
+            
+          </ul>
+        </nav>
       
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../rule-schema-reference/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rule Schema Reference
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -685,10 +761,97 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rule-schema-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rule Schema Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
@@ -706,8 +869,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -780,6 +943,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../integrations/github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub Actions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../integrations/mcp/" class="md-nav__link">
         
   
@@ -814,6 +1005,114 @@
   
   
   
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../audit-trail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audit Trail
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../vs-competitors/" class="md-nav__link">
         
@@ -834,9 +1133,69 @@
     </li>
   
 
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
     
       
       
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Community
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
   
   
   
@@ -858,6 +1217,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -988,10 +1355,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10-next-steps" class="md-nav__link">
+  <a href="#10-real-world-end-to-end-demo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. Next steps
+        10. Real-world end-to-end demo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Next steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-generate-rules-with-the-llm-v060" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Generate rules with the LLM (v0.6.0)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Generate rules with the LLM (v0.6.0)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#business-validation-rules-with-kb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Business validation rules with --kb
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-validate-sql-expressions-v060" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Validate SQL expressions (v0.6.0)
       
     </span>
   </a>
@@ -1168,93 +1585,163 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>sk-ant-...
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>demo.db
 </code></pre></div>
+<p><strong>AWS Bedrock (no API key — uses AWS credentials profile):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Uses the Bedrock Converse API with Amazon Nova Pro (no use-case form needed)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>python<span class="w"> </span>demo/realworld_demo.py<span class="w"> </span>--aws-profile<span class="w"> </span>your-aws-profile
+</code></pre></div>
 <p>Expected output (additional LLM section appended after the summary table):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>LLM Diagnosis
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>─────────────────────────────────────────────────────────────────────
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Rule:    orders_order_id_not_null  (critical)
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Table:   orders
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Failed:  50 rows (0.5% of 10 000)
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>Explanation:
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>  50 rows in the orders table have a NULL order_id. Downstream joins
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>  on order_id will silently drop these rows, causing undercounting in
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>  revenue reports.
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>Likely cause:
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>  The ETL pipeline loads from the source OLTP database without a
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>  NOT NULL guard. When the source emits a partial record (e.g. a
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>  cart-abandonment event), order_id is omitted and lands as NULL.
-<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>
-<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>Recommended action:
-<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>  1. Run: SELECT * FROM orders WHERE order_id IS NULL LIMIT 20
-<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>  2. Check ETL logs for the most recent ingestion window
-<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>  3. Add a NOT NULL constraint or COALESCE guard in staging
-<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>─────────────────────────────────────────────────────────────────────
-<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>Rule:    orders_revenue_positive  (high)
-<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>Table:   orders
-<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>Failed:  20 rows (0.2% of 10 000)
-<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>
-<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>Explanation:
-<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>  20 rows have revenue = -5.00, violating the non-negative revenue
-<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>  constraint.
-<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>
-<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a>Likely cause:
-<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a>  Refund processing logic may have inverted the sign rather than
-<a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a>  recording refunds in a separate table.
-<a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a>
-<a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a>Recommended action:
-<a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a>  1. Run: SELECT * FROM orders WHERE revenue &lt; 0 LIMIT 20
-<a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a>  2. Verify refund handling in the ETL transform
-<a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a>─────────────────────────────────────────────────────────────────────
-<a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a>
-<a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a>LLM cost: $0.000412  (claude-haiku-4-5, 2 diagnoses)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>LLM Diagnosis
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>─────────────────────────────────────────────────────────────────────
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>Rule:    orders_order_id_not_null  (critical)
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>Table:   orders
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>Failed:  50 rows (0.5% of 10 000)
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>Explanation:
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>  50 rows in the orders table have a NULL order_id. Downstream joins
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>  on order_id will silently drop these rows, causing undercounting in
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>  revenue reports.
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>Likely cause:
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>  The ETL pipeline loads from the source OLTP database without a
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>  NOT NULL guard. When the source emits a partial record (e.g. a
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>  cart-abandonment event), order_id is omitted and lands as NULL.
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>Recommended action:
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>  1. Run: SELECT * FROM orders WHERE order_id IS NULL LIMIT 20
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>  2. Check ETL logs for the most recent ingestion window
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>  3. Add a NOT NULL constraint or COALESCE guard in staging
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>─────────────────────────────────────────────────────────────────────
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>Rule:    orders_revenue_positive  (high)
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>Table:   orders
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>Failed:  20 rows (0.2% of 10 000)
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>Explanation:
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>  20 rows have revenue = -5.00, violating the non-negative revenue
+<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>  constraint.
+<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>
+<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>Likely cause:
+<a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a>  Refund processing logic may have inverted the sign rather than
+<a id="__codelineno-11-32" name="__codelineno-11-32" href="#__codelineno-11-32"></a>  recording refunds in a separate table.
+<a id="__codelineno-11-33" name="__codelineno-11-33" href="#__codelineno-11-33"></a>
+<a id="__codelineno-11-34" name="__codelineno-11-34" href="#__codelineno-11-34"></a>Recommended action:
+<a id="__codelineno-11-35" name="__codelineno-11-35" href="#__codelineno-11-35"></a>  1. Run: SELECT * FROM orders WHERE revenue &lt; 0 LIMIT 20
+<a id="__codelineno-11-36" name="__codelineno-11-36" href="#__codelineno-11-36"></a>  2. Verify refund handling in the ETL transform
+<a id="__codelineno-11-37" name="__codelineno-11-37" href="#__codelineno-11-37"></a>─────────────────────────────────────────────────────────────────────
+<a id="__codelineno-11-38" name="__codelineno-11-38" href="#__codelineno-11-38"></a>
+<a id="__codelineno-11-39" name="__codelineno-11-39" href="#__codelineno-11-39"></a>LLM cost: $0.000412  (claude-haiku-4-5, 2 diagnoses)
 </code></pre></div>
 <hr />
 <h2 id="7-use-a-local-llm-no-api-key">7. Use a local LLM (no API key)</h2>
 <p>If you have <a href="https://ollama.com">Ollama</a> running locally, you can run diagnosis entirely offline:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># requires ollama running locally with llama3.2 pulled</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>demo.db<span class="w"> </span>--llm<span class="w"> </span>ollama<span class="w"> </span>--llm-model<span class="w"> </span>llama3.2
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># requires ollama running locally with llama3.2 pulled</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>demo.db<span class="w"> </span>--llm<span class="w"> </span>ollama<span class="w"> </span>--llm-model<span class="w"> </span>llama3.2
 </code></pre></div>
 <p>Ollama runs on <code>http://localhost:11434</code> by default. To use a different host:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>demo.db<span class="w"> </span>--llm<span class="w"> </span>ollama<span class="w"> </span>--llm-model<span class="w"> </span>llama3.2<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span>--llm-base-url<span class="w"> </span>http://my-ollama-host:11434
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>demo.db<span class="w"> </span>--llm<span class="w"> </span>ollama<span class="w"> </span>--llm-model<span class="w"> </span>llama3.2<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span>--llm-base-url<span class="w"> </span>http://my-ollama-host:11434
 </code></pre></div>
 <hr />
 <h2 id="8-inspect-the-audit-trail">8. Inspect the audit trail</h2>
 <p>Every run writes to <code>~/.aegis/history.db</code>. Use the <code>audit</code> subcommands to explore it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># List all runs (newest first)</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>aegis<span class="w"> </span>audit<span class="w"> </span>list-runs
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Show the full node-by-node trajectory for a specific run</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>aegis<span class="w"> </span>audit<span class="w"> </span>trajectory<span class="w"> </span>run_20260511_143022_a1b2c3
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1"># Full-text search across all LLM decisions</span>
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>aegis<span class="w"> </span>audit<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;null order_id&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># List all runs (newest first)</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>aegis<span class="w"> </span>audit<span class="w"> </span>list-runs
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Show the full node-by-node trajectory for a specific run</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>aegis<span class="w"> </span>audit<span class="w"> </span>trajectory<span class="w"> </span>run_20260511_143022_a1b2c3
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Full-text search across all LLM decisions</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>aegis<span class="w"> </span>audit<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;null order_id&quot;</span>
 </code></pre></div>
 <p>Example <code>list-runs</code> output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>  run_id                           started              rules  passed  failed
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  run_20260511_143022_a1b2c3      2026-05-11 14:30:22      3       1       2
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>  run_20260510_091500_d4e5f6      2026-05-10 09:15:00      3       3       0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>  run_id                           started              rules  passed  failed
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>  run_20260511_143022_a1b2c3      2026-05-11 14:30:22      3       1       2
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>  run_20260510_091500_d4e5f6      2026-05-10 09:15:00      3       3       0
 </code></pre></div>
 <hr />
 <h2 id="9-export-for-fine-tuning">9. Export for fine-tuning</h2>
 <p>Dump the audit trail for a run as ShareGPT-format JSONL, ready for supervised fine-tuning:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>export-dataset<span class="w"> </span>output.jsonl<span class="w"> </span>--run-id<span class="w"> </span>run_20260511_143022_a1b2c3
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>export-dataset<span class="w"> </span>output.jsonl<span class="w"> </span>--run-id<span class="w"> </span>run_20260511_143022_a1b2c3
 </code></pre></div>
 <p>Omit <code>--run-id</code> to export all runs:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>export-dataset<span class="w"> </span>output.jsonl
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>export-dataset<span class="w"> </span>output.jsonl
 </code></pre></div>
 <p>Each line in <code>output.jsonl</code> is one conversation turn: the rule context as a user message and the LLM diagnosis as an assistant message.</p>
 <hr />
-<h2 id="10-next-steps">10. Next steps</h2>
+<h2 id="10-real-world-end-to-end-demo">10. Real-world end-to-end demo</h2>
+<p>The repository ships a complete RetailCo e-commerce demo that exercises every pipeline node against a 4-table DuckDB database with realistic dirty data. Use it to see the full agentic output — diagnosis, root-cause analysis, and LLM-generated remediation SQL — in one command.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Validation only (no LLM, instant)</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>python<span class="w"> </span>demo/realworld_demo.py<span class="w"> </span>--no-llm
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Full pipeline with AWS Bedrock (requires ~/.aws/credentials profile)</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>python<span class="w"> </span>demo/realworld_demo.py<span class="w"> </span>--aws-profile<span class="w"> </span>your-profile
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># Full pipeline with Anthropic</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>sk-ant-...
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>python<span class="w"> </span>demo/realworld_demo.py<span class="w"> </span>--no-llm<span class="w">   </span><span class="c1"># swap in AnthropicAdapter in the script</span>
+</code></pre></div>
+<p>What runs:
+- <strong>4 tables</strong> — customers, products, orders, payments (10 rows each, dirty data injected)
+- <strong>12 rules</strong> — not_null, not_empty_string, accepted_values, sql_expression, unique, min_value_check, foreign_key, date_order
+- <strong>11 failures</strong> detected: NULL email, empty email, invalid tier, negative price, duplicate SKU, negative stock, orphan FK, date inversion, invalid status, orphan payment, negative payment
+- <strong>Full LLM output</strong> per failure: explanation + likely_cause + suggested_action + root_cause + propagation + fix + proposed SQL
+- <strong>Run time</strong>: ~7s | <strong>LLM cost</strong>: ~$0.006 (Amazon Nova Pro) | <strong>Tokens</strong>: ~3,600</p>
+<p>The demo script is at <a href="../demo/realworld_demo.py"><code>demo/realworld_demo.py</code></a>.</p>
+<hr />
+<h2 id="11-next-steps">11. Next steps</h2>
 <ul>
-<li><a href="../rule-schema-reference/">Rule Schema Reference</a> — all 28 rule types with full field definitions</li>
+<li><a href="../rule-schema-reference/">Rule Schema Reference</a> — all 31 rule types with full field definitions</li>
 <li><a href="../architecture/">Architecture</a> — deep dive into the 7-node pipeline</li>
 <li><a href="../integrations/dbt/">dbt Integration</a> — auto-generate Aegis rules from your dbt manifest</li>
 <li><a href="../integrations/airflow/">Airflow Integration</a> — run Aegis as an Airflow operator</li>
 <li><a href="../integrations/mcp/">MCP Server</a> — use Aegis as a Claude Desktop tool</li>
 <li><a href="../vs-competitors/">vs Competitors</a> — how Aegis compares to Great Expectations, Soda, and Monte Carlo</li>
 </ul>
+<hr />
+<h2 id="12-generate-rules-with-the-llm-v060">12. Generate rules with the LLM (v0.6.0)</h2>
+<p>Instead of writing rules by hand, let Aegis introspect your table schema and generate a draft rules file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>aegis<span class="w"> </span>generate<span class="w"> </span>orders<span class="w"> </span>--db<span class="w"> </span>demo.db<span class="w"> </span>--output<span class="w"> </span>orders_rules.yaml
+</code></pre></div>
+<p>This generates <strong>structural rules</strong> based on what Aegis observes in the schema: <code>not_null</code> on non-nullable columns, <code>between</code> from observed min/max, <code>unique</code> on ID columns, null percentage thresholds.</p>
+<h3 id="business-validation-rules-with-kb">Business validation rules with --kb</h3>
+<p>Pass a plain-text or markdown file describing your business logic and the LLM generates <strong>business validation rules</strong> alongside the structural ones:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>aegis<span class="w"> </span>generate<span class="w"> </span>orders<span class="w"> </span>--db<span class="w"> </span>demo.db<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span>--kb<span class="w"> </span>docs/orders_policy.md<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span>--output<span class="w"> </span>orders_rules.yaml
+</code></pre></div>
+<p><strong>Example KB file (<code>docs/orders_policy.md</code>):</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">-</span><span class="w"> </span>status must be one of: placed, confirmed, shipped, delivered, cancelled
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">-</span><span class="w"> </span>amount must be greater than 0; refunds are handled in a separate table
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="k">-</span><span class="w"> </span>customer_id must reference a valid customer (no test accounts: id &gt; 1000)
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="k">-</span><span class="w"> </span>order_date must not be in the future
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="k">-</span><span class="w"> </span>discount_pct must be between 0 and 0.5 (max 50% discount)
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="k">-</span><span class="w"> </span>email must match standard email format
+</code></pre></div>
+<p>From this, Aegis generates rules like:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">logic</span><span class="p">:</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">accepted_values</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="nt">values</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">placed</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">confirmed</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">shipped</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">delivered</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">cancelled</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">logic</span><span class="p">:</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sql_expression</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">    </span><span class="nt">expression</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;amount</span><span class="nv"> </span><span class="s">&gt;</span><span class="nv"> </span><span class="s">0&quot;</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">logic</span><span class="p">:</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">between</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">    </span><span class="nt">min_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="w">    </span><span class="nt">max_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">logic</span><span class="p">:</span>
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">regex_match</span>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="w">    </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;^[^@]+@[^@]+\\.[^@]+$&quot;</span>
+</code></pre></div>
+<p>Generated rules are stamped <code>status: draft</code> and <code>generated_by: &lt;model&gt;</code>. Review them, promote to <code>active</code>, and commit to version control.</p>
+<hr />
+<h2 id="13-validate-sql-expressions-v060">13. Validate SQL expressions (v0.6.0)</h2>
+<p>Run the SQL verification pipeline against your rules without executing a full run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># Stage 1 — syntax only (no DB needed)</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>aegis<span class="w"> </span>validate<span class="w"> </span>rules.yaml<span class="w"> </span>--check-sql
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="c1"># Stages 1-3 — syntax + schema + dry-run</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>aegis<span class="w"> </span>validate<span class="w"> </span>rules.yaml<span class="w"> </span>--db<span class="w"> </span>demo.db
+</code></pre></div>
+<p>Any <code>sql_expression</code> or <code>custom_sql</code> rule with a broken expression is caught here before it reaches production.</p>
 
 
 

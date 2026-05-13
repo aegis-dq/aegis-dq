@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://aegis-dq.github.io/aegis-dq/architecture/">
+        <link rel="canonical" href="https://aegis-dq.dev/architecture/">
       
       
         <link rel="prev" href="../getting-started/">
@@ -53,6 +53,8 @@
       
     
     
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -69,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -125,20 +127,20 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
@@ -242,39 +244,21 @@
   
   
   
-  
-    <li class="md-tabs__item">
-      <a href="../getting-started/" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Getting Started
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
     
   
   
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../getting-started/" class="md-tabs__link">
+          
   
-  Architecture
+  
+  Overview
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -283,17 +267,18 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../rule-schema-reference/" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item">
+        <a href="../rule-schema-reference/" class="md-tabs__link">
+          
   
-  Rule Schema Reference
+  
+  Rules
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -322,17 +307,18 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../vs-competitors/" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item">
+        <a href="../cli-reference/" class="md-tabs__link">
+          
   
-  vs Competitors
+  
+  Reference
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -341,17 +327,18 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href="../contributing/" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/" class="md-tabs__link">
+          
   
-  Contributing
+  
+  Community
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -431,6 +418,63 @@
       
   
   
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Overview
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
@@ -441,7 +485,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Quickstart
   
 
     
@@ -453,9 +497,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
     
@@ -521,15 +566,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-7-node-pipeline" class="md-nav__link">
+  <a href="#the-5-node-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The 7-node pipeline
+        The 5-node pipeline
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The 7-node pipeline">
+    <nav class="md-nav" aria-label="The 5-node pipeline">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -544,10 +589,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-execute" class="md-nav__link">
+  <a href="#2-parallel_table" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. execute
+        2. parallel_table
       
     </span>
   </a>
@@ -566,10 +611,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-classify" class="md-nav__link">
+  <a href="#4-remediate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. classify
+        4. remediate
       
     </span>
   </a>
@@ -577,32 +622,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-diagnose" class="md-nav__link">
+  <a href="#5-report" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. diagnose
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#6-rca" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. rca
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#7-report" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. report
+        5. report
       
     </span>
   </a>
@@ -710,30 +733,11 @@
     </li>
   
 
-    
+              
+            
+          </ul>
+        </nav>
       
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../rule-schema-reference/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rule Schema Reference
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -758,10 +762,97 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rule-schema-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rule Schema Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
@@ -779,8 +870,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -853,6 +944,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../integrations/github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GitHub Actions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../integrations/mcp/" class="md-nav__link">
         
   
@@ -887,6 +1006,114 @@
   
   
   
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../audit-trail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audit Trail
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../vs-competitors/" class="md-nav__link">
         
@@ -907,9 +1134,69 @@
     </li>
   
 
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
     
       
       
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Community
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Community
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
   
   
   
@@ -931,6 +1218,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -962,15 +1257,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-7-node-pipeline" class="md-nav__link">
+  <a href="#the-5-node-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The 7-node pipeline
+        The 5-node pipeline
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The 7-node pipeline">
+    <nav class="md-nav" aria-label="The 5-node pipeline">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -985,10 +1280,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-execute" class="md-nav__link">
+  <a href="#2-parallel_table" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. execute
+        2. parallel_table
       
     </span>
   </a>
@@ -1007,10 +1302,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-classify" class="md-nav__link">
+  <a href="#4-remediate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. classify
+        4. remediate
       
     </span>
   </a>
@@ -1018,32 +1313,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-diagnose" class="md-nav__link">
+  <a href="#5-report" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. diagnose
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#6-rca" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. rca
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#7-report" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. report
+        5. report
       
     </span>
   </a>
@@ -1165,50 +1438,65 @@
 
 
 <h1 id="architecture">Architecture</h1>
-<p>Aegis is a LangGraph-orchestrated agent that runs a deterministic 7-node pipeline. Each node is a discrete step with a defined input state and output state. Nodes that call an LLM are skippable (<code>--no-llm</code>) without affecting the others.</p>
+<p>Aegis is a LangGraph-orchestrated agent that runs a deterministic 5-node pipeline. Each node is a discrete step with a defined input state and output state. Nodes that call an LLM are skippable (<code>--no-llm</code>) without affecting the others.</p>
 <hr />
-<h2 id="the-7-node-pipeline">The 7-node pipeline</h2>
+<h2 id="the-5-node-pipeline">The 5-node pipeline</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>rules.yaml
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    │
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ▼
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  plan ──► execute ──► reconcile ──► classify ──► diagnose ──► rca ──► report
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  plan ──► parallel_table ──► reconcile ──► remediate ──► report
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                 │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>         ┌──────────────────┐
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>         │  per table:      │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>         │  execute         │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>         │  classify        │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>         │  diagnose        │  ← tables run concurrently
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>         │  rca             │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>         └──────────────────┘
 </code></pre></div>
 <h3 id="1-plan">1. plan</h3>
-<p>Reads <code>rules.yaml</code>, validates each rule against the schema, groups rules by warehouse, and produces an <strong>execution plan</strong> — an ordered list of (warehouse, rule) pairs. Rules targeting the same warehouse are batched to reuse a single connection. Rules with <code>depends_on</code> are topologically sorted.</p>
-<h3 id="2-execute">2. execute</h3>
-<p>Runs each rule against its warehouse adapter using the appropriate SQL template for that rule type. Supports all 28 rule types. Returns a list of <strong>check results</strong>, each containing: <code>passed</code> (bool), <code>rows_failed</code>, <code>rows_checked</code>, <code>failed_sample</code> (up to 20 sample rows), and <code>execution_ms</code>.</p>
+<p>Reads rules (YAML or Python objects), validates each against the Pydantic schema, and builds an execution plan — an ordered list grouped by table. Rules with shared scope are batched; the output is a <code>{table → [rules]}</code> mapping consumed by the next node.</p>
+<h3 id="2-parallel_table">2. parallel_table</h3>
+<p>The core fan-out node. Groups rules by target table and launches a full mini-pipeline for <strong>each table concurrently</strong> using <code>asyncio.gather</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>per table (concurrent):
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  execute  → run all rules for this table against the warehouse adapter
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  classify → heuristic severity triage (escalates if &gt;5% rows fail or blast radius is high)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  diagnose → LLM writes plain-English explanation + likely cause + recommended action
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  rca      → LLM traces root cause through the OpenLineage lineage graph
+</code></pre></div>
+<p>Results from all tables are merged back into a single state before the next node. With N tables, the wall-clock time is bounded by the slowest table, not the sum of all tables.</p>
 <h3 id="3-reconcile">3. reconcile</h3>
-<p>Handles <strong>reconciliation rules</strong> that compare a source table to a target table (e.g. row counts match, checksum matches). Runs source and target queries in parallel and computes the delta. Non-reconciliation rules pass through this node unchanged.</p>
-<h3 id="4-classify">4. classify</h3>
-<p>Assigns or upgrades severity for each failure using a heuristic + optional LLM triage. A failure affecting more than 5% of rows in a critical table is automatically escalated. The <strong>blast radius</strong> (estimated downstream table count from the lineage graph) is factored into the final severity score. This node does not require an LLM — heuristics run even in <code>--no-llm</code> mode.</p>
-<h3 id="5-diagnose">5. diagnose</h3>
-<p>For each failed check, calls the configured LLM with a structured prompt containing: the rule definition, the check result, the failed sample rows, and any <code>common_causes</code> from the rule's <code>diagnosis</code> block. Returns a plain-English <strong>explanation</strong>, <strong>likely cause</strong>, and <strong>recommended action</strong> for each failure.</p>
-<h3 id="6-rca">6. rca</h3>
-<p>Performs <strong>root cause analysis</strong> using the OpenLineage lineage graph to trace a failed table upstream. Calls the LLM with the lineage path to identify which upstream dataset, job, or transformation introduced the issue. Produces a lineage-annotated root cause string that is included in the final report.</p>
-<h3 id="7-report">7. report</h3>
-<p>Assembles the final JSON report: run metadata, severity breakdown, per-rule results with LLM diagnosis and RCA, total LLM cost, and run duration. Writes the report to stdout (table + diagnosis text via Rich), to <code>--output-json</code> if specified, and to the audit trail.</p>
+<p>Handles <strong>cross-table reconciliation rules</strong> (<code>reconcile_row_count</code>, <code>reconcile_column_sum</code>, <code>reconcile_key_match</code>). Runs source and target queries in parallel and computes the delta against a configurable tolerance. Non-reconciliation rules pass through unchanged.</p>
+<h3 id="4-remediate">4. remediate</h3>
+<p>For each diagnosed failure, calls the LLM with the rule type, diagnosis, and RCA context to generate a <strong>targeted SQL fix</strong>. Returns a <code>RemediationProposal</code> with <code>proposed_sql</code>, <code>confidence</code> (high / medium / low), and a <code>caveat</code> explaining what to verify before running. Skipped when <code>remediation.proposal_strategy = "none"</code> or when <code>--no-llm</code> is set.</p>
+<h3 id="5-report">5. report</h3>
+<p>Assembles the final report: run metadata, severity breakdown, per-rule results with LLM diagnosis, RCA, and remediation SQL, total LLM cost, and run duration. Writes to stdout via Rich, to <code>--output-json</code> if specified, and to the SQLite audit trail (<code>~/.aegis/history.db</code>).</p>
 <hr />
 <h2 id="adapters">Adapters</h2>
 <p>Aegis uses a two-tier adapter pattern — one tier for LLMs, one for warehouses. Adapters are thin protocol implementations; the pipeline nodes never call a warehouse or LLM directly.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>LLM adapters
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>─────────────────────────────────────────────────
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  Anthropic   claude-haiku-4-5 (default)
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>              claude-sonnet-4-5
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>              claude-opus-4-5
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  OpenAI      gpt-4o-mini (default)
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>              gpt-4o
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  Ollama      any locally-pulled model
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>              (llama3.2, mistral, phi3, etc.)
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>              runs on http://localhost:11434
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>Warehouse adapters
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>─────────────────────────────────────────────────
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>  DuckDB      local file or in-memory
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>  BigQuery    project + dataset via service account
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>  Databricks  cluster or SQL warehouse via token
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>  Athena      S3 + Glue catalog via IAM role
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>LLM adapters
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>─────────────────────────────────────────────────
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  Anthropic   claude-haiku-4-5 (default)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>              claude-sonnet-4-5
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>              claude-opus-4-5
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  OpenAI      gpt-4o-mini (default)
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>              gpt-4o
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  Ollama      any locally-pulled model
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>              (llama3.2, mistral, phi3, etc.)
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>              runs on http://localhost:11434
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>  AWS Bedrock amazon.nova-pro-v1:0 (default, no approval needed)
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>              any Converse API-compatible model
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>              uses ~/.aws/credentials profile
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>Warehouse adapters
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>─────────────────────────────────────────────────
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>  DuckDB      local file or in-memory
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>  BigQuery    project + dataset via service account
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>  Databricks  cluster or SQL warehouse via token
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>  Athena      S3 + Glue catalog via IAM role
 </code></pre></div>
 <p>Implementing a new warehouse adapter requires a single Python class with three methods: <code>connect()</code>, <code>execute_scalar(sql)</code>, and <code>execute_sample(sql, limit)</code>.</p>
 <hr />
@@ -1216,14 +1504,14 @@
 <p>Every LLM call made during a run is recorded in <code>~/.aegis/history.db</code> (SQLite). The schema has two tables:</p>
 <ul>
 <li><strong>runs</strong> — one row per <code>aegis run</code> invocation: <code>run_id</code>, <code>started_at</code>, <code>rules_file</code>, <code>warehouse</code>, <code>llm</code>, <code>total_cost_usd</code>, <code>summary_json</code></li>
-<li><strong>decisions</strong> — one row per LLM call: <code>run_id</code>, <code>node</code> (diagnose / rca / classify), <code>rule_id</code>, <code>prompt</code>, <code>response</code>, <code>model</code>, <code>input_tokens</code>, <code>output_tokens</code>, <code>cost_usd</code>, <code>latency_ms</code></li>
+<li><strong>decisions</strong> — one row per LLM call: <code>run_id</code>, <code>node</code> (diagnose / rca / classify / remediate), <code>rule_id</code>, <code>prompt</code>, <code>response</code>, <code>model</code>, <code>input_tokens</code>, <code>output_tokens</code>, <code>cost_usd</code>, <code>latency_ms</code></li>
 </ul>
 <p>The <code>decisions</code> table has an FTS5 virtual table on <code>(prompt, response)</code>, enabling full-text search:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;null order_id&quot;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>aegis<span class="w"> </span>audit<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;currency conversion&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;null order_id&quot;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>aegis<span class="w"> </span>audit<span class="w"> </span>search<span class="w"> </span><span class="s2">&quot;currency conversion&quot;</span>
 </code></pre></div>
 <h3 id="sharegpt-export-for-fine-tuning">ShareGPT export for fine-tuning</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>export-dataset<span class="w"> </span>output.jsonl
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>aegis<span class="w"> </span>audit<span class="w"> </span>export-dataset<span class="w"> </span>output.jsonl
 </code></pre></div>
 <p>Each entry in the JSONL file is a ShareGPT-format conversation: the system prompt, the user turn (rule context + failed rows), and the assistant turn (the actual LLM diagnosis). This format is directly compatible with fine-tuning pipelines for most open-source models.</p>
 <hr />
