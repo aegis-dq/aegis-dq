@@ -6,7 +6,6 @@ by quoting each part independently.
 """
 from __future__ import annotations
 
-
 # ── Identifier quoting ────────────────────────────────────────────────────────
 
 def _quote_double(name: str) -> str:

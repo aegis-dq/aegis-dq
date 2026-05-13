@@ -11,14 +11,13 @@ from __future__ import annotations
 
 import pytest
 
-from aegis.rules.sql_safety import UnsafeSQLExpression, validate_custom_sql, validate_expression
 from aegis.adapters.warehouse.quoting import (
     escape_string_literal,
     quote_qualified_ansi,
     quote_qualified_bigquery,
     quote_qualified_spark,
 )
-
+from aegis.rules.sql_safety import UnsafeSQLExpression, validate_custom_sql, validate_expression
 
 # ── validate_expression ───────────────────────────────────────────────────────
 

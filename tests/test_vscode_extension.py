@@ -28,11 +28,11 @@ class TestPackageJson:
         assert "^1.85" in PKG["engines"]["vscode"]
 
     def test_language_contribution(self):
-        langs = {l["id"] for l in PKG["contributes"]["languages"]}
+        langs = {lang["id"] for lang in PKG["contributes"]["languages"]}
         assert "aegis-rules" in langs
 
     def test_file_extensions(self):
-        lang = next(l for l in PKG["contributes"]["languages"] if l["id"] == "aegis-rules")
+        lang = next(entry for entry in PKG["contributes"]["languages"] if entry["id"] == "aegis-rules")
         assert ".aegis.yaml" in lang["extensions"]
         assert ".aegis.yml" in lang["extensions"]
 

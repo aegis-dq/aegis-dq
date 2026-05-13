@@ -5,13 +5,10 @@ from __future__ import annotations
 import pytest
 
 from aegis_benchmark.metrics import (
-    CategoryMetrics,
-    EvalReport,
     TaskResult,
     compute_metrics,
 )
-from aegis_benchmark.tasks import TASKS, CATEGORIES, EvalTask
-
+from aegis_benchmark.tasks import CATEGORIES, TASKS
 
 # ---------------------------------------------------------------------------
 # Task catalog
@@ -308,6 +305,7 @@ async def test_harness_baseline_accuracy_set_when_no_llm():
 class TestReportGeneration:
     def test_save_json(self, tmp_path):
         import json
+
         from aegis_benchmark.report import save_json
         results = [_make_result("t1", "imputation", True, True)]
         report = compute_metrics(results, "run-rep", None)
@@ -353,15 +351,15 @@ class TestEvalWorkflow:
         assert wf.exists()
 
     def test_workflow_valid_yaml(self):
-        import yaml
         from pathlib import Path
+
+        import yaml
         wf = Path(__file__).parent.parent / ".github" / "workflows" / "eval.yml"
         d = yaml.safe_load(wf.read_text())
         assert "on" in d or True  # 'on' may be parsed as True by YAML
         assert "jobs" in d
 
     def test_workflow_has_schedule(self):
-        import yaml
         from pathlib import Path
         wf = Path(__file__).parent.parent / ".github" / "workflows" / "eval.yml"
         content = wf.read_text()
