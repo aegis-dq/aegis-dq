@@ -19,6 +19,7 @@ from typing import Any
 
 from ...rules.schema import DataQualityRule, RuleResult, RuleType
 from .base import WarehouseAdapter
+from .quoting import escape_string_literal, quote_qualified_bigquery
 
 
 class BigQueryAdapter(WarehouseAdapter):
@@ -55,6 +56,16 @@ class BigQueryAdapter(WarehouseAdapter):
             location=location,
         )
 
+    @staticmethod
+    def _q(identifier: str) -> str:
+        """Backtick-quote a single BigQuery identifier."""
+        return "`" + identifier.replace("`", "``") + "`"
+
+    @staticmethod
+    def _qt(name: str) -> str:
+        """Quote a possibly-qualified BigQuery table name (each dot-separated part)."""
+        return quote_qualified_bigquery(name)
+
     def _full_table(self, table: str) -> str:
         """Qualify table name with project.dataset if not already qualified."""
         parts = table.split(".")
@@ -78,7 +89,7 @@ class BigQueryAdapter(WarehouseAdapter):
         return [dict(r) for r in rows]
 
     def _execute_sync(self, rule: DataQualityRule) -> RuleResult:  # noqa: C901
-        t = self._full_table(rule.spec_scope.table)
+        t = self._qt(self._full_table(rule.spec_scope.table))
         logic = rule.spec_logic
         start = time.monotonic()
 
@@ -87,29 +98,29 @@ class BigQueryAdapter(WarehouseAdapter):
 
         try:
             if logic.type == RuleType.NOT_NULL:
-                col = rule.spec_scope.columns[0]
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
-                fail_count = self._scalar(f"SELECT COUNT(*) FROM `{t}` WHERE `{col}` IS NULL")
+                col = self._q(rule.spec_scope.columns[0])
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
+                fail_count = self._scalar(f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL")
                 sample: list[dict] = []
                 if fail_count > 0:
                     sample = self._sample_rows(
-                        f"SELECT * FROM `{t}` WHERE `{col}` IS NULL LIMIT 5"
+                        f"SELECT * FROM {t} WHERE {col} IS NULL LIMIT 5"
                     )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   failure_sample=sample, duration_ms=ms())
 
             elif logic.type == RuleType.UNIQUE:
-                col = rule.spec_scope.columns[0]
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                col = self._q(rule.spec_scope.columns[0])
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 dups = self._scalar(
-                    f"SELECT COUNT(*) - COUNT(DISTINCT `{col}`) FROM `{t}`"
+                    f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}"
                 )
                 sample = []
                 if dups > 0:
                     sample = self._sample_rows(
-                        f"SELECT `{col}`, COUNT(*) AS cnt FROM `{t}` "
-                        f"GROUP BY `{col}` HAVING COUNT(*) > 1 LIMIT 5"
+                        f"SELECT {col}, COUNT(*) AS cnt FROM {t} "
+                        f"GROUP BY {col} HAVING COUNT(*) > 1 LIMIT 5"
                     )
                 return RuleResult(rule_id=rule.metadata.id, passed=dups == 0,
                                   row_count_checked=total, row_count_failed=dups,
@@ -117,21 +128,21 @@ class BigQueryAdapter(WarehouseAdapter):
 
             elif logic.type == RuleType.SQL_EXPRESSION:
                 expr = logic.expression or "TRUE"
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE NOT ({expr})"
+                    f"SELECT COUNT(*) FROM {t} WHERE NOT ({expr})"
                 )
                 sample = []
                 if fail_count > 0:
                     sample = self._sample_rows(
-                        f"SELECT * FROM `{t}` WHERE NOT ({expr}) LIMIT 5"
+                        f"SELECT * FROM {t} WHERE NOT ({expr}) LIMIT 5"
                     )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   failure_sample=sample, duration_ms=ms())
 
             elif logic.type == RuleType.ROW_COUNT:
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 threshold = int(logic.threshold or 0)
                 passed = total >= threshold
                 return RuleResult(rule_id=rule.metadata.id, passed=passed,
@@ -139,15 +150,15 @@ class BigQueryAdapter(WarehouseAdapter):
                                   row_count_failed=0 if passed else 1, duration_ms=ms())
 
             elif logic.type == RuleType.FRESHNESS:
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 hours = logic.threshold or 24
-                latest = self._scalar(f"SELECT MAX(`{col}`) FROM `{t}`")
+                latest = self._scalar(f"SELECT MAX({col}) FROM {t}")
                 if latest is None:
                     return RuleResult(rule_id=rule.metadata.id, passed=False,
                                       error="No rows — cannot determine freshness",
                                       duration_ms=ms())
                 age_hours = self._scalar(
-                    f"SELECT TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), MAX(`{col}`), HOUR) FROM `{t}`"
+                    f"SELECT TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), MAX({col}), HOUR) FROM {t}"
                 )
                 passed = float(age_hours) <= float(hours)
                 return RuleResult(rule_id=rule.metadata.id, passed=passed,
@@ -162,25 +173,25 @@ class BigQueryAdapter(WarehouseAdapter):
                                   row_count_checked=row_count, duration_ms=ms())
 
             elif logic.type == RuleType.NOT_EMPTY_STRING:
-                col = rule.spec_scope.columns[0]
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                col = self._q(rule.spec_scope.columns[0])
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE `{col}` IS NULL OR TRIM(CAST(`{col}` AS STRING)) = ''"
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL OR TRIM(CAST({col} AS STRING)) = ''"
                 )
                 sample = []
                 if fail_count > 0:
                     sample = self._sample_rows(
-                        f"SELECT * FROM `{t}` WHERE `{col}` IS NULL OR TRIM(CAST(`{col}` AS STRING)) = '' LIMIT 5"
+                        f"SELECT * FROM {t} WHERE {col} IS NULL OR TRIM(CAST({col} AS STRING)) = '' LIMIT 5"
                     )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   failure_sample=sample, duration_ms=ms())
 
             elif logic.type == RuleType.COMPOSITE_UNIQUE:
-                cols = ", ".join(f"`{c}`" for c in rule.spec_scope.columns)
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                cols = ", ".join(self._q(c) for c in rule.spec_scope.columns)
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 dups = self._scalar(
-                    f"SELECT COUNT(*) FROM (SELECT {cols}, COUNT(*) AS cnt FROM `{t}` "
+                    f"SELECT COUNT(*) FROM (SELECT {cols}, COUNT(*) AS cnt FROM {t} "
                     f"GROUP BY {cols} HAVING COUNT(*) > 1)"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=dups == 0,
@@ -188,108 +199,107 @@ class BigQueryAdapter(WarehouseAdapter):
                                   duration_ms=ms())
 
             elif logic.type == RuleType.BETWEEN:
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 min_v, max_v = logic.min_value, logic.max_value
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE `{col}` < {min_v} OR `{col}` > {max_v}"
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} < {min_v} OR {col} > {max_v}"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.MIN_VALUE_CHECK:
-                col = rule.spec_scope.columns[0]
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                col = self._q(rule.spec_scope.columns[0])
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE `{col}` < {logic.min_value}"
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} < {logic.min_value}"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.MAX_VALUE_CHECK:
-                col = rule.spec_scope.columns[0]
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                col = self._q(rule.spec_scope.columns[0])
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE `{col}` > {logic.max_value}"
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} > {logic.max_value}"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.REGEX_MATCH:
-                col = rule.spec_scope.columns[0]
-                pattern = logic.pattern or ""
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
-                # BigQuery uses REGEXP_CONTAINS
+                col = self._q(rule.spec_scope.columns[0])
+                pattern = escape_string_literal(logic.pattern or "")
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE NOT REGEXP_CONTAINS(CAST(`{col}` AS STRING), r'{pattern}')"
+                    f"SELECT COUNT(*) FROM {t} WHERE NOT REGEXP_CONTAINS(CAST({col} AS STRING), r'{pattern}')"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.ACCEPTED_VALUES:
-                col = rule.spec_scope.columns[0]
-                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                col = self._q(rule.spec_scope.columns[0])
+                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE CAST(`{col}` AS STRING) NOT IN ({values_list})"
+                    f"SELECT COUNT(*) FROM {t} WHERE CAST({col} AS STRING) NOT IN ({values_list})"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.NOT_ACCEPTED_VALUES:
-                col = rule.spec_scope.columns[0]
-                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                col = self._q(rule.spec_scope.columns[0])
+                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE CAST(`{col}` AS STRING) IN ({values_list})"
+                    f"SELECT COUNT(*) FROM {t} WHERE CAST({col} AS STRING) IN ({values_list})"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.FOREIGN_KEY:
-                col = rule.spec_scope.columns[0]
-                ref_table = self._full_table(logic.reference_table or "")
-                ref_col = logic.reference_column or col
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                col = self._q(rule.spec_scope.columns[0])
+                ref_table = self._qt(self._full_table(logic.reference_table or rule.spec_scope.table))
+                ref_col = self._q(logic.reference_column or rule.spec_scope.columns[0])
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE `{col}` IS NOT NULL "
-                    f"AND `{col}` NOT IN (SELECT `{ref_col}` FROM `{ref_table}`)"
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} IS NOT NULL "
+                    f"AND {col} NOT IN (SELECT {ref_col} FROM {ref_table})"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.NULL_PERCENTAGE_BELOW:
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 threshold = logic.threshold or 0.0
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
-                nulls = self._scalar(f"SELECT COUNT(*) FROM `{t}` WHERE `{col}` IS NULL")
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
+                nulls = self._scalar(f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL")
                 pct = (nulls * 100.0 / total) if total > 0 else 0.0
                 return RuleResult(rule_id=rule.metadata.id, passed=pct <= threshold,
                                   row_count_checked=total, row_count_failed=nulls,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.DUPLICATE_PERCENTAGE_BELOW:
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 threshold = logic.threshold or 0.0
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
-                dups = self._scalar(f"SELECT COUNT(*) - COUNT(DISTINCT `{col}`) FROM `{t}`")
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
+                dups = self._scalar(f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}")
                 pct = (dups * 100.0 / total) if total > 0 else 0.0
                 return RuleResult(rule_id=rule.metadata.id, passed=pct <= threshold,
                                   row_count_checked=total, row_count_failed=int(dups),
                                   duration_ms=ms())
 
             elif logic.type == RuleType.MEAN_BETWEEN:
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 min_v, max_v = logic.min_value, logic.max_value
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
-                mean = float(self._scalar(f"SELECT AVG(`{col}`) FROM `{t}`") or 0.0)
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
+                mean = float(self._scalar(f"SELECT AVG({col}) FROM {t}") or 0.0)
                 passed = (min_v is None or mean >= min_v) and (max_v is None or mean <= max_v)
                 return RuleResult(rule_id=rule.metadata.id, passed=passed,
                                   row_count_checked=total,
@@ -298,10 +308,10 @@ class BigQueryAdapter(WarehouseAdapter):
                                   duration_ms=ms())
 
             elif logic.type == RuleType.STDDEV_BELOW:
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 threshold = logic.threshold or 0.0
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
-                stddev = float(self._scalar(f"SELECT STDDEV(`{col}`) FROM `{t}`") or 0.0)
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
+                stddev = float(self._scalar(f"SELECT STDDEV({col}) FROM {t}") or 0.0)
                 passed = stddev <= threshold
                 return RuleResult(rule_id=rule.metadata.id, passed=passed,
                                   row_count_checked=total,
@@ -310,22 +320,22 @@ class BigQueryAdapter(WarehouseAdapter):
                                   duration_ms=ms())
 
             elif logic.type == RuleType.NO_FUTURE_DATES:
-                col = rule.spec_scope.columns[0]
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                col = self._q(rule.spec_scope.columns[0])
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE `{col}` > CURRENT_DATE()"
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} > CURRENT_DATE()"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.DATE_ORDER:
-                col_a = rule.spec_scope.columns[0]
-                col_b = logic.column_b or ""
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                col_a = self._q(rule.spec_scope.columns[0])
+                col_b = self._q(logic.column_b) if logic.column_b else ""
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` "
-                    f"WHERE `{col_a}` IS NOT NULL AND `{col_b}` IS NOT NULL AND `{col_a}` > `{col_b}`"
+                    f"SELECT COUNT(*) FROM {t} "
+                    f"WHERE {col_a} IS NOT NULL AND {col_b} IS NOT NULL AND {col_a} > {col_b}"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
@@ -333,7 +343,8 @@ class BigQueryAdapter(WarehouseAdapter):
 
             elif logic.type == RuleType.COLUMN_EXISTS:
                 col = rule.spec_scope.columns[0]
-                schema = self._client.get_table(t).schema
+                # BigQuery uses the client API for schema introspection — no SQL injection risk
+                schema = self._client.get_table(self._full_table(rule.spec_scope.table)).schema
                 exists = any(f.name == col for f in schema)
                 return RuleResult(rule_id=rule.metadata.id, passed=exists,
                                   row_count_failed=0 if exists else 1, duration_ms=ms())
@@ -341,7 +352,7 @@ class BigQueryAdapter(WarehouseAdapter):
             elif logic.type == RuleType.ROW_COUNT_BETWEEN:
                 min_v = logic.min_value or 0
                 max_v = logic.max_value or float("inf")
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 passed = min_v <= total <= max_v
                 return RuleResult(rule_id=rule.metadata.id, passed=passed,
                                   row_count_checked=total,
@@ -350,10 +361,10 @@ class BigQueryAdapter(WarehouseAdapter):
                                   duration_ms=ms())
 
             elif logic.type == RuleType.COLUMN_SUM_BETWEEN:
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 min_v, max_v = logic.min_value, logic.max_value
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
-                total_sum = float(self._scalar(f"SELECT SUM(`{col}`) FROM `{t}`") or 0.0)
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
+                total_sum = float(self._scalar(f"SELECT SUM({col}) FROM {t}") or 0.0)
                 passed = (min_v is None or total_sum >= min_v) and (max_v is None or total_sum <= max_v)
                 return RuleResult(rule_id=rule.metadata.id, passed=passed,
                                   row_count_checked=total,
@@ -362,21 +373,21 @@ class BigQueryAdapter(WarehouseAdapter):
                                   duration_ms=ms())
 
             elif logic.type == RuleType.CONDITIONAL_NOT_NULL:
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 condition = logic.condition or "TRUE"
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE ({condition}) AND `{col}` IS NULL"
+                    f"SELECT COUNT(*) FROM {t} WHERE ({condition}) AND {col} IS NULL"
                 )
                 return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
                                   row_count_checked=total, row_count_failed=fail_count,
                                   duration_ms=ms())
 
             elif logic.type == RuleType.RECONCILE_ROW_COUNT:
-                src = self._full_table(logic.source_table or "")
+                src = self._qt(self._full_table(logic.source_table or rule.spec_scope.table))
                 tol = logic.tolerance_pct / 100.0
-                src_count = self._scalar(f"SELECT COUNT(*) FROM `{src}`")
-                tgt_count = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                src_count = self._scalar(f"SELECT COUNT(*) FROM {src}")
+                tgt_count = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 if src_count == 0:
                     passed = tgt_count == 0
                 else:
@@ -388,13 +399,13 @@ class BigQueryAdapter(WarehouseAdapter):
                                   failure_sample=sample, duration_ms=ms())
 
             elif logic.type == RuleType.RECONCILE_COLUMN_SUM:
-                col = rule.spec_scope.columns[0]
-                src = self._full_table(logic.source_table or "")
+                col = self._q(rule.spec_scope.columns[0])
+                src = self._qt(self._full_table(logic.source_table or rule.spec_scope.table))
                 tol = logic.tolerance_pct / 100.0
-                src_sum = float(self._scalar(f"SELECT COALESCE(SUM(`{col}`), 0) FROM `{src}`") or 0)
-                tgt_sum = float(self._scalar(f"SELECT COALESCE(SUM(`{col}`), 0) FROM `{t}`") or 0)
+                src_sum = float(self._scalar(f"SELECT COALESCE(SUM({col}), 0) FROM {src}") or 0)
+                tgt_sum = float(self._scalar(f"SELECT COALESCE(SUM({col}), 0) FROM {t}") or 0)
                 passed = abs(src_sum - tgt_sum) / abs(src_sum) <= tol if src_sum != 0 else tgt_sum == 0
-                total = self._scalar(f"SELECT COUNT(*) FROM `{t}`")
+                total = self._scalar(f"SELECT COUNT(*) FROM {t}")
                 sample = [] if passed else [{"source_sum": src_sum, "target_sum": tgt_sum}]
                 return RuleResult(rule_id=rule.metadata.id, passed=passed,
                                   row_count_checked=total,
@@ -402,14 +413,14 @@ class BigQueryAdapter(WarehouseAdapter):
                                   failure_sample=sample, duration_ms=ms())
 
             elif logic.type == RuleType.RECONCILE_KEY_MATCH:
-                col = rule.spec_scope.columns[0]
-                src = self._full_table(logic.source_table or "")
-                total = self._scalar(f"SELECT COUNT(*) FROM `{src}`")
+                col = self._q(rule.spec_scope.columns[0])
+                src = self._qt(self._full_table(logic.source_table or rule.spec_scope.table))
+                total = self._scalar(f"SELECT COUNT(*) FROM {src}")
                 missing_in_tgt = self._scalar(
-                    f"SELECT COUNT(*) FROM `{src}` WHERE `{col}` NOT IN (SELECT `{col}` FROM `{t}`)"
+                    f"SELECT COUNT(*) FROM {src} WHERE {col} NOT IN (SELECT {col} FROM {t})"
                 )
                 missing_in_src = self._scalar(
-                    f"SELECT COUNT(*) FROM `{t}` WHERE `{col}` NOT IN (SELECT `{col}` FROM `{src}`)"
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} NOT IN (SELECT {col} FROM {src})"
                 )
                 passed = missing_in_tgt == 0 and missing_in_src == 0
                 sample = [] if passed else [{"missing_in_target": missing_in_tgt, "missing_in_source": missing_in_src}]

@@ -2,8 +2,6 @@
 from __future__ import annotations
 
 import math
-import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -13,7 +11,6 @@ from aegis.rules.anomaly import (
     zscore_outlier_sql,
 )
 from aegis.rules.schema import DataQualityRule, RuleLogic, RuleMetadata, RuleScope, RuleType
-
 
 # ---------------------------------------------------------------------------
 # Helper
@@ -182,7 +179,6 @@ async def test_isolation_forest_small_dataset_passes():
 
 @pytest.mark.asyncio
 async def test_learned_threshold_no_history_passes(duckdb_adapter, tmp_path):
-    from aegis.memory.column_stats import DB_PATH
     import aegis.memory.column_stats as cs_mod
     # Point the module at an empty temp DB so there's no history
     original = cs_mod.DB_PATH
@@ -198,8 +194,8 @@ async def test_learned_threshold_no_history_passes(duckdb_adapter, tmp_path):
 
 @pytest.mark.asyncio
 async def test_learned_threshold_anomalous_mean_fails(tmp_path):
-    from aegis.adapters.warehouse.duckdb import DuckDBAdapter
     import aegis.memory.column_stats as cs_mod
+    from aegis.adapters.warehouse.duckdb import DuckDBAdapter
 
     cs_mod.DB_PATH = tmp_path / "stats.db"
     from aegis.memory.column_stats import save_column_stats
@@ -236,8 +232,8 @@ async def test_learned_threshold_anomalous_mean_fails(tmp_path):
 
 @pytest.mark.asyncio
 async def test_learned_threshold_normal_mean_passes(tmp_path):
-    from aegis.adapters.warehouse.duckdb import DuckDBAdapter
     import aegis.memory.column_stats as cs_mod
+    from aegis.adapters.warehouse.duckdb import DuckDBAdapter
 
     cs_mod.DB_PATH = tmp_path / "stats2.db"
     from aegis.memory.column_stats import save_column_stats

@@ -2,12 +2,10 @@
 from __future__ import annotations
 
 import asyncio
-from pathlib import Path
 
 import duckdb
 import pytest
 import yaml
-
 
 # ---------------------------------------------------------------------------
 # Stage 4 — RuleMetadata versioning fields
@@ -35,6 +33,7 @@ class TestRuleMetadataVersioning:
 
     def test_invalid_status_rejected(self):
         from pydantic import ValidationError
+
         from aegis.rules.schema import RuleMetadata
         with pytest.raises(ValidationError):
             RuleMetadata(id="x", status="unknown_status")
@@ -74,7 +73,7 @@ def tmp_db(tmp_path):
 
 class TestRuleVersionStore:
     def test_save_and_retrieve(self, tmp_db):
-        from aegis.memory.rule_versions import save_rule_version, get_rule_versions_sync
+        from aegis.memory.rule_versions import get_rule_versions_sync, save_rule_version
 
         asyncio.run(save_rule_version(
             rule_id="orders_amount_positive",
@@ -91,7 +90,7 @@ class TestRuleVersionStore:
         assert versions[0]["generated_by"] == "llm/test"
 
     def test_multiple_versions(self, tmp_db):
-        from aegis.memory.rule_versions import save_rule_version, get_rule_versions_sync
+        from aegis.memory.rule_versions import get_rule_versions_sync, save_rule_version
 
         asyncio.run(save_rule_version("r1", "1.0.0", "draft", "v1", path=tmp_db))
         asyncio.run(save_rule_version("r1", "2.0.0", "draft", "v2", path=tmp_db))
@@ -99,7 +98,7 @@ class TestRuleVersionStore:
         assert len(versions) == 2
 
     def test_upsert_same_version(self, tmp_db):
-        from aegis.memory.rule_versions import save_rule_version, get_rule_versions_sync
+        from aegis.memory.rule_versions import get_rule_versions_sync, save_rule_version
 
         asyncio.run(save_rule_version("r1", "1.0.0", "draft", "original", path=tmp_db))
         asyncio.run(save_rule_version("r1", "1.0.0", "active", "updated", path=tmp_db))
@@ -109,7 +108,11 @@ class TestRuleVersionStore:
         assert versions[0]["status"] == "active"
 
     def test_promote_rule(self, tmp_db):
-        from aegis.memory.rule_versions import save_rule_version, promote_rule, get_rule_versions_sync
+        from aegis.memory.rule_versions import (
+            get_rule_versions_sync,
+            promote_rule,
+            save_rule_version,
+        )
 
         asyncio.run(save_rule_version("r1", "1.0.0", "draft", "yaml", path=tmp_db))
         promoted = asyncio.run(promote_rule("r1", "1.0.0", "active", path=tmp_db))

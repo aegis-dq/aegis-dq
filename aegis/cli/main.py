@@ -417,6 +417,7 @@ def generate(
     # --- Optional version store ---
     if save_versions:
         import asyncio as _aio
+
         from ..memory.rule_versions import save_rule_version
 
         model_id = getattr(llm, "_model", "llm/unknown")

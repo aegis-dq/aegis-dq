@@ -19,6 +19,7 @@ from typing import Any
 
 from ...rules.schema import DataQualityRule, RuleResult, RuleType
 from .base import WarehouseAdapter
+from .quoting import escape_string_literal, quote_qualified_ansi
 
 
 class AthenaAdapter(WarehouseAdapter):
@@ -108,7 +109,11 @@ class AthenaAdapter(WarehouseAdapter):
 
     def _q(self, identifier: str) -> str:
         """Double-quote a Presto/Athena identifier."""
-        return f'"{identifier}"'
+        return '"' + identifier.replace('"', '""') + '"'
+
+    def _qt(self, name: str) -> str:
+        """Quote a possibly-qualified table name (each dot-separated part)."""
+        return quote_qualified_ansi(name)
 
     def _full_table(self, table: str) -> str:
         """Qualify table with schema_name if not already qualified."""
@@ -122,7 +127,7 @@ class AthenaAdapter(WarehouseAdapter):
     # ------------------------------------------------------------------
 
     def _execute_sync(self, rule: DataQualityRule) -> RuleResult:  # noqa: C901
-        t = self._full_table(rule.spec_scope.table)
+        t = self._qt(self._full_table(rule.spec_scope.table))
         logic = rule.spec_logic
         start = time.monotonic()
 
@@ -313,7 +318,7 @@ class AthenaAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.REGEX_MATCH:
                 col = self._q(rule.spec_scope.columns[0])
-                pattern = logic.pattern or ""
+                pattern = escape_string_literal(logic.pattern or "")
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
                     cursor,
@@ -329,7 +334,7 @@ class AthenaAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.ACCEPTED_VALUES:
                 col = self._q(rule.spec_scope.columns[0])
-                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
+                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
                     cursor,
@@ -345,7 +350,7 @@ class AthenaAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.NOT_ACCEPTED_VALUES:
                 col = self._q(rule.spec_scope.columns[0])
-                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
+                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
                     cursor,
@@ -361,7 +366,7 @@ class AthenaAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.FOREIGN_KEY:
                 col = self._q(rule.spec_scope.columns[0])
-                ref_table = self._full_table(logic.reference_table or "")
+                ref_table = self._qt(self._full_table(logic.reference_table or rule.spec_scope.table))
                 ref_col = self._q(logic.reference_column or rule.spec_scope.columns[0])
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
@@ -470,12 +475,13 @@ class AthenaAdapter(WarehouseAdapter):
                 parts = rule.spec_scope.table.split(".")
                 tbl_name = parts[-1]
                 schema = parts[-2] if len(parts) >= 2 else self._schema_name
+                # Escape values used as string literals in the WHERE clause
                 exists_count = self._scalar(
                     cursor,
                     f"SELECT COUNT(*) FROM information_schema.columns "
-                    f"WHERE table_schema = '{schema}' "
-                    f"AND table_name = '{tbl_name}' "
-                    f"AND column_name = '{col}'",
+                    f"WHERE table_schema = '{escape_string_literal(schema)}' "
+                    f"AND table_name = '{escape_string_literal(tbl_name)}' "
+                    f"AND column_name = '{escape_string_literal(col)}'",
                 )
                 exists = int(exists_count or 0) > 0
                 return RuleResult(rule_id=rule.metadata.id, passed=exists,
@@ -533,7 +539,7 @@ class AthenaAdapter(WarehouseAdapter):
             # RECONCILE_ROW_COUNT
             # ----------------------------------------------------------------
             elif logic.type == RuleType.RECONCILE_ROW_COUNT:
-                src = self._full_table(logic.source_table or "")
+                src = self._qt(self._full_table(logic.source_table or rule.spec_scope.table))
                 tol = logic.tolerance_pct / 100.0
                 src_count = self._scalar(cursor, f"SELECT COUNT(*) FROM {src}")
                 tgt_count = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
@@ -552,7 +558,7 @@ class AthenaAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.RECONCILE_COLUMN_SUM:
                 col = self._q(rule.spec_scope.columns[0])
-                src = self._full_table(logic.source_table or "")
+                src = self._qt(self._full_table(logic.source_table or rule.spec_scope.table))
                 tol = logic.tolerance_pct / 100.0
                 src_sum = float(
                     self._scalar(cursor, f"SELECT COALESCE(SUM({col}), 0) FROM {src}") or 0
@@ -577,7 +583,7 @@ class AthenaAdapter(WarehouseAdapter):
             # ----------------------------------------------------------------
             elif logic.type == RuleType.RECONCILE_KEY_MATCH:
                 col = self._q(rule.spec_scope.columns[0])
-                src = self._full_table(logic.source_table or "")
+                src = self._qt(self._full_table(logic.source_table or rule.spec_scope.table))
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {src}")
                 missing_in_tgt = self._scalar(
                     cursor,

@@ -1,23 +1,21 @@
 """Tests for the SQL verification pipeline (stages 1-3) and remediate auto-fix."""
 from __future__ import annotations
 
-import pytest
 import duckdb
+import pytest
 
 from aegis.rules.sql_verify import (
-    SqlError,
     VerifyResult,
-    check_syntax,
     check_schema,
+    check_syntax,
     dry_run_expression,
     dry_run_query,
     get_duckdb_schema,
+    verify_and_fix,
     verify_expression_sync,
     verify_query_sync,
     verify_statement_sync,
-    verify_and_fix,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -401,6 +399,7 @@ rules:
 async def test_remediate_node_fixes_bad_sql():
     """Remediate node should auto-fix syntactically broken LLM output."""
     from unittest.mock import AsyncMock, patch
+
     from aegis.core.nodes.remediate import _remediate_one
 
     class _LLM:
@@ -442,6 +441,7 @@ async def test_remediate_node_fixes_bad_sql():
 async def test_remediate_node_leaves_good_sql_unchanged():
     """Remediate node should not modify SQL that is already syntactically valid."""
     from unittest.mock import AsyncMock, patch
+
     from aegis.core.nodes.remediate import _remediate_one
 
     class _LLM:

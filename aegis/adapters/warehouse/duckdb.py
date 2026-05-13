@@ -10,10 +10,21 @@ import duckdb
 
 from ...rules.schema import DataQualityRule, RuleResult, RuleType
 from .base import WarehouseAdapter
+from .quoting import escape_string_literal, quote_qualified_ansi
 
 
 class DuckDBAdapter(WarehouseAdapter):
     """Warehouse adapter backed by DuckDB (in-memory or file-based)."""
+
+    @staticmethod
+    def _q(identifier: str) -> str:
+        """Double-quote a single SQL identifier (ANSI style)."""
+        return '"' + identifier.replace('"', '""') + '"'
+
+    @staticmethod
+    def _qt(name: str) -> str:
+        """Quote a possibly-qualified table name (each dot-separated part)."""
+        return quote_qualified_ansi(name)
 
     def __init__(self, path: str = ":memory:"):
         self._path = path
@@ -39,13 +50,13 @@ class DuckDBAdapter(WarehouseAdapter):
 
     def _execute_sync(self, rule: DataQualityRule) -> RuleResult:  # noqa: C901
         conn = self._get_conn()
-        t = rule.spec_scope.table
+        t = self._qt(rule.spec_scope.table)
         logic = rule.spec_logic
         start = time.monotonic()
 
         try:
             if logic.type == RuleType.NOT_NULL:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL"
                 ).fetchone()[0]
@@ -69,7 +80,7 @@ class DuckDBAdapter(WarehouseAdapter):
             elif logic.type == RuleType.UNIQUE:
                 if not rule.spec_scope.columns:
                     raise ValueError("columns required for UNIQUE rule")
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 dups = conn.execute(
                     f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}"
@@ -132,7 +143,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 # Checks that max(col) is within the threshold (hours).
                 if not rule.spec_scope.columns:
                     raise ValueError("columns required for FRESHNESS rule")
-                col = rule.spec_scope.columns[0]
+                col = self._q(rule.spec_scope.columns[0])
                 hours = logic.threshold or 24
                 result_row = conn.execute(
                     f"SELECT MAX({col}) as latest FROM {t}"
@@ -170,7 +181,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.NOT_EMPTY_STRING:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL OR TRIM(CAST({col} AS VARCHAR)) = ''"
@@ -196,7 +207,7 @@ class DuckDBAdapter(WarehouseAdapter):
             elif logic.type == RuleType.COMPOSITE_UNIQUE:
                 if not rule.spec_scope.columns:
                     raise ValueError("columns required for COMPOSITE_UNIQUE rule")
-                cols = ", ".join(rule.spec_scope.columns)
+                cols = ", ".join(self._q(c) for c in rule.spec_scope.columns)
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COALESCE(SUM(cnt - 1), 0) FROM "
@@ -221,7 +232,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.BETWEEN:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 min_v = logic.min_value
                 max_v = logic.max_value
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
@@ -247,7 +258,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.MIN_VALUE_CHECK:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 min_v = logic.min_value
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
@@ -272,7 +283,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.MAX_VALUE_CHECK:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 max_v = logic.max_value
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
@@ -297,8 +308,8 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.REGEX_MATCH:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
-                pattern = logic.pattern or ""
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
+                pattern = escape_string_literal(logic.pattern or "")
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL OR NOT regexp_matches(CAST({col} AS VARCHAR), '{pattern}')"
@@ -322,8 +333,8 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.ACCEPTED_VALUES:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
-                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
+                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col} IS NOT NULL AND CAST({col} AS VARCHAR) NOT IN ({values_list})"
@@ -347,8 +358,8 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.NOT_ACCEPTED_VALUES:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
-                values_list = ", ".join(f"'{v}'" for v in (logic.values or []))
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
+                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col} IS NOT NULL AND CAST({col} AS VARCHAR) IN ({values_list})"
@@ -372,9 +383,9 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.FOREIGN_KEY:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
-                ref_table = logic.reference_table or ""
-                ref_col = logic.reference_column or col
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
+                ref_table = self._qt(logic.reference_table) if logic.reference_table else t
+                ref_col = self._q(logic.reference_column) if logic.reference_column else col
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col} IS NOT NULL AND {col} NOT IN (SELECT {ref_col} FROM {ref_table})"
@@ -398,7 +409,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.NULL_PERCENTAGE_BELOW:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 threshold = logic.threshold or 0.0
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 nulls = conn.execute(f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL").fetchone()[0]
@@ -413,7 +424,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.DUPLICATE_PERCENTAGE_BELOW:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 threshold = logic.threshold or 0.0
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 dups = conn.execute(
@@ -430,7 +441,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.MEAN_BETWEEN:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 min_v = logic.min_value
                 max_v = logic.max_value
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
@@ -450,7 +461,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.STDDEV_BELOW:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 threshold = logic.threshold or 0.0
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 stddev = conn.execute(f"SELECT STDDEV({col}) FROM {t}").fetchone()[0]
@@ -469,7 +480,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.NO_FUTURE_DATES:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col} > current_date"
@@ -505,7 +516,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.COLUMN_SUM_BETWEEN:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 min_v = logic.min_value
                 max_v = logic.max_value
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
@@ -525,7 +536,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.CONDITIONAL_NOT_NULL:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 condition = logic.condition or "TRUE"
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
@@ -550,8 +561,8 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.DATE_ORDER:
-                col_a = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
-                col_b = logic.column_b or ""
+                col_a = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
+                col_b = self._q(logic.column_b) if logic.column_b else ""
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col_a} IS NOT NULL AND {col_b} IS NOT NULL AND {col_a} > {col_b}"
@@ -575,7 +586,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.COLUMN_EXISTS:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else ""
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else ""
                 try:
                     conn.execute(f"SELECT {col} FROM {t} LIMIT 0")
                     passed = True
@@ -590,7 +601,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.RECONCILE_ROW_COUNT:
-                src = logic.source_table or ""
+                src = self._qt(logic.source_table) if logic.source_table else t
                 tol = logic.tolerance_pct / 100.0
                 src_count = conn.execute(f"SELECT COUNT(*) FROM {src}").fetchone()[0]
                 tgt_count = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
@@ -610,8 +621,8 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.RECONCILE_COLUMN_SUM:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else ""
-                src = logic.source_table or ""
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
+                src = self._qt(logic.source_table) if logic.source_table else t
                 tol = logic.tolerance_pct / 100.0
                 src_sum = conn.execute(f"SELECT COALESCE(SUM({col}), 0) FROM {src}").fetchone()[0]
                 tgt_sum = conn.execute(f"SELECT COALESCE(SUM({col}), 0) FROM {t}").fetchone()[0]
@@ -634,8 +645,8 @@ class DuckDBAdapter(WarehouseAdapter):
                 )
 
             elif logic.type == RuleType.RECONCILE_KEY_MATCH:
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else ""
-                src = logic.source_table or ""
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
+                src = self._qt(logic.source_table) if logic.source_table else t
                 total = conn.execute(f"SELECT COUNT(*) FROM {src}").fetchone()[0]
                 missing_in_tgt = conn.execute(
                     f"SELECT COUNT(*) FROM {src} WHERE {col} NOT IN (SELECT {col} FROM {t})"
@@ -658,7 +669,7 @@ class DuckDBAdapter(WarehouseAdapter):
 
             elif logic.type == RuleType.ZSCORE_OUTLIER:
                 from ...rules.anomaly import zscore_outlier_sql
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 threshold = logic.zscore_threshold if logic.zscore_threshold is not None else 3.0
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 count_sql, sample_sql = zscore_outlier_sql(t, col, threshold)
@@ -677,11 +688,12 @@ class DuckDBAdapter(WarehouseAdapter):
 
             elif logic.type == RuleType.ISOLATION_FOREST:
                 from ...rules.anomaly import isolation_forest_detect
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                raw_col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(raw_col) if rule.spec_scope.columns else "*"
                 contamination = logic.contamination if logic.contamination is not None else 0.1
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 rows_df = conn.execute(f"SELECT * FROM {t} WHERE {col} IS NOT NULL").df()
-                values = rows_df[col].tolist()
+                values = rows_df[raw_col].tolist()
                 anomaly_mask = isolation_forest_detect(values, contamination)
                 fail_count = sum(anomaly_mask)
                 sample = []
@@ -700,7 +712,8 @@ class DuckDBAdapter(WarehouseAdapter):
             elif logic.type == RuleType.LEARNED_THRESHOLD:
                 from ...memory.column_stats import load_column_history_sync
                 from ...rules.anomaly import check_learned_threshold
-                col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                raw_col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
+                col = self._q(raw_col) if rule.spec_scope.columns else "*"
                 threshold = logic.zscore_threshold if logic.zscore_threshold is not None else 3.0
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 stats = conn.execute(
@@ -708,7 +721,7 @@ class DuckDBAdapter(WarehouseAdapter):
                 ).fetchone()
                 current_mean = float(stats[0]) if stats[0] is not None else 0.0
                 current_stddev = float(stats[1]) if stats[1] is not None else 0.0
-                history = load_column_history_sync(t, col)
+                history = load_column_history_sync(rule.spec_scope.table, raw_col)
                 passed, details = check_learned_threshold(current_mean, history, threshold)
                 details["current_stddev"] = current_stddev
                 return RuleResult(

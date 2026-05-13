@@ -16,6 +16,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 # Stub the mcp package before any import of the server module
 # ---------------------------------------------------------------------------
 
+
 def _install_mcp_mock() -> dict:
     """Stub the mcp package so we can test server.py without installing it."""
     mcp_mod = types.ModuleType("mcp")
@@ -63,6 +64,7 @@ search_decisions = server_module.search_decisions
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 class TestMcpServerName:
     def test_mcp_server_name(self):
@@ -159,26 +161,44 @@ class TestRunValidation:
         mock_rules = [MagicMock()]
         mock_warehouse = MagicMock()
 
-        # Patch at the source modules since run_validation does local imports
         with (
             patch("aegis.rules.parser.load_rules", return_value=mock_rules),
-            patch(
-                "aegis.adapters.warehouse.duckdb.DuckDBAdapter",
-                return_value=mock_warehouse,
-            ),
-            patch(
-                "aegis.core.agent.AegisAgent",
-                return_value=mock_agent,
-            ),
+            patch("aegis.adapters.warehouse.factory.build_adapter", return_value=mock_warehouse),
+            patch("aegis.core.agent.AegisAgent", return_value=mock_agent),
         ):
             result = await run_validation(
                 rules_path="/tmp/rules.yaml",
-                db_path=":memory:",
+                warehouse="duckdb",
+                connection_params='{"path": ":memory:"}',
                 no_llm=True,
             )
         parsed = json.loads(result)
         assert "run_id" in parsed
         assert parsed["run_id"] == "test-run-001"
+
+    async def test_run_validation_bigquery(self):
+        """run_validation passes warehouse=bigquery and connection_params through factory."""
+        mock_state = {"report": {"run_id": "bq-run", "summary": {}, "failures": []}}
+        mock_agent = MagicMock()
+        mock_agent.run = AsyncMock(return_value=mock_state)
+        mock_warehouse = MagicMock()
+
+        with (
+            patch("aegis.rules.parser.load_rules", return_value=[]),
+            patch(
+                "aegis.adapters.warehouse.factory.build_adapter", return_value=mock_warehouse
+            ) as mock_factory,
+            patch("aegis.core.agent.AegisAgent", return_value=mock_agent),
+        ):
+            await run_validation(
+                rules_path="/tmp/rules.yaml",
+                warehouse="bigquery",
+                connection_params='{"project": "my-proj", "dataset": "analytics"}',
+                no_llm=True,
+            )
+        mock_factory.assert_called_once_with(
+            "bigquery", '{"project": "my-proj", "dataset": "analytics"}'
+        )
 
 
 class TestSearchDecisions:
