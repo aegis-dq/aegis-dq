@@ -1,4 +1,4 @@
-site_name: Aegis
+site_name: Aegis DQ
 site_description: Open, audit-grade agentic data quality framework
 site_url: https://aegis-dq.dev
 repo_url: https://github.com/aegis-dq/aegis-dq
@@ -7,24 +7,25 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
+  custom_dir: docs/overrides
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+    - scheme: slate
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
   font:
     text: Inter
     code: JetBrains Mono
+  logo: assets/logo_small.png
+  favicon: assets/logo_small.png
   icon:
     repo: fontawesome/brands/github
   features:
@@ -56,15 +57,32 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - Architecture: architecture.md
-  - Rule Schema Reference: rule-schema-reference.md
+
+  - Overview:
+    - Quickstart: getting-started.md
+    - Architecture: architecture.md
+
+  - Rules:
+    - Rule Schema Reference: rule-schema-reference.md
+
   - Integrations:
+    - Hermes: integrations/hermes.md
+    - MCP Clients: integrations/mcp-clients.md
+    - MCP Server Reference: integrations/mcp.md
     - dbt: integrations/dbt.md
     - Airflow: integrations/airflow.md
-    - MCP Server: integrations/mcp.md
-  - vs Competitors: vs-competitors.md
-  - Contributing: contributing.md
+    - GitHub Actions: integrations/github-actions.md
+
+  - Reference:
+    - CLI Reference: cli-reference.md
+    - Audit Trail: audit-trail.md
+    - vs Competitors: vs-competitors.md
+
+  - Community:
+    - Contributing: contributing.md
+
+extra_css:
+  - stylesheets/extra.css
 
 extra:
   social:
