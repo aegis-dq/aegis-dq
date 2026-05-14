@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -10,33 +12,60 @@ import aiosqlite
 
 DB_PATH = Path.home() / ".aegis" / "history.db"
 
+# Per-process cache: tracks which DB paths have had their schema initialized.
+# Eliminates redundant DDL on every log_decision() call under parallel runs.
+_schema_initialized: set[Path] = set()
+
+
+@asynccontextmanager
+async def _connect(path: Path) -> AsyncGenerator[aiosqlite.Connection, None]:
+    """Open a WAL-mode connection with a busy timeout to handle concurrent writers."""
+    async with aiosqlite.connect(path, timeout=30) as db:
+        try:
+            await db.execute("PRAGMA journal_mode=WAL")
+        except Exception:
+            # Another concurrent writer already set WAL mode; the file header
+            # stores the mode so this connection will use WAL regardless.
+            pass
+        await db.execute("PRAGMA synchronous=NORMAL")
+        yield db
+
+
+async def _ensure_schema(db: aiosqlite.Connection, path: Path) -> None:
+    """Create all tables once per process. Safe to call concurrently — DDL is idempotent."""
+    if path in _schema_initialized:
+        return
+    await db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS runs (
+            run_id       TEXT PRIMARY KEY,
+            timestamp    TEXT NOT NULL,
+            triggered_by TEXT,
+            total_rules  INTEGER,
+            passed       INTEGER,
+            failed       INTEGER,
+            cost_usd     REAL,
+            report_json  TEXT
+        )
+        """
+    )
+    await db.commit()
+    _schema_initialized.add(path)
+
 
 async def init_db(path: Path = DB_PATH) -> None:
-    """Create the history database and runs table if they don't exist."""
+    """Public API: ensure the history database and schema exist."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    async with aiosqlite.connect(path) as db:
-        await db.execute(
-            """
-            CREATE TABLE IF NOT EXISTS runs (
-                run_id       TEXT PRIMARY KEY,
-                timestamp    TEXT NOT NULL,
-                triggered_by TEXT,
-                total_rules  INTEGER,
-                passed       INTEGER,
-                failed       INTEGER,
-                cost_usd     REAL,
-                report_json  TEXT
-            )
-            """
-        )
-        await db.commit()
+    async with _connect(path) as db:
+        await _ensure_schema(db, path)
 
 
 async def save_run(report: dict, path: Path = DB_PATH) -> None:
     """Persist a completed run report to the history database."""
-    await init_db(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     s = report.get("summary", {})
-    async with aiosqlite.connect(path) as db:
+    async with _connect(path) as db:
+        await _ensure_schema(db, path)
         await db.execute(
             "INSERT OR REPLACE INTO runs VALUES (?,?,?,?,?,?,?,?)",
             (

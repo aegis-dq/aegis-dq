@@ -59,6 +59,9 @@ get_trajectory = server_module.get_trajectory
 get_run_report = server_module.get_run_report
 run_validation = server_module.run_validation
 search_decisions = server_module.search_decisions
+compare_reports = server_module.compare_reports
+summarize_reports = server_module.summarize_reports
+check_consistency = server_module.check_consistency
 
 
 # ---------------------------------------------------------------------------
@@ -217,3 +220,176 @@ class TestSearchDecisions:
         assert isinstance(parsed, list)
         assert len(parsed) == 2
         assert parsed[0]["run_id"] == "run-1"
+
+
+_REPORT_A = {
+    "run_id": "run-a",
+    "timestamp": "2026-05-01T10:00:00+00:00",
+    "triggered_by": "mcp",
+    "summary": {
+        "total_rules": 10,
+        "passed": 8,
+        "failed": 2,
+        "pass_rate": 80.0,
+        "severity_breakdown": {"critical": 1, "high": 1},
+    },
+    "failures": [
+        {
+            "rule_id": "rule_1",
+            "table": "orders",
+            "severity": "critical",
+            "effective_severity": "critical",
+            "rows_failed": 5,
+            "rows_checked": 100,
+        },
+        {
+            "rule_id": "rule_2",
+            "table": "customers",
+            "severity": "high",
+            "effective_severity": "high",
+            "rows_failed": 2,
+            "rows_checked": 50,
+        },
+    ],
+    "cost_usd": 0.001,
+}
+
+_REPORT_B = {
+    "run_id": "run-b",
+    "timestamp": "2026-05-02T10:00:00+00:00",
+    "triggered_by": "mcp",
+    "summary": {
+        "total_rules": 10,
+        "passed": 9,
+        "failed": 1,
+        "pass_rate": 90.0,
+        "severity_breakdown": {"critical": 1},
+    },
+    "failures": [
+        {
+            "rule_id": "rule_1",
+            "table": "orders",
+            "severity": "critical",
+            "effective_severity": "critical",
+            "rows_failed": 3,
+            "rows_checked": 100,
+        },
+    ],
+    "cost_usd": 0.0008,
+}
+
+
+class TestCompareReports:
+    async def test_compare_identifies_fix(self):
+        """rule_2 passed in B but failed in A — should appear as a fix."""
+
+        async def _load(run_id):
+            return {"run-a": _REPORT_A, "run-b": _REPORT_B}.get(run_id)
+
+        with patch("aegis.integrations.mcp.server._load_report", side_effect=_load):
+            result = await compare_reports("run-a", "run-b")
+        parsed = json.loads(result)
+        assert "rule_2" in parsed["fixes"]
+        assert parsed["regressions"] == []
+        assert "rule_1" in parsed["persistent_failures"]
+
+    async def test_compare_summary_delta(self):
+        """Pass rate delta should be +10.0 (90 - 80)."""
+
+        async def _load(run_id):
+            return {"run-a": _REPORT_A, "run-b": _REPORT_B}.get(run_id)
+
+        with patch("aegis.integrations.mcp.server._load_report", side_effect=_load):
+            result = await compare_reports("run-a", "run-b")
+        parsed = json.loads(result)
+        assert parsed["summary_delta"]["pass_rate"] == 10.0
+        assert parsed["summary_delta"]["failed_delta"] == -1
+
+    async def test_compare_missing_run(self):
+        """Missing run_id should return error JSON."""
+
+        async def _load(run_id):
+            return None
+
+        with patch("aegis.integrations.mcp.server._load_report", side_effect=_load):
+            result = await compare_reports("run-a", "run-b")
+        parsed = json.loads(result)
+        assert "error" in parsed
+
+
+class TestSummarizeReports:
+    async def test_summarize_single_run(self):
+        """Summarizing one run returns a list with one entry."""
+
+        async def _load(run_id):
+            return _REPORT_A if run_id == "run-a" else None
+
+        with patch("aegis.integrations.mcp.server._load_report", side_effect=_load):
+            result = await summarize_reports(["run-a"])
+        parsed = json.loads(result)
+        assert parsed["total"] == 1
+        assert parsed["runs"][0]["run_id"] == "run-a"
+        assert parsed["runs"][0]["pass_rate"] == 80.0
+        assert len(parsed["runs"][0]["top_failures"]) == 2
+
+    async def test_summarize_missing_run(self):
+        """Missing run_id should be reported as an error entry, not raise."""
+
+        async def _load(run_id):
+            return None
+
+        with patch("aegis.integrations.mcp.server._load_report", side_effect=_load):
+            result = await summarize_reports(["missing-run"])
+        parsed = json.loads(result)
+        assert parsed["total"] == 1
+        assert "error" in parsed["runs"][0]
+
+    async def test_summarize_multiple_runs(self):
+        """Summarizing two runs returns two entries."""
+
+        async def _load(run_id):
+            return {"run-a": _REPORT_A, "run-b": _REPORT_B}.get(run_id)
+
+        with patch("aegis.integrations.mcp.server._load_report", side_effect=_load):
+            result = await summarize_reports(["run-a", "run-b"])
+        parsed = json.loads(result)
+        assert parsed["total"] == 2
+
+
+class TestCheckConsistency:
+    async def test_consistency_detects_flapping(self):
+        """rule_2 failed in A but passed in B — it is a flapping rule."""
+
+        async def _load(run_id):
+            return {"run-a": _REPORT_A, "run-b": _REPORT_B}.get(run_id)
+
+        with patch("aegis.integrations.mcp.server._load_report", side_effect=_load):
+            result = await check_consistency("run-a", "run-b")
+        parsed = json.loads(result)
+        assert "rule_2" in parsed["flapping_rules"]
+        assert "rule_1" in parsed["consistent_failures"]
+        assert parsed["consistent"] is False
+
+    async def test_consistency_perfect_match(self):
+        """Two identical failure sets → consistent=True, score=100."""
+
+        async def _load(run_id):
+            return _REPORT_A
+
+        with patch("aegis.integrations.mcp.server._load_report", side_effect=_load):
+            result = await check_consistency("run-a", "run-a")
+        parsed = json.loads(result)
+        assert parsed["consistent"] is True
+        assert parsed["consistency_score_pct"] == 100.0
+        assert parsed["flapping_rules"] == []
+
+    async def test_consistency_missing_run(self):
+        """Missing run_id returns error JSON."""
+
+        async def _load(run_id):
+            return None
+
+        with patch("aegis.integrations.mcp.server._load_report", side_effect=_load):
+            result = await check_consistency("run-a", "run-b")
+        parsed = json.loads(result)
+        assert "error" in parsed

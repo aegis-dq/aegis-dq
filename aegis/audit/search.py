@@ -6,7 +6,7 @@ from pathlib import Path
 
 import aiosqlite
 
-from ..memory.store import DB_PATH
+from ..memory.store import DB_PATH, _connect
 
 
 async def _ensure_fts_table(db: aiosqlite.Connection) -> None:
@@ -19,9 +19,7 @@ async def _ensure_fts_table(db: aiosqlite.Connection) -> None:
         """
     )
     # Sentinel so we only backfill existing rows once per database
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS _fts_seeded (v INTEGER PRIMARY KEY)"
-    )
+    await db.execute("CREATE TABLE IF NOT EXISTS _fts_seeded (v INTEGER PRIMARY KEY)")
     await db.execute(
         """
         CREATE TRIGGER IF NOT EXISTS decisions_ai
@@ -39,16 +37,20 @@ async def _ensure_fts_table(db: aiosqlite.Connection) -> None:
         END
         """
     )
-    # Backfill any rows that existed before this table was created
-    seeded = await (await db.execute("SELECT v FROM _fts_seeded WHERE v = 1")).fetchone()
-    if seeded is None:
+    # Backfill rows that existed before the FTS table was created.
+    # INSERT OR IGNORE is the atomic gate — only the connection that actually
+    # inserts the sentinel row (changes() = 1) performs the backfill, preventing
+    # duplicate FTS entries when multiple coroutines call this concurrently.
+    await db.execute("INSERT OR IGNORE INTO _fts_seeded VALUES (1)")
+    cursor = await db.execute("SELECT changes()")
+    row = await cursor.fetchone()
+    if row and row[0] == 1:
         await db.execute(
             """
             INSERT INTO decisions_fts(rowid, run_id, step, input_summary, output_summary)
             SELECT id, run_id, step, input_summary, output_summary FROM decisions
             """
         )
-        await db.execute("INSERT OR IGNORE INTO _fts_seeded VALUES (1)")
         await db.commit()
 
 
@@ -56,7 +58,7 @@ async def rebuild_fts_index(db_path: Path = DB_PATH) -> int:
     """Rebuild the FTS index from the decisions table. Returns number of rows indexed."""
     if not db_path.exists():
         return 0
-    async with aiosqlite.connect(db_path) as db:
+    async with _connect(db_path) as db:
         await _ensure_fts_table(db)
         # Full rebuild: clear and repopulate from decisions
         await db.execute("DELETE FROM decisions_fts")
@@ -92,7 +94,7 @@ async def search_decisions(
     """
     if not db_path.exists():
         return []
-    async with aiosqlite.connect(db_path) as db:
+    async with _connect(db_path) as db:
         await _ensure_fts_table(db)
         db.row_factory = aiosqlite.Row
         if run_id:

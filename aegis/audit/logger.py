@@ -7,10 +7,13 @@ from pathlib import Path
 
 import aiosqlite
 
-from ..memory.store import DB_PATH
+from ..memory.store import DB_PATH, _connect, _schema_initialized
 
 
-async def _ensure_decisions_table(db: aiosqlite.Connection) -> None:
+async def _ensure_decisions_table(db: aiosqlite.Connection, db_path: Path) -> None:
+    """Create decisions table and index once per process per DB path."""
+    if db_path in _schema_initialized:
+        return
     await db.execute(
         """
         CREATE TABLE IF NOT EXISTS decisions (
@@ -29,6 +32,8 @@ async def _ensure_decisions_table(db: aiosqlite.Connection) -> None:
         """
     )
     await db.execute("CREATE INDEX IF NOT EXISTS idx_decisions_run_id ON decisions(run_id)")
+    await db.commit()
+    _schema_initialized.add(db_path)
 
 
 async def log_decision(
@@ -46,8 +51,8 @@ async def log_decision(
 ) -> None:
     """Persist one agent decision row. Creates the table on first call."""
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    async with aiosqlite.connect(db_path) as db:
-        await _ensure_decisions_table(db)
+    async with _connect(db_path) as db:
+        await _ensure_decisions_table(db, db_path)
         await db.execute(
             """
             INSERT INTO decisions
@@ -59,7 +64,7 @@ async def log_decision(
                 run_id,
                 datetime.now(UTC).isoformat(),
                 step,
-                input_summary[:2000],   # guard against huge prompts
+                input_summary[:2000],  # guard against huge prompts
                 output_summary[:2000],
                 model,
                 input_tokens,
@@ -75,8 +80,8 @@ async def get_decisions(run_id: str, db_path: Path = DB_PATH) -> list[dict]:
     """Return all decisions for a given run_id, ordered by insertion time."""
     if not db_path.exists():
         return []
-    async with aiosqlite.connect(db_path) as db:
-        await _ensure_decisions_table(db)
+    async with _connect(db_path) as db:
+        await _ensure_decisions_table(db, db_path)
         db.row_factory = aiosqlite.Row
         cursor = await db.execute(
             "SELECT * FROM decisions WHERE run_id = ? ORDER BY id",

@@ -14,6 +14,7 @@ import asyncio
 from typing import Any
 
 from ...adapters.llm.base import LLMAdapter
+from ...adapters.llm.pricing import cost_usd
 from ...adapters.warehouse.base import WarehouseAdapter
 from ...rules.schema import DataQualityRule, RuleFailure, Severity
 from ..lineage.openlineage import LineageGraph
@@ -133,10 +134,12 @@ async def parallel_table_node(
         table_groups.setdefault(rule.spec_scope.table, []).append(rule)
 
     # Run all table pipelines concurrently
-    per_table = await asyncio.gather(*[
-        _run_table_pipeline(table, rules, warehouse, llm, lineage, state["run_id"])
-        for table, rules in table_groups.items()
-    ])
+    per_table = await asyncio.gather(
+        *[
+            _run_table_pipeline(table, rules, warehouse, llm, lineage, state["run_id"])
+            for table, rules in table_groups.items()
+        ]
+    )
 
     # Merge results
     all_results = []
@@ -162,8 +165,7 @@ async def parallel_table_node(
     # Preserve severity ordering in classified dict
     classified = {k: classified[k] for k in _SEVERITY_ORDER if k in classified}
 
-    # claude-haiku-4-5 pricing: $0.80/M input, $4.00/M output
-    cost = (total_in * 0.80 + total_out * 4.00) / 1_000_000
+    cost = cost_usd(getattr(llm, "_model", None), total_in, total_out)
 
     state["rule_results"] = all_results
     state["failures"] = all_failures

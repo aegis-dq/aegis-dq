@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 
 from ...adapters.llm.base import LLMAdapter
+from ...adapters.llm.pricing import cost_usd
 from ...audit.logger import log_decision
 from ...rules.schema import RuleFailure, Severity
 from ..state import AegisState
@@ -61,7 +62,7 @@ async def _triage_one(
     if severity_str not in {s.value for s in Severity}:
         severity_str = str(rule.metadata.severity)
 
-    cost = (in_tok * 0.80 + out_tok * 4.00) / 1_000_000
+    cost = cost_usd(getattr(llm, "_model", None), in_tok, out_tok)
     await log_decision(
         run_id=run_id,
         step="classify",
@@ -103,6 +104,7 @@ async def classify_node(state: AegisState, llm: LLMAdapter | None) -> AegisState
 
     if llm is not None:
         import asyncio
+
         tasks = [_triage_one(f, llm, state["run_id"]) for f in failures]
         triaged = list(await asyncio.gather(*tasks))
     else:

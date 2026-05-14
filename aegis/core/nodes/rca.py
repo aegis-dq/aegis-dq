@@ -7,6 +7,7 @@ import time
 from typing import Any
 
 from ...adapters.llm.base import LLMAdapter
+from ...adapters.llm.pricing import cost_usd
 from ...audit.logger import log_decision
 from ..lineage.openlineage import LineageGraph, upstream_chain
 from ..state import AegisState
@@ -80,18 +81,20 @@ async def _rca_one(
         if ": " in line
     }
 
-    result: RCAResult = RCAResult({
-        "failure_id": failure_id,
-        "table": table,
-        "upstream_tables": upstream_tables,
-        "lineage_depth": len(upstream_tables),
-        "root_cause": lines.get("ROOT_CAUSE", "Unable to determine"),
-        "origin": lines.get("ORIGIN", "Unknown"),
-        "propagation": lines.get("PROPAGATION", "Unknown"),
-        "fix": lines.get("FIX", "Investigate manually"),
-    })
+    result: RCAResult = RCAResult(
+        {
+            "failure_id": failure_id,
+            "table": table,
+            "upstream_tables": upstream_tables,
+            "lineage_depth": len(upstream_tables),
+            "root_cause": lines.get("ROOT_CAUSE", "Unable to determine"),
+            "origin": lines.get("ORIGIN", "Unknown"),
+            "propagation": lines.get("PROPAGATION", "Unknown"),
+            "fix": lines.get("FIX", "Investigate manually"),
+        }
+    )
 
-    cost = (in_tok * 0.80 + out_tok * 4.00) / 1_000_000
+    cost = cost_usd(getattr(llm, "_model", None), in_tok, out_tok)
     await log_decision(
         run_id=run_id,
         step="rca",
@@ -151,7 +154,7 @@ async def rca_node(
     rca_results = [r for r in outcomes if r is not None]
 
     total_cost = sum(
-        (r.get("_in_tok", 0) * 0.80 + r.get("_out_tok", 0) * 4.00) / 1_000_000
+        cost_usd(getattr(llm, "_model", None), r.get("_in_tok", 0), r.get("_out_tok", 0))
         for r in rca_results
     )
 

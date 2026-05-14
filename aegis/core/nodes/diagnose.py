@@ -6,6 +6,7 @@ import asyncio
 import time
 
 from ...adapters.llm.base import LLMAdapter
+from ...adapters.llm.pricing import cost_usd
 from ...audit.logger import log_decision
 from ..state import AegisState, Diagnosis
 
@@ -21,15 +22,11 @@ LIKELY_CAUSE: <one sentence>
 SUGGESTED_ACTION: <one sentence>"""
 
 
-async def _diagnose_one(
-    failure, llm: LLMAdapter, run_id: str
-) -> tuple[Diagnosis, int, int]:
+async def _diagnose_one(failure, llm: LLMAdapter, run_id: str) -> tuple[Diagnosis, int, int]:
     """Diagnose a single failure. Extracted for use in parallel_table_node."""
     rule = failure.rule
     result = failure.result
-    sample_str = (
-        str(result.failure_sample[:3]) if result.failure_sample else "No sample available"
-    )
+    sample_str = str(result.failure_sample[:3]) if result.failure_sample else "No sample available"
 
     user_msg = f"""Rule: {rule.metadata.id}
 Table: {rule.spec_scope.table}
@@ -58,7 +55,7 @@ Error: {result.error or "None"}"""
         "suggested_action": lines.get("SUGGESTED_ACTION", "Investigate manually"),
     }
 
-    decision_cost = (in_tok * 0.80 + out_tok * 4.00) / 1_000_000
+    decision_cost = cost_usd(getattr(llm, "_model", None), in_tok, out_tok)
     await log_decision(
         run_id=run_id,
         step="diagnose",
@@ -90,8 +87,7 @@ async def diagnose_node(state: AegisState, llm: LLMAdapter | None) -> AegisState
         total_in += in_tok
         total_out += out_tok
 
-    # claude-haiku-4-5 pricing: $0.80/M input, $4.00/M output
-    cost = (total_in * 0.80 + total_out * 4.00) / 1_000_000
+    cost = cost_usd(getattr(llm, "_model", None), total_in, total_out)
 
     state["diagnoses"] = diagnoses
     state["cost_total_usd"] = state.get("cost_total_usd", 0.0) + cost

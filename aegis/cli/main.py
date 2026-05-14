@@ -27,44 +27,163 @@ app.add_typer(rules_app, name="rules")
 
 @app.command()
 def init(
-    output: Path = typer.Option(Path("rules.yaml"), "--output", "-o", help="Output file path"),
+    directory: Path = typer.Argument(
+        Path("."), help="Project directory to initialise (default: current dir)"
+    ),
+    name: str = typer.Option("my-pipeline", "--name", "-n", help="Name for the example pipeline"),
+    warehouse: str = typer.Option("duckdb", "--warehouse", "-w", help="Default warehouse type"),
+    force: bool = typer.Option(False, "--force", "-f", help="Overwrite existing files"),
 ) -> None:
-    """Generate an example rules.yaml file."""
-    example = """\
-# Aegis rules example
+    """Scaffold a new Aegis project — creates aegis.yaml, folder structure, and a starter pipeline."""
+    directory = directory.resolve()
+    directory.mkdir(parents=True, exist_ok=True)
+
+    aegis_yaml = directory / "aegis.yaml"
+    gitignore = directory / ".gitignore"
+    pipeline_dir = directory / "pipelines" / name
+    pipeline_yaml = pipeline_dir / "pipeline.yaml"
+    rules_yaml = pipeline_dir / "rules.yaml"
+    aegis_dir = directory / ".aegis"
+
+    # --- aegis.yaml ---
+    if not aegis_yaml.exists() or force:
+        warehouse_block = {
+            "duckdb": "  type: duckdb\n  connection:\n    path: .aegis/data.duckdb",
+            "bigquery": "  type: bigquery\n  connection:\n    project: my-gcp-project\n    dataset: analytics",
+            "postgres": "  type: postgres\n  connection:\n    dsn: postgresql://user:pass@localhost:5432/mydb",
+            "athena": "  type: athena\n  connection:\n    s3_staging_dir: s3://my-bucket/athena/\n    region_name: us-east-1",
+            "databricks": "  type: databricks\n  connection:\n    server_hostname: abc.azuredatabricks.net\n    http_path: /sql/1.0/warehouses/abc\n    access_token: dapi...",
+        }.get(warehouse, f"  type: {warehouse}\n  connection: {{}}")
+
+        aegis_yaml.write_text(f"""\
+# aegis.yaml — Project-level configuration. Commit this file.
+# Credentials and secrets go in environment variables, never here.
+# Each pipeline inherits these defaults and can override any field.
+
+default_llm:
+  provider: anthropic          # anthropic | openai | bedrock | ollama
+  model: claude-haiku-4-5-20251001
+
+default_warehouse:
+{warehouse_block}
+
+audit:
+  db_path: .aegis/history.db  # local audit trail — do not commit
+
+pipelines_dir: pipelines
+""")
+        console.print(f"[green]✓[/green] {aegis_yaml.relative_to(directory)}")
+    else:
+        console.print(
+            f"[yellow]~[/yellow] {aegis_yaml.relative_to(directory)} (already exists, skipped)"
+        )
+
+    # --- pipelines/<name>/ ---
+    pipeline_dir.mkdir(parents=True, exist_ok=True)
+
+    if not pipeline_yaml.exists() or force:
+        pipeline_yaml.write_text(f"""\
+# pipelines/{name}/pipeline.yaml
+# Warehouse and LLM are inherited from aegis.yaml unless overridden here.
+
+name: {name}
+description: "Data quality checks for {name}"
+rules: ./rules.yaml
+
+goal: |
+  Run all data quality rules. For every failure:
+    - Explain what the failure means in plain English
+    - Identify the most likely root cause
+    - Propose a concrete remediation action
+  Group findings by severity: CRITICAL → HIGH → MEDIUM.
+
+# Uncomment to use a different warehouse for this pipeline:
+# warehouse:
+#   type: bigquery
+#   connection:
+#     project: other-project
+#     dataset: other-dataset
+
+# Uncomment to attach policy or schema docs for LLM context:
+# kb:
+#   - ./policy.md
+#   - ./schema.md
+""")
+        console.print(f"[green]✓[/green] pipelines/{name}/pipeline.yaml")
+    else:
+        console.print(
+            f"[yellow]~[/yellow] pipelines/{name}/pipeline.yaml (already exists, skipped)"
+        )
+
+    if not rules_yaml.exists() or force:
+        rules_yaml.write_text(f"""\
+# pipelines/{name}/rules.yaml
+# Add your data quality rules here. Run `aegis validate ./rules.yaml` to check syntax.
 rules:
   - apiVersion: aegis.dev/v1
     kind: DataQualityRule
     metadata:
-      id: orders_no_nulls
+      id: example_not_null
       severity: critical
-      domain: retail
     scope:
-      warehouse: duckdb
-      table: orders
-      columns: [order_id]
+      table: my_table
+      columns: [id]
     logic:
       type: not_null
 
   - apiVersion: aegis.dev/v1
     kind: DataQualityRule
     metadata:
-      id: orders_positive_revenue
+      id: example_positive_amount
       severity: high
-      domain: retail
     scope:
-      warehouse: duckdb
-      table: orders
+      table: my_table
     logic:
       type: sql_expression
-      expression: "revenue >= 0"
-    diagnosis:
-      common_causes:
-        - "Refund logic inverted"
-        - "Currency conversion failure"
-"""
-    output.write_text(example)
-    console.print(f"[green]Created {output}[/green]")
+      expression: "amount >= 0"
+""")
+        console.print(f"[green]✓[/green] pipelines/{name}/rules.yaml")
+    else:
+        console.print(f"[yellow]~[/yellow] pipelines/{name}/rules.yaml (already exists, skipped)")
+
+    # --- .aegis/ ---
+    aegis_dir.mkdir(exist_ok=True)
+    (aegis_dir / ".gitkeep").touch()
+
+    # --- .gitignore ---
+    gitignore_entries = [".aegis/history.db", ".aegis/*.duckdb", ".env", "*.duckdb"]
+    if not gitignore.exists() or force:
+        gitignore.write_text("\n".join(gitignore_entries) + "\n")
+        console.print("[green]✓[/green] .gitignore")
+    else:
+        # Append missing entries without overwriting
+        existing = gitignore.read_text()
+        missing = [e for e in gitignore_entries if e not in existing]
+        if missing:
+            gitignore.write_text(existing.rstrip() + "\n" + "\n".join(missing) + "\n")
+            console.print(f"[green]✓[/green] .gitignore (appended {len(missing)} entries)")
+        else:
+            console.print("[yellow]~[/yellow] .gitignore (already up to date)")
+
+    console.print()
+    console.print("[bold]Project ready.[/bold] Next steps:")
+    console.print(
+        f"  1. Edit [cyan]pipelines/{name}/rules.yaml[/cyan] with your actual table and column names"
+    )
+    console.print("  2. Set your LLM key:  [cyan]export ANTHROPIC_API_KEY=sk-ant-...[/cyan]")
+    console.print(
+        f"  3. Validate syntax:   [cyan]aegis validate pipelines/{name}/rules.yaml[/cyan]"
+    )
+    console.print(
+        f"  4. Run offline first: [cyan]aegis pipeline run pipelines/{name}/pipeline.yaml --no-llm[/cyan]"
+    )
+    console.print(
+        f"  5. Full run with LLM: [cyan]aegis pipeline run pipelines/{name}/pipeline.yaml[/cyan]"
+    )
+    if warehouse != "duckdb":
+        console.print(
+            f"\n  [dim]Set {warehouse.upper()} credentials as env vars — see docs/integrations/mcp.md[/dim]"
+        )
 
 
 @app.command()
@@ -122,11 +241,14 @@ def run(
 def _build_llm_adapter(
     provider: str, model: str | None, ollama_host: str = "http://localhost:11434"
 ):
-    """Resolve provider name to an LLMAdapter instance."""
+    """Resolve provider name to an LLMAdapter instance (wrapped with retry)."""
+    from ..adapters.llm.retry import RetryingLLMAdapter
+
     if provider == "anthropic":
         from ..adapters.llm.anthropic import AnthropicAdapter
 
-        return AnthropicAdapter(**({"model": model} if model else {}))
+        inner = AnthropicAdapter(**({"model": model} if model else {}))
+        return RetryingLLMAdapter(inner)
     if provider == "openai":
         try:
             from ..adapters.llm.openai import OpenAIAdapter
@@ -135,15 +257,27 @@ def _build_llm_adapter(
                 "[red]openai package not installed. Run: pip install aegis-dq[openai][/red]"
             )
             raise typer.Exit(1)
-        return OpenAIAdapter(**({"model": model} if model else {}))
+        return RetryingLLMAdapter(OpenAIAdapter(**({"model": model} if model else {})))
     if provider == "ollama":
         from ..adapters.llm.ollama import OllamaAdapter
 
         kwargs: dict = {"base_url": ollama_host}
         if model:
             kwargs["model"] = model
-        return OllamaAdapter(**kwargs)
-    console.print(f"[red]Unknown LLM provider '{provider}'. Choose: anthropic|openai|ollama[/red]")
+        return RetryingLLMAdapter(OllamaAdapter(**kwargs))
+    if provider == "bedrock":
+        try:
+            from ..adapters.llm.bedrock import BedrockAdapter
+        except ImportError:
+            console.print("[red]boto3 not installed. Run: pip install aegis-dq[bedrock][/red]")
+            raise typer.Exit(1)
+        kwargs = {}
+        if model:
+            kwargs["model"] = model
+        return RetryingLLMAdapter(BedrockAdapter(**kwargs))
+    console.print(
+        f"[red]Unknown LLM provider '{provider}'. Choose: anthropic|openai|ollama|bedrock[/red]"
+    )
     raise typer.Exit(1)
 
 

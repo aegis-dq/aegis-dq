@@ -25,7 +25,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ..memory.store import DB_PATH
+from ..memory.store import DB_PATH, _connect
 from .logger import get_decisions
 
 # System prompts per step — mirrors the prompts used at inference time
@@ -108,9 +108,7 @@ async def export_sharegpt(run_id: str, db_path: Path = DB_PATH) -> dict:
             llm_steps.append(d.get("step", "unknown"))
 
     total_cost = sum(d.get("cost_usd", 0.0) for d in decisions)
-    total_tokens = sum(
-        d.get("input_tokens", 0) + d.get("output_tokens", 0) for d in decisions
-    )
+    total_tokens = sum(d.get("input_tokens", 0) + d.get("output_tokens", 0) for d in decisions)
 
     return {
         "id": run_id,
@@ -172,9 +170,7 @@ async def export_dataset(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     if fmt == "jsonl":
-        output_path.write_text(
-            "\n".join(json.dumps(s, ensure_ascii=False) for s in samples) + "\n"
-        )
+        output_path.write_text("\n".join(json.dumps(s, ensure_ascii=False) for s in samples) + "\n")
     else:
         output_path.write_text(json.dumps(samples, indent=2, ensure_ascii=False))
 
@@ -193,8 +189,7 @@ async def list_run_ids(db_path: Path = DB_PATH) -> list[str]:
     """Return all distinct run IDs in the audit database, newest first."""
     if not db_path.exists():
         return []
-    import aiosqlite
-    async with aiosqlite.connect(db_path) as db:
+    async with _connect(db_path) as db:
         cursor = await db.execute(
             "SELECT run_id FROM decisions GROUP BY run_id ORDER BY MAX(id) DESC"
         )

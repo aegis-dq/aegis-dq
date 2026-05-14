@@ -111,13 +111,15 @@ class AegisOperator(BaseOperator):
         if provider == "none":
             return None
 
+        from aegis.adapters.llm.retry import RetryingLLMAdapter
+
         if provider == "anthropic":
             from aegis.adapters.llm.anthropic import AnthropicAdapter
 
             kwargs: dict[str, Any] = {}
             if self.llm_model:
                 kwargs["model"] = self.llm_model
-            return AnthropicAdapter(**kwargs)
+            return RetryingLLMAdapter(AnthropicAdapter(**kwargs))
 
         if provider == "openai":
             from aegis.adapters.llm.openai import OpenAIAdapter
@@ -125,7 +127,7 @@ class AegisOperator(BaseOperator):
             kwargs = {}
             if self.llm_model:
                 kwargs["model"] = self.llm_model
-            return OpenAIAdapter(**kwargs)
+            return RetryingLLMAdapter(OpenAIAdapter(**kwargs))
 
         if provider == "ollama":
             from aegis.adapters.llm.ollama import OllamaAdapter
@@ -133,11 +135,19 @@ class AegisOperator(BaseOperator):
             kwargs = {"base_url": self.ollama_host}
             if self.llm_model:
                 kwargs["model"] = self.llm_model
-            return OllamaAdapter(**kwargs)
+            return RetryingLLMAdapter(OllamaAdapter(**kwargs))
+
+        if provider == "bedrock":
+            from aegis.adapters.llm.bedrock import BedrockAdapter
+
+            kwargs = {}
+            if self.llm_model:
+                kwargs["model"] = self.llm_model
+            return RetryingLLMAdapter(BedrockAdapter(**kwargs))
 
         raise AirflowException(
             f"Unknown llm_provider {self.llm_provider!r}. "
-            "Choose one of: anthropic, openai, ollama, none."
+            "Choose one of: anthropic, openai, ollama, bedrock, none."
         )
 
     # ------------------------------------------------------------------

@@ -8,6 +8,7 @@ from langgraph.graph import END, StateGraph
 
 from ..adapters.llm.anthropic import AnthropicAdapter
 from ..adapters.llm.base import LLMAdapter
+from ..adapters.llm.retry import RetryingLLMAdapter
 from ..adapters.warehouse.base import WarehouseAdapter
 from ..adapters.warehouse.duckdb import DuckDBAdapter
 from ..rules.schema import DataQualityRule
@@ -43,7 +44,7 @@ class AegisAgent:
         # If caller explicitly passes llm_adapter=None → no-LLM / offline mode.
         # If caller omits the argument → default to AnthropicAdapter.
         if llm_adapter is _UNSET:
-            self._llm: LLMAdapter | None = AnthropicAdapter()
+            self._llm: LLMAdapter | None = RetryingLLMAdapter(AnthropicAdapter())
         else:
             self._llm = llm_adapter  # type: ignore[assignment]
         self._lineage: LineageGraph = lineage_graph or {}

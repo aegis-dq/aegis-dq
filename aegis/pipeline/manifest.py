@@ -31,7 +31,13 @@ class PipelineManifest(BaseModel):
 
     @classmethod
     def load(cls, path: Path) -> PipelineManifest:
-        """Load a pipeline manifest from a YAML file."""
+        """Load a pipeline manifest from a YAML file.
+
+        Automatically walks up from the manifest's directory to find aegis.yaml.
+        Any field not specified in pipeline.yaml inherits from aegis.yaml defaults.
+        """
+        from ..config.project import AegisProject
+
         raw = yaml.safe_load(path.read_text())
 
         # Sugar: top-level `database` key → warehouse.connection.path
@@ -39,6 +45,14 @@ class PipelineManifest(BaseModel):
             raw["warehouse"] = {"type": "duckdb", "connection": {"path": raw.pop("database")}}
         elif "database" in raw:
             raw["warehouse"].setdefault("connection", {})["path"] = raw.pop("database")
+
+        # Inherit missing fields from the nearest aegis.yaml (walk up from manifest dir)
+        project = AegisProject.find(path.parent)
+        if project is not None:
+            if "warehouse" not in raw:
+                raw["warehouse"] = project.default_warehouse.model_dump()
+            if "llm" not in raw:
+                raw["llm"] = project.default_llm.model_dump()
 
         # Resolve paths relative to the manifest file's directory
         base = path.parent
