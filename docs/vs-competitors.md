@@ -10,6 +10,8 @@ The data quality tooling market splits into three tiers: **rule-based validators
 
 ## Quick comparison
 
+<div class="vs-table" markdown="1">
+
 | | **Aegis** | **Great Expectations** | **Soda Core** | **Monte Carlo** | **Metaplane** | **Anomalo** | **dbt tests** |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | **License** | Apache 2.0 | Apache 2.0 | Apache 2.0 | Commercial | Commercial | Commercial | Apache 2.0 |
@@ -26,6 +28,8 @@ The data quality tooling market splits into three tiers: **rule-based validators
 | **dbt integration** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ native |
 | **MCP server** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Pricing** | Free | Free + Cloud | Free + Cloud | $$$ | $$$ | $$$ | Free |
+
+</div>
 
 ---
 

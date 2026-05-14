@@ -96,14 +96,14 @@ Every LLM call made during a run is recorded in `~/.aegis/history.db` (SQLite). 
 
 The `decisions` table has an FTS5 virtual table on `(prompt, response)`, enabling full-text search:
 
-```bash
+```bash title="Terminal"
 aegis audit search "null order_id"
 aegis audit search "currency conversion"
 ```
 
 ### ShareGPT export for fine-tuning
 
-```bash
+```bash title="Terminal"
 aegis audit export-dataset output.jsonl
 ```
 
@@ -123,14 +123,18 @@ The `AegisOperator` wraps an `aegis run` invocation as a native Airflow task. Se
 
 ### MCP server
 
-Aegis ships a Model Context Protocol server that exposes five tools to Claude Desktop (or any MCP-compatible client):
+Aegis ships a Model Context Protocol server that exposes nine tools to Claude Desktop (or any MCP-compatible client):
 
 | Tool | Description |
 |---|---|
-| `aegis_run` | Run a rules file against a warehouse and return the report |
-| `aegis_validate` | Validate a rules file offline and return any errors |
-| `aegis_list_runs` | List recent runs from the audit trail |
-| `aegis_trajectory` | Return the full node trajectory for a given run ID |
-| `aegis_search` | Full-text search the audit trail |
+| `load_pipeline` | Load a `pipeline.yaml` manifest — returns connection params and goal as context |
+| `run_validation` | Run a rules file against a warehouse and return the report |
+| `list_runs` | List recent runs from the audit trail |
+| `get_run_report` | Get the full report for a past run by ID |
+| `get_trajectory` | Return the full node-by-node decision log for a run |
+| `search_decisions` | Full-text search across all past LLM diagnoses |
+| `compare_reports` | Diff two runs — regressions, fixes, pass-rate delta |
+| `summarize_reports` | Compact summary of one or more runs |
+| `check_consistency` | Detect flapping rules and rule-set drift between two runs |
 
 See [MCP Server](integrations/mcp.md) for the Claude Desktop configuration.

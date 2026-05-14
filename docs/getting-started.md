@@ -6,25 +6,82 @@ Get from zero to a working data quality pipeline in 5 minutes. No cloud account 
 
 ## 1. Install
 
-```bash
+```bash title="Terminal"
 pip install aegis-dq
 ```
 
 Verify:
 
-```bash
+```bash title="Terminal"
 aegis --help
 ```
 
-You should see the `init`, `validate`, `run`, `audit`, and `rules` commands listed.
+You should see the `init`, `validate`, `run`, `pipeline`, `audit`, and `rules` commands listed.
 
 ---
 
-## 2. Seed demo data
+## 2. Scaffold a project
+
+`aegis init` creates the standard project layout — one directory to commit to git:
+
+```bash title="Terminal"
+aegis init my-project --name orders-dq
+cd my-project
+```
+
+What gets created:
+
+```
+my-project/
+├── aegis.yaml                        ← project-wide defaults (LLM, warehouse, audit path)
+├── .gitignore                        ← excludes .aegis/history.db and *.duckdb
+├── .aegis/                           ← audit trail lives here (auto-created on first run)
+└── pipelines/
+    └── orders-dq/
+        ├── pipeline.yaml             ← minimal manifest, inherits from aegis.yaml
+        └── rules.yaml                ← starter rules to edit
+```
+
+`aegis.yaml` holds the project-level defaults that every pipeline inherits:
+
+```yaml title="aegis.yaml"
+# aegis.yaml — commit this, never put secrets here
+default_llm:
+  provider: anthropic
+  model: claude-haiku-4-5-20251001
+
+default_warehouse:
+  type: duckdb
+  connection:
+    path: .aegis/data.duckdb
+
+audit:
+  db_path: .aegis/history.db
+
+pipelines_dir: pipelines
+```
+
+Each `pipeline.yaml` only specifies what's unique to that pipeline — warehouse and LLM are inherited unless overridden:
+
+```yaml title="pipelines/orders-dq/pipeline.yaml"
+# pipelines/orders-dq/pipeline.yaml
+name: orders-dq
+description: Daily order data quality checks
+rules: ./rules.yaml
+goal: |
+  For every failure explain the business impact,
+  the likely root cause, and a concrete remediation step.
+```
+
+> **For a different warehouse**: run `aegis init my-project --warehouse bigquery` and the generated `aegis.yaml` will have BigQuery defaults instead.
+
+---
+
+## 3. Seed demo data
 
 Create a local DuckDB file with 10 000 orders and intentional data quality issues baked in:
 
-```python
+```python title="seed.py"
 # seed.py
 import duckdb
 
@@ -49,7 +106,7 @@ con.close()
 print("Created demo.db  (10 000 rows, 50 null order_ids, 20 negative revenues)")
 ```
 
-```bash
+```bash title="Terminal"
 python seed.py
 # Created demo.db  (10 000 rows, 50 null order_ids, 20 negative revenues)
 ```
@@ -58,11 +115,11 @@ python seed.py
 
 ---
 
-## 3. Create rules.yaml
+## 4. Create rules.yaml
 
-Paste this into `rules.yaml` in your working directory:
+If you ran `aegis init`, edit the generated `pipelines/orders-dq/rules.yaml`. Otherwise, create `rules.yaml` in your working directory. Either way, use this as your starting point:
 
-```yaml
+```yaml title="pipelines/orders-dq/rules.yaml"
 rules:
 
   - apiVersion: aegis.dev/v1
@@ -114,17 +171,18 @@ rules:
       warehouse: duckdb
       table: orders
     logic:
-      type: row_count
-      threshold: 1000
+      type: row_count_between
+      min_value: 1000
+      max_value: 100000000
 ```
 
 ---
 
-## 4. Validate syntax offline
+## 5. Validate syntax offline
 
 Before touching any data, confirm your rules are correctly formed:
 
-```bash
+```bash title="Terminal"
 aegis validate rules.yaml
 ```
 
@@ -144,11 +202,14 @@ Errors (`✗`) must be fixed before running. Warnings (`⚠`) are informational 
 
 ---
 
-## 5. Run without LLM
+## 6. Run without LLM
+
+!!! tip "No API key needed"
+    `--no-llm` runs the full validation pipeline entirely offline. No Anthropic key, no OpenAI key, no cloud calls — validation is pure SQL against your warehouse. You still get pass/fail results and row counts; only the LLM diagnosis and root-cause analysis are skipped.
 
 Run your rules against the demo database in offline mode — no API key needed:
 
-```bash
+```bash title="Terminal"
 aegis run rules.yaml --db demo.db --no-llm
 ```
 
@@ -181,20 +242,23 @@ Exit code: 1  (failures detected)
 
 The process exits with code `1` whenever any rule fails — useful for blocking CI pipelines.
 
+!!! warning "Exit code 1"
+    `aegis run` exits with code `1` whenever one or more rules fail. This is intentional — pipe it directly into your CI system (GitHub Actions, GitLab CI, Jenkins) to block a deployment or trigger an alert when data quality degrades.
+
 ---
 
-## 6. Run with LLM diagnosis
+## 7. Run with LLM diagnosis
 
 Set your Anthropic API key and re-run. The `diagnose` and `rca` nodes will now call the LLM for each failure:
 
-```bash
+```bash title="Terminal"
 export ANTHROPIC_API_KEY=sk-ant-...
 aegis run rules.yaml --db demo.db
 ```
 
 **AWS Bedrock (no API key — uses AWS credentials profile):**
 
-```bash
+```bash title="Terminal"
 # Uses the Bedrock Converse API with Amazon Nova Pro (no use-case form needed)
 python demo/realworld_demo.py --aws-profile your-aws-profile
 ```
@@ -245,29 +309,29 @@ LLM cost: $0.000412  (claude-haiku-4-5, 2 diagnoses)
 
 ---
 
-## 7. Use a local LLM (no API key)
+## 8. Use a local LLM (no API key)
 
 If you have [Ollama](https://ollama.com) running locally, you can run diagnosis entirely offline:
 
-```bash
+```bash title="Terminal"
 # requires ollama running locally with llama3.2 pulled
 aegis run rules.yaml --db demo.db --llm ollama --llm-model llama3.2
 ```
 
 Ollama runs on `http://localhost:11434` by default. To use a different host:
 
-```bash
+```bash title="Terminal"
 aegis run rules.yaml --db demo.db --llm ollama --llm-model llama3.2 \
   --llm-base-url http://my-ollama-host:11434
 ```
 
 ---
 
-## 8. Inspect the audit trail
+## 9. Inspect the audit trail
 
 Every run writes to `~/.aegis/history.db`. Use the `audit` subcommands to explore it:
 
-```bash
+```bash title="Terminal"
 # List all runs (newest first)
 aegis audit list-runs
 
@@ -288,17 +352,17 @@ Example `list-runs` output:
 
 ---
 
-## 9. Export for fine-tuning
+## 10. Export for fine-tuning
 
 Dump the audit trail for a run as ShareGPT-format JSONL, ready for supervised fine-tuning:
 
-```bash
+```bash title="Terminal"
 aegis audit export-dataset output.jsonl --run-id run_20260511_143022_a1b2c3
 ```
 
 Omit `--run-id` to export all runs:
 
-```bash
+```bash title="Terminal"
 aegis audit export-dataset output.jsonl
 ```
 
@@ -306,11 +370,11 @@ Each line in `output.jsonl` is one conversation turn: the rule context as a user
 
 ---
 
-## 10. Real-world end-to-end demo
+## 11. Real-world end-to-end demo
 
 The repository ships a complete RetailCo e-commerce demo that exercises every pipeline node against a 4-table DuckDB database with realistic dirty data. Use it to see the full agentic output — diagnosis, root-cause analysis, and LLM-generated remediation SQL — in one command.
 
-```bash
+```bash title="Terminal"
 # Validation only (no LLM, instant)
 python demo/realworld_demo.py --no-llm
 
@@ -333,7 +397,7 @@ The demo script is at [`demo/realworld_demo.py`](../demo/realworld_demo.py).
 
 ---
 
-## 11. Next steps
+## 12. Next steps
 
 - [Rule Schema Reference](rule-schema-reference.md) — all 31 rule types with full field definitions
 - [Architecture](architecture.md) — deep dive into the 7-node pipeline
@@ -344,11 +408,11 @@ The demo script is at [`demo/realworld_demo.py`](../demo/realworld_demo.py).
 
 ---
 
-## 12. Generate rules with the LLM (v0.7.0)
+## 13. Generate rules with the LLM (v0.7.0)
 
 Instead of writing rules by hand, let Aegis introspect your table schema and generate a draft rules file:
 
-```bash
+```bash title="Terminal"
 aegis generate orders --db demo.db --output orders_rules.yaml
 ```
 
@@ -358,7 +422,7 @@ This generates **structural rules** based on what Aegis observes in the schema: 
 
 Pass a plain-text or markdown file describing your business logic and the LLM generates **business validation rules** alongside the structural ones:
 
-```bash
+```bash title="Terminal"
 aegis generate orders --db demo.db \
   --kb docs/orders_policy.md \
   --output orders_rules.yaml
@@ -366,7 +430,7 @@ aegis generate orders --db demo.db \
 
 **Example KB file (`docs/orders_policy.md`):**
 
-```markdown
+```markdown title="docs/orders_policy.md"
 - status must be one of: placed, confirmed, shipped, delivered, cancelled
 - amount must be greater than 0; refunds are handled in a separate table
 - customer_id must reference a valid customer (no test accounts: id > 1000)
@@ -377,7 +441,7 @@ aegis generate orders --db demo.db \
 
 From this, Aegis generates rules like:
 
-```yaml
+```yaml title="orders_rules.yaml (generated)"
 - logic:
     type: accepted_values
     values: [placed, confirmed, shipped, delivered, cancelled]
@@ -397,11 +461,11 @@ Generated rules are stamped `status: draft` and `generated_by: <model>`. Review 
 
 ---
 
-## 13. Validate SQL expressions (v0.7.0)
+## 14. Validate SQL expressions (v0.7.0)
 
 Run the SQL verification pipeline against your rules without executing a full run:
 
-```bash
+```bash title="Terminal"
 # Stage 1 — syntax only (no DB needed)
 aegis validate rules.yaml --check-sql
 

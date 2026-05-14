@@ -6,7 +6,7 @@ Aegis ships an `AegisOperator` that wraps an `aegis run` invocation as a native 
 
 ## Install
 
-```bash
+```bash title="Terminal"
 pip install "aegis-dq[airflow]"
 ```
 
@@ -14,7 +14,7 @@ pip install "aegis-dq[airflow]"
 
 ## Basic usage
 
-```python
+```python title="dags/daily_orders_dq.py"
 from datetime import datetime
 from airflow import DAG
 from aegis.integrations.airflow import AegisOperator
@@ -57,7 +57,7 @@ with DAG(
 
 ## Reading the report downstream
 
-```python
+```python title="dags/daily_orders_dq.py"
 from airflow.operators.python import PythonOperator
 
 def check_report(**context):
@@ -82,10 +82,13 @@ validate_orders >> read_report
 
 Set your LLM API key as an Airflow Variable or in the worker environment:
 
-```bash
+```bash title="Terminal"
 export ANTHROPIC_API_KEY=sk-ant-...
 # or
 export OPENAI_API_KEY=sk-...
 ```
 
 For BigQuery, set `GOOGLE_APPLICATION_CREDENTIALS` to your service account JSON path.
+
+!!! tip "Store secrets in Airflow's Secrets Backend"
+    Avoid hardcoding API keys in DAG files or worker environment files. Use Airflow's built-in secrets backend (AWS Secrets Manager, HashiCorp Vault, GCP Secret Manager) or Airflow Variables with encryption enabled. Retrieve them at runtime with `Variable.get("ANTHROPIC_API_KEY")` and pass as environment variables in your Airflow worker configuration.

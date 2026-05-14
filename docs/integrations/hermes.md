@@ -29,23 +29,32 @@ Hermes calls Aegis tools via MCP. Aegis runs your rules, logs every LLM decision
 
 ### 1. Install Aegis
 
-```bash
+```bash title="Terminal"
 pip install aegis-dq
 ```
 
-### 2. Verify the MCP server starts
+### 2. Scaffold your project
 
-```bash
-aegis mcp serve
+```bash title="Terminal"
+aegis init my-project --name my-pipeline --warehouse duckdb
+cd my-project
+```
+
+This creates `aegis.yaml` (project-wide LLM + warehouse defaults), the `pipelines/` folder, and `.gitignore`. Every pipeline you add inherits defaults from `aegis.yaml` — you only override what differs.
+
+### 3. Verify the MCP server starts
+
+```bash title="Terminal"
+aegis mcp
 ```
 
 No errors means it's ready. Press `Ctrl+C` to stop.
 
-### 3. Configure Hermes
+### 4. Configure Hermes
 
 Add Aegis to `~/.hermes/config.yaml`:
 
-```yaml
+```yaml title="~/.hermes/config.yaml"
 model:
   default: claude-haiku-4-5-20251001   # or any model your provider supports
   provider: anthropic
@@ -54,7 +63,7 @@ model:
 mcp_servers:
   aegis:
     command: aegis
-    args: [mcp, serve]
+    args: [mcp]
     env:
       DUCKDB_PATH: /data/prod.duckdb          # default DB for DuckDB runs
       ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
@@ -91,9 +100,9 @@ Add warehouse environment variables for any system you want to validate:
       POSTGRES_DSN: postgresql://user:pass@host:5432/db
     ```
 
-### 4. Add your API key
+### 5. Add your API key
 
-```bash
+```bash title="Terminal"
 echo "ANTHROPIC_API_KEY=sk-ant-..." >> ~/.hermes/.env
 ```
 
@@ -101,35 +110,38 @@ echo "ANTHROPIC_API_KEY=sk-ant-..." >> ~/.hermes/.env
 
 ## Pipeline manifests — define once, run forever
 
-The best way to use Aegis with Hermes is a **pipeline manifest**: a single YAML file that captures your database path, rules file, knowledge-base docs, and goal. Define it once; invoke it with two words.
+The best way to use Aegis with Hermes is a **pipeline manifest**: a single YAML file that captures your rules file, knowledge-base docs, and goal. Define it once; invoke it with two words.
 
-### Create a manifest
+If you used `aegis init`, the manifest was already created at `pipelines/<name>/pipeline.yaml`. Warehouse and LLM settings are inherited from `aegis.yaml` — the manifest only needs to specify what's unique to this pipeline:
 
-```yaml
-# my-project/pipeline.yaml
+```yaml title="pipelines/orders-dq/pipeline.yaml"
+# pipelines/orders-dq/pipeline.yaml
+# warehouse and llm are inherited from aegis.yaml — only override if different
 name: orders-dq
 description: Daily order data quality checks — commerce platform
-
-database: /data/prod.duckdb
-rules: rules/orders.yaml
-
-llm:
-  provider: anthropic
-  model: claude-haiku-4-5-20251001
-
+rules: ./rules.yaml
 kb:
-  - docs/policy.md      # business rules / SLAs
-  - docs/schema.md      # table definitions
-
-output_json: reports/latest.json
-
+  - ./policy.md      # business rules / SLAs
+  - ./schema.md      # table definitions
+output_json: ./reports/latest.json
 goal: |
   Run all order data quality rules. For every failure explain the
   business impact, the likely root cause, and a concrete remediation
   step. Group findings by severity.
 ```
 
-All paths in the manifest are resolved relative to the manifest file itself, so the manifest is portable.
+To use a different warehouse for one pipeline, add an explicit override:
+
+```yaml title="pipelines/orders-dq/pipeline.yaml"
+# override just the warehouse — LLM still comes from aegis.yaml
+warehouse:
+  type: bigquery
+  connection:
+    project: other-project
+    dataset: other-dataset
+```
+
+All paths are resolved relative to the manifest file itself, so the manifest is portable.
 
 ### Run it from Hermes
 
@@ -141,7 +153,7 @@ Hermes calls `load_pipeline` → reads the manifest → calls `run_validation` w
 
 ### Or run it directly from the CLI
 
-```bash
+```bash title="Terminal"
 # Run the pipeline
 aegis pipeline run my-project/pipeline.yaml
 
@@ -181,7 +193,7 @@ rules/transactions.yaml.
 
 ### Via CLI
 
-```bash
+```bash title="Terminal"
 aegis generate transactions \
   --db /data/prod.duckdb \
   --kb docs/policy.md \
@@ -244,6 +256,9 @@ Run rules/orders.yaml against DuckDB without LLM — just pass/fail.
 | `get_run_report` | Retrieve the full report for a past run |
 | `get_trajectory` | Get the node-by-node LLM decision log for a run |
 | `search_decisions` | Full-text search across all past LLM diagnoses |
+| `compare_reports` | Diff two runs — shows regressions, fixes, and pass-rate delta |
+| `summarize_reports` | Compact summary of one or more runs — pass rate, top failures, cost |
+| `check_consistency` | Detect flapping rules and rule-set drift between two runs |
 
 ---
 
@@ -253,7 +268,7 @@ This walkthrough runs the full pipeline on a synthetic FinCore Bank dataset with
 
 **1. Seed the database**
 
-```bash
+```bash title="Terminal"
 python3 -c "
 import duckdb
 conn = duckdb.connect('/tmp/fraud.duckdb')
@@ -264,7 +279,7 @@ conn.close()
 
 **2. Generate rules from policy docs**
 
-```bash
+```bash title="Terminal"
 for table in transactions accounts customers counterparties compliance_flags sanctions_list; do
   aegis generate $table \
     --db /tmp/fraud.duckdb \
@@ -277,7 +292,7 @@ done
 
 **3. Run via the pipeline manifest**
 
-```bash
+```bash title="Terminal"
 aegis pipeline run demo/fraud/pipeline.yaml
 ```
 
@@ -322,23 +337,23 @@ Hermes owns the schedule and alerting. Aegis owns the validation and diagnosis. 
 
 ## Troubleshooting
 
-**Hermes can't find the `aegis` command**
-: Ensure `aegis-dq` is installed in the same Python environment Hermes uses. Run `which aegis` to confirm, then set the full path in `command:` if needed.
+!!! warning "Hermes can't find the `aegis` command"
+    Ensure `aegis-dq` is installed in the same Python environment Hermes uses. Run `which aegis` to confirm, then set the full path in `command:` if needed.
 
-**`"Could not resolve authentication method"` error**
-: The `ANTHROPIC_API_KEY` (or equivalent) is not set. Add it to `~/.hermes/.env` or the `env:` block in your Hermes MCP server config.
+!!! warning "Could not resolve authentication method"
+    The `ANTHROPIC_API_KEY` (or equivalent) is not set. Add it to `~/.hermes/.env` or the `env:` block in your Hermes MCP server config.
 
-**`"Missing required connection params"` error**
-: The warehouse env vars are not set in your Hermes `mcp_servers.aegis.env` block. Check the warehouse setup tab in the [Setup](#setup) section.
+!!! warning "Missing required connection params"
+    The warehouse env vars are not set in your Hermes `mcp_servers.aegis.env` block. Check the warehouse setup tab in the [Setup](#setup) section.
 
-**LLM diagnosis is slow or expensive**
-: Switch to `claude-haiku-4-5-20251001` in your Hermes config — 10× cheaper than Sonnet with comparable quality for DQ diagnosis tasks.
+!!! tip "LLM diagnosis is slow or expensive"
+    Switch to `claude-haiku-4-5-20251001` in your Hermes config — 10× cheaper than Sonnet with comparable quality for DQ diagnosis tasks.
 
-**Generated rules have SQL syntax errors**
-: The most common issue is date functions. DuckDB uses `date_diff('day', start, end)` not `DATEDIFF(day, ...)`. Test individual queries directly against DuckDB before running the full pipeline.
+!!! tip "Generated rules have SQL syntax errors"
+    The most common issue is date functions. DuckDB uses `date_diff('day', start, end)` not `DATEDIFF(day, ...)`. Test individual queries directly against DuckDB before running the full pipeline.
 
-**Validation passes but failures were expected**
-: Check that the `table` field in your rules matches the exact table name in the warehouse (case-sensitive on some engines). Run `aegis generate --no-llm` first to confirm schema introspection works.
+!!! warning "Validation passes but failures were expected"
+    Check that the `table` field in your rules matches the exact table name in the warehouse (case-sensitive on some engines). Run `aegis generate --no-llm` first to confirm schema introspection works.
 
 ---
 

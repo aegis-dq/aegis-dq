@@ -379,6 +379,11 @@ logic:
 
 ---
 
+!!! tip "Test SQL before committing"
+    Use `aegis validate rules.yaml --db path/to/db` to dry-run all `sql_expression` and `custom_sql` rules against your actual warehouse before a full pipeline run. This catches syntax errors, missing columns, and dialect mismatches (e.g. DuckDB's `date_diff` vs. `DATEDIFF`) without writing to the audit trail or incurring LLM cost.
+
+---
+
 ## Severity levels
 
 | Level | Meaning | Typical use |

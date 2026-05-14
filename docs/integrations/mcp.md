@@ -1,19 +1,19 @@
 # MCP Server
 
-Aegis ships a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes five tools to any MCP-compatible client. Connect Claude Desktop, Cursor, Cline, Hermes, or any other MCP client and run data quality validations conversationally.
+Aegis ships a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes nine tools to any MCP-compatible client. Connect Claude Desktop, Cursor, Cline, Hermes, or any other MCP client and run data quality validations conversationally.
 
 ---
 
 ## Start the server
 
-```bash
-aegis mcp serve
+```bash title="Terminal"
+aegis mcp
 ```
 
 The server uses **stdio transport** by default — it runs as a subprocess managed by your MCP client. For remote access, use SSE:
 
-```bash
-aegis mcp serve --transport sse --port 8765
+```bash title="Terminal"
+aegis mcp --transport sse --port 8765
 ```
 
 ---
@@ -34,7 +34,7 @@ Load a [`pipeline.yaml` manifest](hermes.md#pipeline-manifests-define-once-run-f
 
 **Example**
 
-```json
+```json title="load_pipeline"
 { "manifest_path": "demo/fraud/pipeline.yaml" }
 ```
 
@@ -104,7 +104,7 @@ Run a rules YAML file against a warehouse. Returns a JSON report with pass/fail 
 
 Set warehouse env vars in your client config (see [MCP Clients](mcp-clients.md)) and omit `connection_params`. Aegis picks them up automatically:
 
-```json
+```json title="run_validation (env vars)"
 { "rules_path": "/home/user/rules/orders.yaml", "warehouse": "bigquery" }
 ```
 
@@ -165,6 +165,68 @@ Full-text search across all LLM decisions in the audit trail.
 | `limit` | int | `20` | Maximum results |
 
 **Returns**: JSON array of matching decision records with run ID, step, and summary.
+
+---
+
+### `compare_reports`
+
+Compare two validation runs side by side. Shows regressions (rules that newly failed), fixes (rules that stopped failing), persistent failures, and summary deltas (pass rate, cost).
+
+**Parameters**
+
+| Parameter | Type | Description |
+|---|---|---|
+| `run_id_a` | string | Baseline run ID |
+| `run_id_b` | string | Comparison run ID |
+
+**Returns**: JSON with `regressions`, `fixes`, `persistent_failures`, `summary_delta` (pass rate diff, failed count diff, cost diff), and full summaries for both runs.
+
+**Example**
+
+```json title="compare_reports"
+{ "run_id_a": "run-20260513", "run_id_b": "run-20260514" }
+```
+
+---
+
+### `summarize_reports`
+
+Compact summary of one or more runs — pass rate, severity breakdown, top failures, and cost per run. Useful for a quick multi-run overview without loading full reports.
+
+**Parameters**
+
+| Parameter | Type | Description |
+|---|---|---|
+| `run_ids` | list[string] | One or more run IDs to summarize |
+
+**Returns**: JSON with a `runs` array — one entry per run with `pass_rate`, `severity_breakdown`, `top_failures` (up to 5), and `cost_usd`.
+
+**Example**
+
+```json title="summarize_reports"
+{ "run_ids": ["run-20260513", "run-20260514", "run-20260515"] }
+```
+
+---
+
+### `check_consistency`
+
+Check consistency between two runs. Identifies flapping rules (different pass/fail status between runs) and rule-set drift (different number of rules evaluated). Returns a `consistency_score_pct` so you can tell at a glance whether the two runs agree.
+
+**Parameters**
+
+| Parameter | Type | Description |
+|---|---|---|
+| `run_id_a` | string | First run ID |
+| `run_id_b` | string | Second run ID |
+
+**Returns**: JSON with `flapping_rules`, `consistent_failures`, `consistency_score_pct`, `rule_set_changed`, and a boolean `consistent` flag.
+
+**Example**
+
+```json title="check_consistency"
+{ "run_id_a": "run-20260513", "run_id_b": "run-20260514" }
+```
 
 ---
 

@@ -6,23 +6,26 @@ Aegis ships a standard [Model Context Protocol](https://modelcontextprotocol.io)
 
 ## Claude Desktop
 
-### 1. Install Aegis
+### 1. Install and scaffold
 
-```bash
+```bash title="Terminal"
 pip install aegis-dq
+aegis init my-project --name my-pipeline
 ```
+
+`aegis init` creates `aegis.yaml` (project-wide LLM + warehouse defaults) and a starter pipeline. See [Getting Started](../getting-started.md) for details.
 
 ### 2. Edit the Claude Desktop config
 
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-```json
+```json title="~/Library/Application Support/Claude/claude_desktop_config.json"
 {
   "mcpServers": {
     "aegis": {
       "command": "aegis",
-      "args": ["mcp", "serve"],
+      "args": ["mcp"],
       "env": {
         "ANTHROPIC_API_KEY": "sk-ant-..."
       }
@@ -33,12 +36,12 @@ pip install aegis-dq
 
 Add warehouse env vars inside the `env` block for any warehouse you want to reach:
 
-```json
+```json title="~/Library/Application Support/Claude/claude_desktop_config.json"
 {
   "mcpServers": {
     "aegis": {
       "command": "aegis",
-      "args": ["mcp", "serve"],
+      "args": ["mcp"],
       "env": {
         "ANTHROPIC_API_KEY": "sk-ant-...",
         "BQ_PROJECT": "my-project",
@@ -65,12 +68,12 @@ In Cursor: **Settings → Features → MCP** (or `Cmd+Shift+P` → "MCP: Add Ser
 
 ### 2. Add Aegis as a stdio server
 
-```json
+```json title="Cursor MCP Settings"
 {
   "mcpServers": {
     "aegis": {
       "command": "aegis",
-      "args": ["mcp", "serve"],
+      "args": ["mcp"],
       "env": {
         "ANTHROPIC_API_KEY": "sk-ant-..."
       }
@@ -97,11 +100,11 @@ In VS Code with Cline installed: open the Cline sidebar → **MCP Servers** tab 
 
 ### 2. Add the server config
 
-```json
+```json title="Cline MCP Settings"
 {
   "aegis": {
     "command": "aegis",
-    "args": ["mcp", "serve"],
+    "args": ["mcp"],
     "env": {
       "ANTHROPIC_API_KEY": "sk-ant-..."
     }
@@ -121,11 +124,14 @@ Cline can now call Aegis tools mid-task. Example:
 
 All examples above use **stdio transport** — the server runs as a local subprocess. For remote access (e.g. a shared team server), use SSE transport:
 
-```bash
-aegis mcp serve --transport sse --port 8765
+```bash title="Terminal"
+aegis mcp --transport sse --port 8765
 ```
 
 Connect clients to `http://your-server:8765/sse`. Note: SSE transport does not encrypt traffic — run behind a reverse proxy with TLS for production use.
+
+!!! warning "SSE transport is unencrypted"
+    The SSE endpoint sends all MCP traffic — including warehouse credentials and query results — in plain HTTP. In production, always run the Aegis MCP server behind a TLS-terminating reverse proxy (nginx, Caddy, AWS ALB) so that traffic is encrypted in transit. Do not expose the raw SSE port on a public network interface.
 
 ---
 
@@ -139,6 +145,9 @@ Set these in the `env` block of your client config, or export them in your shell
 |---|---|
 | `ANTHROPIC_API_KEY` | Anthropic API key (Claude). Used for LLM diagnosis. |
 | `OPENAI_API_KEY` | OpenAI API key. |
+| `AWS_DEFAULT_REGION` | AWS region for Bedrock (e.g. `us-east-1`). When set, Aegis auto-selects Bedrock as the LLM provider. |
+| `AEGIS_LLM_PROVIDER` | Override the LLM provider: `anthropic`, `openai`, `bedrock`, or `ollama`. |
+| `AEGIS_LLM_MODEL` | Override the model name (e.g. `claude-haiku-4-5-20251001`, `gpt-4o`, `amazon.nova-pro-v1:0`). |
 
 ### DuckDB
 
@@ -188,11 +197,15 @@ Set these in the `env` block of your client config, or export them in your shell
 
 | Tool | Description |
 |---|---|
+| `load_pipeline` | Load a `pipeline.yaml` manifest — returns connection params and goal as context for the LLM. |
 | `run_validation` | Run a rules YAML file against a warehouse. Returns full JSON report with pass/fail, LLM diagnosis, root cause, and remediation SQL. |
 | `list_runs` | List recent run IDs from the audit trail, newest first. |
 | `get_run_report` | Get the full report for a past run by ID. |
 | `get_trajectory` | Get the node-by-node LLM decision log for a run. |
 | `search_decisions` | Full-text search across all past LLM decisions. |
+| `compare_reports` | Diff two runs — shows regressions, fixes, and pass-rate delta. |
+| `summarize_reports` | Compact summary of one or more runs — pass rate, top failures, cost. |
+| `check_consistency` | Detect flapping rules and rule-set drift between two runs. |
 
 ---
 

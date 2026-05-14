@@ -6,7 +6,7 @@ Block PRs when data quality rules fail — before bad data reaches production.
 
 ## Quick start
 
-```yaml
+```yaml title=".github/workflows/data-quality.yml"
 # .github/workflows/data-quality.yml
 name: Data Quality Gate
 
@@ -50,7 +50,7 @@ jobs:
 | `failed` | Number of rules that failed |
 | `pass-rate` | Pass rate as a percentage string |
 
-```yaml
+```yaml title=".github/workflows/data-quality.yml"
 - name: Run Aegis DQ
   id: aegis
   uses: aegis-dq/aegis-dq@v0.7.0
@@ -68,7 +68,7 @@ jobs:
 
 ## Run without LLM (free)
 
-```yaml
+```yaml title=".github/workflows/data-quality.yml"
 - name: Run Aegis DQ (no LLM)
   uses: aegis-dq/aegis-dq@v0.7.0
   with:
