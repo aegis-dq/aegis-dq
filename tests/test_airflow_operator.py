@@ -13,6 +13,7 @@ import pytest
 # apache-airflow package is never required.
 # ---------------------------------------------------------------------------
 
+
 def _install_airflow_mock() -> None:
     """Inject lightweight airflow stubs into sys.modules."""
 
@@ -20,12 +21,12 @@ def _install_airflow_mock() -> None:
         template_fields: tuple[str, ...] = ()
 
         def __init__(self, **kwargs):
-            # Absorb task_id and other standard BaseOperator kwargs
             self.task_id = kwargs.get("task_id", "test_task")
 
         @property
         def log(self):
             import logging
+
             return logging.getLogger("aegis.test")
 
     class FakeAirflowException(Exception):
@@ -51,7 +52,6 @@ _install_airflow_mock()
 
 from aegis.integrations.airflow.operator import AegisOperator  # noqa: E402
 
-# Grab the stubbed AirflowException for assertions
 _AirflowException = sys.modules["airflow.exceptions"].AirflowException
 
 
@@ -59,8 +59,8 @@ _AirflowException = sys.modules["airflow.exceptions"].AirflowException
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_state(failed: int = 0, passed: int = 1) -> dict:
-    """Return a minimal AegisState-shaped dict."""
     return {
         "run_id": "test-run-001",
         "report": {
@@ -74,25 +74,16 @@ def _make_state(failed: int = 0, passed: int = 1) -> dict:
 
 
 def _make_context(run_id: str = "airflow-run-xyz") -> dict:
-    """Return a minimal Airflow task-instance context."""
     ti = MagicMock()
     return {"run_id": run_id, "ti": ti}
-
-
-def _patch_agent(state: dict):
-    """Return a context manager that patches AegisAgent.run with an AsyncMock."""
-    return patch(
-        "aegis.integrations.airflow.operator.AegisAgent",
-        autospec=False,
-    )
 
 
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
 
-class TestAegisOperator:
 
+class TestAegisOperator:
     def _make_operator(self, **kwargs) -> AegisOperator:
         defaults = dict(
             task_id="dq_check",
@@ -102,6 +93,19 @@ class TestAegisOperator:
         defaults.update(kwargs)
         return AegisOperator(**defaults)
 
+    def _execute(self, op, context, state):
+        """Run op.execute with Agent + load_rules + build_adapter patched."""
+        with (
+            patch("aegis.integrations.airflow.operator.AegisAgent") as MockAgent,
+            patch("aegis.integrations.airflow.operator.load_rules", return_value=[]),
+            patch("aegis.integrations.airflow.operator.build_adapter") as mock_build,
+        ):
+            mock_build.return_value = MagicMock()
+            instance = MockAgent.return_value
+            instance.run = AsyncMock(return_value=state)
+            result = op.execute(context)
+        return result, MockAgent, mock_build
+
     # ------------------------------------------------------------------
     # template_fields
     # ------------------------------------------------------------------
@@ -109,6 +113,7 @@ class TestAegisOperator:
     def test_template_fields(self):
         op = self._make_operator()
         assert "rules_path" in op.template_fields
+        assert "connection_params" in op.template_fields
         assert "db_path" in op.template_fields
         assert "run_id" in op.template_fields
 
@@ -119,20 +124,9 @@ class TestAegisOperator:
     def test_operator_runs_and_pushes_xcom(self):
         state = _make_state(failed=0, passed=3)
         context = _make_context()
-
-        with patch("aegis.integrations.airflow.operator.AegisAgent") as MockAgent, \
-             patch("aegis.integrations.airflow.operator.load_rules", return_value=[]), \
-             patch("aegis.integrations.airflow.operator.DuckDBAdapter"):
-
-            instance = MockAgent.return_value
-            instance.run = AsyncMock(return_value=state)
-
-            op = self._make_operator(fail_on_failure=True, xcom_key="my_report")
-            result = op.execute(context)
-
-        context["ti"].xcom_push.assert_called_once_with(
-            key="my_report", value=state["report"]
-        )
+        op = self._make_operator(fail_on_failure=True, xcom_key="my_report")
+        result, _, _ = self._execute(op, context, state)
+        context["ti"].xcom_push.assert_called_once_with(key="my_report", value=state["report"])
         assert result == state["report"]
 
     # ------------------------------------------------------------------
@@ -142,15 +136,14 @@ class TestAegisOperator:
     def test_fail_on_failure_raises(self):
         state = _make_state(failed=2, passed=1)
         context = _make_context()
-
-        with patch("aegis.integrations.airflow.operator.AegisAgent") as MockAgent, \
-             patch("aegis.integrations.airflow.operator.load_rules", return_value=[]), \
-             patch("aegis.integrations.airflow.operator.DuckDBAdapter"):
-
+        op = self._make_operator(fail_on_failure=True)
+        with (
+            patch("aegis.integrations.airflow.operator.AegisAgent") as MockAgent,
+            patch("aegis.integrations.airflow.operator.load_rules", return_value=[]),
+            patch("aegis.integrations.airflow.operator.build_adapter", return_value=MagicMock()),
+        ):
             instance = MockAgent.return_value
             instance.run = AsyncMock(return_value=state)
-
-            op = self._make_operator(fail_on_failure=True)
             with pytest.raises(_AirflowException, match="2 failed rule"):
                 op.execute(context)
 
@@ -161,17 +154,8 @@ class TestAegisOperator:
     def test_no_fail_when_fail_on_failure_false(self):
         state = _make_state(failed=2, passed=1)
         context = _make_context()
-
-        with patch("aegis.integrations.airflow.operator.AegisAgent") as MockAgent, \
-             patch("aegis.integrations.airflow.operator.load_rules", return_value=[]), \
-             patch("aegis.integrations.airflow.operator.DuckDBAdapter"):
-
-            instance = MockAgent.return_value
-            instance.run = AsyncMock(return_value=state)
-
-            op = self._make_operator(fail_on_failure=False)
-            result = op.execute(context)  # must NOT raise
-
+        op = self._make_operator(fail_on_failure=False)
+        result, _, _ = self._execute(op, context, state)
         assert result["summary"]["failed"] == 2
 
     # ------------------------------------------------------------------
@@ -181,20 +165,12 @@ class TestAegisOperator:
     def test_custom_run_id_used(self):
         state = _make_state()
         context = _make_context(run_id="ctx-run-id")
-
-        with patch("aegis.integrations.airflow.operator.AegisAgent") as MockAgent, \
-             patch("aegis.integrations.airflow.operator.load_rules", return_value=[]), \
-             patch("aegis.integrations.airflow.operator.DuckDBAdapter"):
-
-            instance = MockAgent.return_value
-            instance.run = AsyncMock(return_value=state)
-
-            op = self._make_operator(run_id="custom-run-42")
-            op.execute(context)
-
-            instance.run.assert_awaited_once()
-            _, kwargs = instance.run.call_args
-            assert kwargs.get("run_id") == "custom-run-42"
+        op = self._make_operator(run_id="custom-run-42")
+        _, MockAgent, _ = self._execute(op, context, state)
+        instance = MockAgent.return_value
+        instance.run.assert_awaited_once()
+        _, kwargs = instance.run.call_args
+        assert kwargs.get("run_id") == "custom-run-42"
 
     # ------------------------------------------------------------------
     # run_id=None falls back to context["run_id"]
@@ -203,20 +179,12 @@ class TestAegisOperator:
     def test_run_id_falls_back_to_context(self):
         state = _make_state()
         context = _make_context(run_id="from-airflow-context")
-
-        with patch("aegis.integrations.airflow.operator.AegisAgent") as MockAgent, \
-             patch("aegis.integrations.airflow.operator.load_rules", return_value=[]), \
-             patch("aegis.integrations.airflow.operator.DuckDBAdapter"):
-
-            instance = MockAgent.return_value
-            instance.run = AsyncMock(return_value=state)
-
-            op = self._make_operator(run_id=None)
-            op.execute(context)
-
-            instance.run.assert_awaited_once()
-            _, kwargs = instance.run.call_args
-            assert kwargs.get("run_id") == "from-airflow-context"
+        op = self._make_operator(run_id=None)
+        _, MockAgent, _ = self._execute(op, context, state)
+        instance = MockAgent.return_value
+        instance.run.assert_awaited_once()
+        _, kwargs = instance.run.call_args
+        assert kwargs.get("run_id") == "from-airflow-context"
 
     # ------------------------------------------------------------------
     # llm_provider="none" passes llm_adapter=None to AegisAgent
@@ -225,17 +193,66 @@ class TestAegisOperator:
     def test_llm_none_provider(self):
         state = _make_state()
         context = _make_context()
+        op = self._make_operator(llm_provider="none")
+        _, MockAgent, _ = self._execute(op, context, state)
+        MockAgent.assert_called_once()
+        _, kwargs = MockAgent.call_args
+        assert kwargs.get("llm_adapter") is None
 
-        with patch("aegis.integrations.airflow.operator.AegisAgent") as MockAgent, \
-             patch("aegis.integrations.airflow.operator.load_rules", return_value=[]), \
-             patch("aegis.integrations.airflow.operator.DuckDBAdapter"):
+    # ------------------------------------------------------------------
+    # build_adapter called with correct warehouse + connection_params
+    # ------------------------------------------------------------------
 
-            instance = MockAgent.return_value
-            instance.run = AsyncMock(return_value=state)
+    def test_duckdb_default_uses_db_path(self):
+        state = _make_state()
+        context = _make_context()
+        op = self._make_operator(warehouse="duckdb", db_path="/data/prod.duckdb")
+        _, _, mock_build = self._execute(op, context, state)
+        mock_build.assert_called_once_with("duckdb", {"path": "/data/prod.duckdb"})
 
-            op = self._make_operator(llm_provider="none")
-            op.execute(context)
+    def test_bigquery_passes_connection_params_dict(self):
+        state = _make_state()
+        context = _make_context()
+        params = {"project": "my-project", "dataset": "analytics"}
+        op = self._make_operator(warehouse="bigquery", connection_params=params)
+        _, _, mock_build = self._execute(op, context, state)
+        mock_build.assert_called_once_with("bigquery", params)
 
-            MockAgent.assert_called_once()
-            _, kwargs = MockAgent.call_args
-            assert kwargs.get("llm_adapter") is None
+    def test_connection_params_as_json_string(self):
+        state = _make_state()
+        context = _make_context()
+        op = self._make_operator(
+            warehouse="postgres",
+            connection_params='{"dsn": "postgresql://user:pass@host/db"}',
+        )
+        _, _, mock_build = self._execute(op, context, state)
+        mock_build.assert_called_once_with("postgres", {"dsn": "postgresql://user:pass@host/db"})
+
+    def test_athena_connection_params(self):
+        state = _make_state()
+        context = _make_context()
+        params = {"s3_staging_dir": "s3://bucket/athena/", "region_name": "us-east-1"}
+        op = self._make_operator(warehouse="athena", connection_params=params)
+        _, _, mock_build = self._execute(op, context, state)
+        mock_build.assert_called_once_with("athena", params)
+
+    def test_invalid_json_connection_params_raises(self):
+        op = self._make_operator(
+            warehouse="postgres",
+            connection_params="not valid json",
+        )
+        context = _make_context()
+        with patch("aegis.integrations.airflow.operator.load_rules", return_value=[]):
+            with pytest.raises(_AirflowException, match="not valid JSON"):
+                op.execute(context)
+
+    def test_unknown_warehouse_raises(self):
+        op = self._make_operator(warehouse="snowflake")
+        context = _make_context()
+        with patch("aegis.integrations.airflow.operator.load_rules", return_value=[]):
+            with patch(
+                "aegis.integrations.airflow.operator.build_adapter",
+                side_effect=ValueError("Unknown warehouse type 'snowflake'"),
+            ):
+                with pytest.raises(_AirflowException, match="Unknown warehouse"):
+                    op.execute(context)

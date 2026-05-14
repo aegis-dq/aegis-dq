@@ -84,6 +84,47 @@ async def run_validation(
 
 
 @mcp_server.tool()
+async def load_pipeline(manifest_path: str) -> str:
+    """Load a pipeline manifest and return its configuration + goal as context.
+
+    Use this before run_validation to understand what a named pipeline does.
+    After calling this, call run_validation with the rules_path and connection_params
+    from the returned manifest.
+
+    Args:
+        manifest_path: Path to a pipeline.yaml manifest file.
+
+    Returns:
+        JSON with the pipeline config and a ready-to-use run_validation call.
+    """
+    from ...pipeline.manifest import PipelineManifest
+
+    path = Path(manifest_path)
+    if not path.exists():
+        return json.dumps({"error": f"Manifest not found: {manifest_path}"})
+
+    m = PipelineManifest.load(path)
+    return json.dumps(
+        {
+            "name": m.name,
+            "description": m.description,
+            "goal": m.goal,
+            "rules_path": m.rules,
+            "warehouse": m.warehouse.type,
+            "connection_params": m.warehouse.connection,
+            "llm_provider": m.llm.provider,
+            "llm_model": m.llm.model,
+            "kb": m.kb,
+            "run_validation_call": {
+                "rules_path": m.rules,
+                "warehouse": m.warehouse.type,
+                "connection_params": m.connection_params_json(),
+            },
+        }
+    )
+
+
+@mcp_server.tool()
 async def search_decisions(query: str, run_id: str | None = None, limit: int = 20) -> str:
     """Full-text search over the audit decision trail.
 

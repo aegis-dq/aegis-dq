@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from pathlib import Path
 from typing import Any
 
 from airflow.exceptions import AirflowException
 from airflow.models.baseoperator import BaseOperator
 
-from aegis.adapters.warehouse.duckdb import DuckDBAdapter
+from aegis.adapters.warehouse.factory import build_adapter
 from aegis.core.agent import AegisAgent
 from aegis.rules.parser import load_rules
 
@@ -21,9 +22,17 @@ class AegisOperator(BaseOperator):
     ----------
     rules_path:
         Path to the YAML rules file. Supports Jinja templating.
+    warehouse:
+        Warehouse type: ``duckdb``, ``bigquery``, ``athena``, ``databricks``,
+        or ``postgres``. Defaults to ``duckdb``.
+    connection_params:
+        Warehouse connection kwargs as a JSON string or dict. Falls back to
+        environment variables when omitted (e.g. ``DUCKDB_PATH``, ``BQ_PROJECT``).
+        Supports Jinja templating when passed as a string.
     db_path:
-        DuckDB database path or ``:memory:`` for an ephemeral in-memory DB.
-        Supports Jinja templating.
+        Shortcut for DuckDB — equivalent to passing
+        ``connection_params='{"path": "<db_path>"}'``. Ignored when
+        ``warehouse`` is not ``duckdb``. Kept for backward compatibility.
     llm_provider:
         Which LLM backend to use: ``anthropic``, ``openai``, ``ollama``, or
         ``none`` to disable LLM-assisted diagnosis.
@@ -41,12 +50,14 @@ class AegisOperator(BaseOperator):
         when not provided.  Supports Jinja templating.
     """
 
-    template_fields = ("rules_path", "db_path", "run_id")
+    template_fields = ("rules_path", "connection_params", "db_path", "run_id")
 
     def __init__(
         self,
         *,
         rules_path: str,
+        warehouse: str = "duckdb",
+        connection_params: str | dict[str, Any] | None = None,
         db_path: str = ":memory:",
         llm_provider: str = "anthropic",
         llm_model: str | None = None,
@@ -58,6 +69,8 @@ class AegisOperator(BaseOperator):
     ) -> None:
         super().__init__(**kwargs)
         self.rules_path = rules_path
+        self.warehouse = warehouse
+        self.connection_params = connection_params
         self.db_path = db_path
         self.llm_provider = llm_provider
         self.llm_model = llm_model
@@ -69,6 +82,27 @@ class AegisOperator(BaseOperator):
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
+
+    def _build_warehouse_adapter(self):
+        """Construct the warehouse adapter via the shared factory."""
+        wh = self.warehouse.lower()
+
+        # db_path shortcut: DuckDB users don't need to know connection_params
+        if wh == "duckdb" and self.connection_params is None:
+            return build_adapter("duckdb", {"path": self.db_path})
+
+        # Normalise connection_params — may arrive as a Jinja-rendered string
+        params = self.connection_params
+        if isinstance(params, str):
+            try:
+                params = json.loads(params)
+            except json.JSONDecodeError as exc:
+                raise AirflowException(f"connection_params is not valid JSON: {exc}") from exc
+
+        try:
+            return build_adapter(wh, params)
+        except ValueError as exc:
+            raise AirflowException(str(exc)) from exc
 
     def _build_llm_adapter(self):
         """Construct the LLM adapter based on *llm_provider*."""
@@ -111,26 +145,21 @@ class AegisOperator(BaseOperator):
     # ------------------------------------------------------------------
 
     def execute(self, context: dict[str, Any]) -> dict[str, Any]:
-        # Resolve run_id — fall back to Airflow's context value
         effective_run_id: str = self.run_id or context.get("run_id") or ""
 
         self.log.info(
-            "AegisOperator starting — rules=%s db=%s llm=%s run_id=%s",
+            "AegisOperator starting — rules=%s warehouse=%s run_id=%s",
             self.rules_path,
-            self.db_path,
-            self.llm_provider,
+            self.warehouse,
             effective_run_id,
         )
 
-        # Build adapters
         llm_adapter = self._build_llm_adapter()
-        warehouse_adapter = DuckDBAdapter(path=self.db_path)
+        warehouse_adapter = self._build_warehouse_adapter()
 
-        # Load rules
         rules = load_rules(Path(self.rules_path))
         self.log.info("Loaded %d rule(s) from %s", len(rules), self.rules_path)
 
-        # Build and run agent
         agent = AegisAgent(
             warehouse_adapter=warehouse_adapter,
             llm_adapter=llm_adapter,
@@ -141,11 +170,9 @@ class AegisOperator(BaseOperator):
 
         report: dict[str, Any] = state.get("report", {})
 
-        # Push report to XCom
         context["ti"].xcom_push(key=self.xcom_key, value=report)
         self.log.info("Pushed report to XCom key %r", self.xcom_key)
 
-        # Optionally fail the task when DQ failures were found
         if self.fail_on_failure:
             failed_count: int = report.get("summary", {}).get("failed", 0)
             if failed_count > 0:
