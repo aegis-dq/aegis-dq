@@ -22,15 +22,30 @@ mcp_server = FastMCP(
 
 @mcp_server.tool()
 async def list_runs(
-    limit: Annotated[int, "Maximum number of run IDs to return (default: 20)"] = 20,
+    limit: Annotated[
+        int,
+        "Maximum number of run IDs to return, ordered newest to oldest (default: 20, max: 100). "
+        "Use a smaller value (e.g. 5) to get only the most recent runs.",
+    ] = 20,
 ) -> str:
-    """List recent Aegis DQ run IDs from the audit trail, newest first.
+    """List run IDs from the Aegis DQ audit trail, ordered newest to oldest.
 
-    Use this to discover available run IDs before calling get_run_report,
-    get_trajectory, compare_reports, summarize_reports, or check_consistency.
+    Queries the local SQLite audit database and returns a list of run ID strings.
+    This is always the first tool to call — run IDs are required by get_run_report,
+    get_trajectory, compare_reports, summarize_reports, and check_consistency.
+
+    Behavior: opens the audit database, selects run IDs ordered by timestamp
+    descending, and returns up to `limit` results. Returns an empty list if no
+    runs have been recorded yet (i.e. run_validation has never been called).
+
+    Typical usage:
+      1. Call list_runs to see what runs are available
+      2. Pick a run_id and call get_run_report for the full results
+      3. Or call compare_reports with two run IDs to see what changed
 
     Returns:
-        JSON array of run ID strings, ordered newest to oldest.
+        JSON array of run ID strings (UUIDs), newest first. Example:
+        ["01926e4f-0001-...", "01926e4f-0000-..."]
     """
     run_ids = await list_run_ids(db_path=DB_PATH)
     return json.dumps(run_ids[:limit])
