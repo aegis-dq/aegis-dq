@@ -20,6 +20,26 @@ aegis mcp serve --transport sse --port 8765
 
 ## Tools
 
+### `load_pipeline`
+
+Load a [`pipeline.yaml` manifest](hermes.md#pipeline-manifests-define-once-run-forever) and return its configuration and goal as context. Use this before `run_validation` to let the LLM understand what the pipeline does without you re-explaining it.
+
+**Parameters**
+
+| Parameter | Type | Description |
+|---|---|---|
+| `manifest_path` | string | Path to a `pipeline.yaml` manifest file |
+
+**Returns**: JSON object with `name`, `description`, `goal`, `rules_path`, `warehouse`, `connection_params`, `kb`, and a pre-built `run_validation_call` object ready to pass directly to `run_validation`.
+
+**Example**
+
+```json
+{ "manifest_path": "demo/fraud/pipeline.yaml" }
+```
+
+---
+
 ### `run_validation`
 
 Run a rules YAML file against a warehouse. Returns a JSON report with pass/fail per rule, LLM diagnosis, root cause analysis, and remediation SQL.
@@ -149,6 +169,10 @@ Full-text search across all LLM decisions in the audit trail.
 ---
 
 ## Example client prompts
+
+```
+Load the pipeline at demo/fraud/pipeline.yaml and run it.
+```
 
 ```
 Run /home/user/rules/orders.yaml against BigQuery and summarise the failures.

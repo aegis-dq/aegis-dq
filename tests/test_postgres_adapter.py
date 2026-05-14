@@ -14,6 +14,7 @@ from aegis.rules.schema import DataQualityRule
 # Install a fake psycopg2 into sys.modules before importing the adapter
 # ---------------------------------------------------------------------------
 
+
 def _install_psycopg2_mock() -> MagicMock:
     pg_mod = types.ModuleType("psycopg2")
     fake_conn = MagicMock()
@@ -32,6 +33,7 @@ from aegis.adapters.warehouse.postgres import PostgresAdapter  # noqa: E402
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_rule(
     rule_id: str,
     rule_type: str,
@@ -40,13 +42,15 @@ def _make_rule(
     **logic_kwargs,
 ) -> DataQualityRule:
     logic = {"type": rule_type, **logic_kwargs}
-    return DataQualityRule.model_validate({
-        "apiVersion": "aegis.dev/v1",
-        "kind": "DataQualityRule",
-        "metadata": {"id": rule_id, "severity": "high"},
-        "scope": {"table": table, "columns": columns or []},
-        "logic": logic,
-    })
+    return DataQualityRule.model_validate(
+        {
+            "apiVersion": "aegis.dev/v1",
+            "kind": "DataQualityRule",
+            "metadata": {"id": rule_id, "severity": "high"},
+            "scope": {"table": table, "columns": columns or []},
+            "logic": logic,
+        }
+    )
 
 
 def _make_cursor(scalar: int | float | str | None = 0, rows: list | None = None) -> MagicMock:
@@ -82,6 +86,7 @@ def _make_adapter(cursor: MagicMock | None = None) -> PostgresAdapter:
 # Table name resolution
 # ---------------------------------------------------------------------------
 
+
 def test_full_table_unqualified_uses_schema():
     adapter = _make_adapter()
     assert adapter._full_table("orders") == "public.orders"
@@ -95,6 +100,7 @@ def test_full_table_two_part_passthrough():
 # ---------------------------------------------------------------------------
 # NOT_NULL
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_not_null_pass():
@@ -125,6 +131,7 @@ async def test_not_null_fail():
 # UNIQUE
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_unique_pass():
     cursor = _make_cursor()
@@ -151,6 +158,7 @@ async def test_unique_fail():
 # ---------------------------------------------------------------------------
 # SQL_EXPRESSION
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_sql_expression_pass():
@@ -179,6 +187,7 @@ async def test_sql_expression_fail():
 # ROW_COUNT
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_row_count_pass():
     cursor = _make_cursor()
@@ -203,6 +212,7 @@ async def test_row_count_fail():
 # ---------------------------------------------------------------------------
 # REGEX_MATCH  (PostgreSQL: ~ operator, NOT regexp_like)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_regex_match_pass():
@@ -233,13 +243,13 @@ async def test_regex_match_fail():
 # ACCEPTED_VALUES
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_accepted_values_pass():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(80,), (0,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r11", "accepted_values", columns=["status"],
-                      values=["active", "inactive"])
+    rule = _make_rule("r11", "accepted_values", columns=["status"], values=["active", "inactive"])
     result = await adapter.execute_rule(rule)
     assert result.passed
 
@@ -249,8 +259,7 @@ async def test_accepted_values_fail():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(80,), (5,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r12", "accepted_values", columns=["status"],
-                      values=["active", "inactive"])
+    rule = _make_rule("r12", "accepted_values", columns=["status"], values=["active", "inactive"])
     result = await adapter.execute_rule(rule)
     assert not result.passed
     assert result.row_count_failed == 5
@@ -259,6 +268,7 @@ async def test_accepted_values_fail():
 # ---------------------------------------------------------------------------
 # FRESHNESS  (PostgreSQL: EXTRACT(EPOCH FROM ...), NOT date_diff)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_freshness_pass():
@@ -289,6 +299,7 @@ async def test_freshness_no_rows():
 # RECONCILE_ROW_COUNT
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_reconcile_row_count_pass():
     cursor = _make_cursor()
@@ -315,6 +326,7 @@ async def test_reconcile_row_count_fail():
 # close()
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_close_calls_conn_close():
     fake_conn = MagicMock()
@@ -337,6 +349,7 @@ async def test_close_noop_when_no_conn():
 # Error handling — cursor.execute raises
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_execute_raises_returns_error_result():
     cursor = MagicMock()
@@ -351,6 +364,7 @@ async def test_execute_raises_returns_error_result():
 # ---------------------------------------------------------------------------
 # Unsupported rule type
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_unsupported_rule_type_returns_error():
@@ -367,6 +381,7 @@ async def test_unsupported_rule_type_returns_error():
 # ---------------------------------------------------------------------------
 # NULL_PERCENTAGE_BELOW
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_null_percentage_pass():
@@ -391,6 +406,7 @@ async def test_null_percentage_fail():
 # ---------------------------------------------------------------------------
 # COLUMN_EXISTS  (PostgreSQL: information_schema.columns)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_column_exists_pass():
@@ -418,6 +434,7 @@ async def test_column_exists_fail():
 # ---------------------------------------------------------------------------
 # DSN — verify psycopg2.connect is called with the DSN string
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_dsn_used_when_provided():
@@ -447,6 +464,7 @@ async def test_dsn_used_when_provided():
 # ---------------------------------------------------------------------------
 # NOT_EMPTY_STRING  (PostgreSQL: CAST ... AS TEXT, not VARCHAR)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_not_empty_string_pass():
@@ -479,6 +497,7 @@ async def test_not_empty_string_fail():
 # COMPOSITE_UNIQUE
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_composite_unique_pass():
     cursor = _make_cursor()
@@ -503,6 +522,7 @@ async def test_composite_unique_fail():
 # ---------------------------------------------------------------------------
 # BETWEEN
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_between_pass():
@@ -529,6 +549,7 @@ async def test_between_fail():
 # MIN_VALUE_CHECK
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_min_value_check_pass():
     cursor = _make_cursor()
@@ -554,6 +575,7 @@ async def test_min_value_check_fail():
 # MAX_VALUE_CHECK
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_max_value_check_pass():
     cursor = _make_cursor()
@@ -577,6 +599,7 @@ async def test_max_value_check_fail():
 # ---------------------------------------------------------------------------
 # NOT_ACCEPTED_VALUES
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_not_accepted_values_pass():
@@ -603,13 +626,19 @@ async def test_not_accepted_values_fail():
 # FOREIGN_KEY
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_foreign_key_pass():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(100,), (0,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r36", "foreign_key", columns=["customer_id"],
-                      reference_table="customers", reference_column="id")
+    rule = _make_rule(
+        "r36",
+        "foreign_key",
+        columns=["customer_id"],
+        reference_table="customers",
+        reference_column="id",
+    )
     result = await adapter.execute_rule(rule)
     assert result.passed
 
@@ -619,8 +648,13 @@ async def test_foreign_key_fail():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(100,), (6,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r37", "foreign_key", columns=["customer_id"],
-                      reference_table="customers", reference_column="id")
+    rule = _make_rule(
+        "r37",
+        "foreign_key",
+        columns=["customer_id"],
+        reference_table="customers",
+        reference_column="id",
+    )
     result = await adapter.execute_rule(rule)
     assert not result.passed
     assert result.row_count_failed == 6
@@ -629,6 +663,7 @@ async def test_foreign_key_fail():
 # ---------------------------------------------------------------------------
 # DUPLICATE_PERCENTAGE_BELOW
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_duplicate_percentage_pass():
@@ -653,6 +688,7 @@ async def test_duplicate_percentage_fail():
 # ---------------------------------------------------------------------------
 # MEAN_BETWEEN
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_mean_between_pass():
@@ -679,6 +715,7 @@ async def test_mean_between_fail():
 # STDDEV_BELOW
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_stddev_below_pass():
     cursor = _make_cursor()
@@ -704,6 +741,7 @@ async def test_stddev_below_fail():
 # NO_FUTURE_DATES
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_no_future_dates_pass():
     cursor = _make_cursor()
@@ -728,6 +766,7 @@ async def test_no_future_dates_fail():
 # DATE_ORDER
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_date_order_pass():
     cursor = _make_cursor()
@@ -751,6 +790,7 @@ async def test_date_order_fail():
 # ---------------------------------------------------------------------------
 # ROW_COUNT_BETWEEN
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_row_count_between_pass():
@@ -777,13 +817,15 @@ async def test_row_count_between_fail():
 # COLUMN_SUM_BETWEEN
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_column_sum_between_pass():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(100,), (500.0,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r50", "column_sum_between", columns=["amount"],
-                      min_value=100, max_value=1000)
+    rule = _make_rule(
+        "r50", "column_sum_between", columns=["amount"], min_value=100, max_value=1000
+    )
     result = await adapter.execute_rule(rule)
     assert result.passed
 
@@ -793,8 +835,9 @@ async def test_column_sum_between_fail():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(100,), (5.0,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r51", "column_sum_between", columns=["amount"],
-                      min_value=100, max_value=1000)
+    rule = _make_rule(
+        "r51", "column_sum_between", columns=["amount"], min_value=100, max_value=1000
+    )
     result = await adapter.execute_rule(rule)
     assert not result.passed
     assert result.failure_sample[0]["sum"] == 5.0
@@ -804,13 +847,15 @@ async def test_column_sum_between_fail():
 # CONDITIONAL_NOT_NULL
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_conditional_not_null_pass():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(100,), (0,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r52", "conditional_not_null", columns=["shipped_at"],
-                      condition="status = 'shipped'")
+    rule = _make_rule(
+        "r52", "conditional_not_null", columns=["shipped_at"], condition="status = 'shipped'"
+    )
     result = await adapter.execute_rule(rule)
     assert result.passed
 
@@ -820,8 +865,9 @@ async def test_conditional_not_null_fail():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(100,), (4,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r53", "conditional_not_null", columns=["shipped_at"],
-                      condition="status = 'shipped'")
+    rule = _make_rule(
+        "r53", "conditional_not_null", columns=["shipped_at"], condition="status = 'shipped'"
+    )
     result = await adapter.execute_rule(rule)
     assert not result.passed
     assert result.row_count_failed == 4
@@ -831,13 +877,15 @@ async def test_conditional_not_null_fail():
 # RECONCILE_COLUMN_SUM
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_reconcile_column_sum_pass():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(1000.0,), (1000.0,), (100,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r54", "reconcile_column_sum", columns=["revenue"],
-                      source_table="staging.orders")
+    rule = _make_rule(
+        "r54", "reconcile_column_sum", columns=["revenue"], source_table="staging.orders"
+    )
     result = await adapter.execute_rule(rule)
     assert result.passed
 
@@ -847,8 +895,9 @@ async def test_reconcile_column_sum_fail():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(1000.0,), (500.0,), (100,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r55", "reconcile_column_sum", columns=["revenue"],
-                      source_table="staging.orders")
+    rule = _make_rule(
+        "r55", "reconcile_column_sum", columns=["revenue"], source_table="staging.orders"
+    )
     result = await adapter.execute_rule(rule)
     assert not result.passed
     assert result.failure_sample[0]["source_sum"] == 1000.0
@@ -859,13 +908,15 @@ async def test_reconcile_column_sum_fail():
 # RECONCILE_KEY_MATCH
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_reconcile_key_match_pass():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(100,), (0,), (0,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r56", "reconcile_key_match", columns=["order_id"],
-                      source_table="staging.orders")
+    rule = _make_rule(
+        "r56", "reconcile_key_match", columns=["order_id"], source_table="staging.orders"
+    )
     result = await adapter.execute_rule(rule)
     assert result.passed
 
@@ -875,8 +926,9 @@ async def test_reconcile_key_match_fail():
     cursor = _make_cursor()
     cursor.fetchone.side_effect = [(100,), (3,), (2,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r57", "reconcile_key_match", columns=["order_id"],
-                      source_table="staging.orders")
+    rule = _make_rule(
+        "r57", "reconcile_key_match", columns=["order_id"], source_table="staging.orders"
+    )
     result = await adapter.execute_rule(rule)
     assert not result.passed
     assert result.row_count_failed == 5
@@ -888,22 +940,28 @@ async def test_reconcile_key_match_fail():
 # CUSTOM_SQL
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_custom_sql_pass():
+    # 0 rows returned = no violations = PASS
     cursor = _make_cursor()
-    cursor.fetchall.return_value = [(True, 42)]
+    cursor.fetchall.return_value = []
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r58", "custom_sql", query="SELECT TRUE, COUNT(*) FROM orders")
+    rule = _make_rule(
+        "r58", "custom_sql", query="SELECT order_id FROM orders WHERE order_id IS NULL"
+    )
     result = await adapter.execute_rule(rule)
     assert result.passed
-    assert result.row_count_checked == 42
+    assert result.row_count_failed == 0
 
 
 @pytest.mark.asyncio
 async def test_custom_sql_fail():
+    # rows returned = violations = FAIL
     cursor = _make_cursor()
-    cursor.fetchall.return_value = [(False, 10)]
+    cursor.fetchall.return_value = [(1,), (2,), (3,)]
     adapter = _make_adapter(cursor)
-    rule = _make_rule("r59", "custom_sql", query="SELECT FALSE, COUNT(*) FROM orders")
+    rule = _make_rule("r59", "custom_sql", query="SELECT order_id FROM orders WHERE amount < 0")
     result = await adapter.execute_rule(rule)
     assert not result.passed
+    assert result.row_count_failed == 3

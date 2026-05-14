@@ -1,4 +1,5 @@
 """LLM-based DQ rule generation from table schema + optional KB context."""
+
 from __future__ import annotations
 
 import re
@@ -6,19 +7,45 @@ import re
 import yaml
 
 _SYSTEM_PROMPT = """\
-You are a senior data quality engineer. Given a table schema and optional business \
-context, generate comprehensive Aegis data quality rules as valid YAML.
+You are a senior data quality engineer and fraud/compliance analyst. Given a table \
+schema and optional business context, generate comprehensive Aegis data quality rules \
+as valid YAML.
 
-Supported rule types (use ONLY these):
-not_null, unique, between, accepted_values, not_accepted_values, regex_match,
-sql_expression, null_percentage_below, row_count_between, column_sum_between, mean_between
+Supported rule types:
+  Simple checks (single-row, no joins needed):
+    not_null, unique, between, accepted_values, not_accepted_values, regex_match,
+    sql_expression, null_percentage_below, row_count_between, column_sum_between, mean_between
 
-SQL rules:
-- sql_expression: expression is a WHERE clause — rows that PASS (not fail)
-- Do not use custom_sql
+  Complex checks (cross-table, aggregations, window functions, CTEs):
+    custom_sql — use this for rules that require JOINs, CTEs, window functions,
+                 aggregations across rows, or any logic that cannot be expressed
+                 as a simple WHERE-clause fragment.
+
+SQL rule guidance:
+  sql_expression:
+    - expression is a WHERE clause fragment — rows matching it PASS (are valid)
+    - No JOINs, subqueries, CTEs, or window functions
+    - Example: "amount > 0 AND status != 'unknown'"
+
+  custom_sql:
+    - Full SELECT query returning rows that FAIL (violating rows)
+    - Use for: JOINs to other tables, CTEs, window functions, aggregations,
+      velocity checks, concentration ratios, referential integrity
+    - Must return at least one identifying column (e.g. account_id, txn_id)
+    - Example:
+        SELECT t.txn_id, t.account_id, t.amount_usd
+        FROM transactions t
+        LEFT JOIN compliance_flags cf ON cf.txn_id = t.txn_id AND cf.flag_type = 'CTR'
+        WHERE t.amount_usd >= 10000 AND cf.flag_id IS NULL
+
+Column placement rules (CRITICAL — wrong placement causes execution errors):
+- For not_null, unique: put the column in scope.columns (NOT in logic)
+- For accepted_values, not_accepted_values: put column in scope.columns AND values in logic.values
+- For sql_expression: put expression in logic.expression (no columns needed in scope)
+- For custom_sql: put full SELECT query in logic.query (no columns in scope)
 
 Metadata requirements per rule:
-- id: snake_case, format {table}_{column}_{check}  (e.g. orders_amount_positive)
+- id: snake_case, format {table}_{column_or_concept}_{check}
 - severity: critical | high | medium | low | info
 - version: "1.0.0"
 - status: draft
@@ -29,21 +56,77 @@ rules:
   - apiVersion: aegis.dev/v1
     kind: DataQualityRule
     metadata:
-      id: ...
+      id: transactions_amount_not_null
+      severity: critical
+      version: "1.0.0"
+      status: draft
+    scope:
+      table: transactions
+      columns: [amount_usd]
+    logic:
+      type: not_null
+
+  - apiVersion: aegis.dev/v1
+    kind: DataQualityRule
+    metadata:
+      id: transactions_status_valid_values
       severity: high
       version: "1.0.0"
       status: draft
     scope:
-      table: TABLE_NAME
+      table: transactions
+      columns: [status]
     logic:
-      type: not_null
+      type: accepted_values
+      values: [pending, settled, reversed, flagged]
+
+  - apiVersion: aegis.dev/v1
+    kind: DataQualityRule
+    metadata:
+      id: transactions_amount_positive
+      severity: critical
+      version: "1.0.0"
+      status: draft
+    scope:
+      table: transactions
+    logic:
+      type: sql_expression
+      expression: "amount_usd > 0"
+
+  - apiVersion: aegis.dev/v1
+    kind: DataQualityRule
+    metadata:
+      id: transactions_ctr_filing_required
+      severity: critical
+      version: "1.0.0"
+      status: draft
+    scope:
+      table: transactions
+    logic:
+      type: custom_sql
+      query: |
+        SELECT t.txn_id, t.account_id, t.amount_usd
+        FROM transactions t
+        LEFT JOIN compliance_flags cf ON cf.txn_id = t.txn_id AND cf.flag_type = 'CTR'
+        WHERE t.amount_usd >= 10000 AND cf.flag_id IS NULL
 ```
 No explanation. No extra text outside the YAML block.\
 """
 
 _NUMERIC_TYPES = {
-    "integer", "int", "bigint", "double", "float", "decimal",
-    "real", "numeric", "hugeint", "ubigint", "uinteger", "smallint", "tinyint",
+    "integer",
+    "int",
+    "bigint",
+    "double",
+    "float",
+    "decimal",
+    "real",
+    "numeric",
+    "hugeint",
+    "ubigint",
+    "uinteger",
+    "smallint",
+    "tinyint",
 }
 
 
@@ -110,7 +193,7 @@ def _build_user_prompt(schema_info: dict, max_rules: int, kb_text: str | None) -
         lines += [
             "\nBusiness context / validation rules:",
             "---",
-            kb_text[:4000],
+            kb_text[:12000],
             "---",
         ]
     return "\n".join(lines)
@@ -160,7 +243,7 @@ async def generate_rules(
     list_of_parsed_rule_dicts: parsed rules (may be empty on LLM/parse failure).
     """
     user = _build_user_prompt(schema_info, max_rules, kb_text)
-    text, _in_tok, _out_tok = await llm.complete(_SYSTEM_PROMPT, user, max_tokens=2048)
+    text, _in_tok, _out_tok = await llm.complete(_SYSTEM_PROMPT, user, max_tokens=4096)
 
     model_id = getattr(llm, "_model", "llm/unknown")
     raw_yaml = _extract_yaml(text)

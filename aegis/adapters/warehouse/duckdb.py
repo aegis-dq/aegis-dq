@@ -82,9 +82,9 @@ class DuckDBAdapter(WarehouseAdapter):
                     raise ValueError("columns required for UNIQUE rule")
                 col = self._q(rule.spec_scope.columns[0])
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
-                dups = conn.execute(
-                    f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}"
-                ).fetchone()[0]
+                dups = conn.execute(f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}").fetchone()[
+                    0
+                ]
                 sample = []
                 if dups > 0:
                     sample = (
@@ -145,9 +145,7 @@ class DuckDBAdapter(WarehouseAdapter):
                     raise ValueError("columns required for FRESHNESS rule")
                 col = self._q(rule.spec_scope.columns[0])
                 hours = logic.threshold or 24
-                result_row = conn.execute(
-                    f"SELECT MAX({col}) as latest FROM {t}"
-                ).fetchone()
+                result_row = conn.execute(f"SELECT MAX({col}) as latest FROM {t}").fetchone()
                 latest = result_row[0] if result_row else None
                 if latest is None:
                     return RuleResult(
@@ -170,13 +168,15 @@ class DuckDBAdapter(WarehouseAdapter):
 
             elif logic.type == RuleType.CUSTOM_SQL:
                 query = logic.query or ""
-                row = conn.execute(query).fetchone()
-                passed = bool(row[0]) if row else False
-                row_count = int(row[1]) if row and len(row) > 1 else 0
+                df = conn.execute(query).df()
+                fail_count = len(df)
+                sample = df.head(5).to_dict("records") if fail_count > 0 else []
                 return RuleResult(
                     rule_id=rule.metadata.id,
-                    passed=passed,
-                    row_count_checked=row_count,
+                    passed=fail_count == 0,
+                    row_count_checked=fail_count,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
                     duration_ms=(time.monotonic() - start) * 1000,
                 )
 
@@ -334,7 +334,9 @@ class DuckDBAdapter(WarehouseAdapter):
 
             elif logic.type == RuleType.ACCEPTED_VALUES:
                 col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
-                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
+                values_list = ", ".join(
+                    f"'{escape_string_literal(v)}'" for v in (logic.values or [])
+                )
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col} IS NOT NULL AND CAST({col} AS VARCHAR) NOT IN ({values_list})"
@@ -359,7 +361,9 @@ class DuckDBAdapter(WarehouseAdapter):
 
             elif logic.type == RuleType.NOT_ACCEPTED_VALUES:
                 col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
-                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
+                values_list = ", ".join(
+                    f"'{escape_string_literal(v)}'" for v in (logic.values or [])
+                )
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 fail_count = conn.execute(
                     f"SELECT COUNT(*) FROM {t} WHERE {col} IS NOT NULL AND CAST({col} AS VARCHAR) IN ({values_list})"
@@ -427,9 +431,9 @@ class DuckDBAdapter(WarehouseAdapter):
                 col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 threshold = logic.threshold or 0.0
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
-                dups = conn.execute(
-                    f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}"
-                ).fetchone()[0]
+                dups = conn.execute(f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}").fetchone()[
+                    0
+                ]
                 pct = (dups * 100.0 / total) if total > 0 else 0.0
                 passed = pct <= threshold
                 return RuleResult(
@@ -511,7 +515,9 @@ class DuckDBAdapter(WarehouseAdapter):
                     passed=passed,
                     row_count_checked=total,
                     row_count_failed=0 if passed else 1,
-                    failure_sample=[] if passed else [{"row_count": total, "min_allowed": min_v, "max_allowed": max_v}],
+                    failure_sample=[]
+                    if passed
+                    else [{"row_count": total, "min_allowed": min_v, "max_allowed": max_v}],
                     duration_ms=(time.monotonic() - start) * 1000,
                 )
 
@@ -522,7 +528,9 @@ class DuckDBAdapter(WarehouseAdapter):
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
                 total_sum = conn.execute(f"SELECT SUM({col}) FROM {t}").fetchone()[0]
                 total_sum = float(total_sum) if total_sum is not None else 0.0
-                passed = (min_v is None or total_sum >= min_v) and (max_v is None or total_sum <= max_v)
+                passed = (min_v is None or total_sum >= min_v) and (
+                    max_v is None or total_sum <= max_v
+                )
                 sample = []
                 if not passed:
                     sample = [{"sum": total_sum, "min_allowed": min_v, "max_allowed": max_v}]
@@ -634,7 +642,11 @@ class DuckDBAdapter(WarehouseAdapter):
                     deviation = abs(src_sum - tgt_sum) / abs(src_sum)
                     passed = deviation <= tol
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
-                sample = [] if passed else [{"source_sum": src_sum, "target_sum": tgt_sum, "column": col}]
+                sample = (
+                    []
+                    if passed
+                    else [{"source_sum": src_sum, "target_sum": tgt_sum, "column": col}]
+                )
                 return RuleResult(
                     rule_id=rule.metadata.id,
                     passed=passed,
@@ -657,7 +669,13 @@ class DuckDBAdapter(WarehouseAdapter):
                 passed = missing_in_tgt == 0 and missing_in_src == 0
                 sample = []
                 if not passed:
-                    sample = [{"missing_in_target": missing_in_tgt, "missing_in_source": missing_in_src, "key_column": col}]
+                    sample = [
+                        {
+                            "missing_in_target": missing_in_tgt,
+                            "missing_in_source": missing_in_src,
+                            "key_column": col,
+                        }
+                    ]
                 return RuleResult(
                     rule_id=rule.metadata.id,
                     passed=passed,
@@ -669,6 +687,7 @@ class DuckDBAdapter(WarehouseAdapter):
 
             elif logic.type == RuleType.ZSCORE_OUTLIER:
                 from ...rules.anomaly import zscore_outlier_sql
+
                 col = self._q(rule.spec_scope.columns[0]) if rule.spec_scope.columns else "*"
                 threshold = logic.zscore_threshold if logic.zscore_threshold is not None else 3.0
                 total = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
@@ -688,6 +707,7 @@ class DuckDBAdapter(WarehouseAdapter):
 
             elif logic.type == RuleType.ISOLATION_FOREST:
                 from ...rules.anomaly import isolation_forest_detect
+
                 raw_col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
                 col = self._q(raw_col) if rule.spec_scope.columns else "*"
                 contamination = logic.contamination if logic.contamination is not None else 0.1
@@ -712,6 +732,7 @@ class DuckDBAdapter(WarehouseAdapter):
             elif logic.type == RuleType.LEARNED_THRESHOLD:
                 from ...memory.column_stats import load_column_history_sync
                 from ...rules.anomaly import check_learned_threshold
+
                 raw_col = rule.spec_scope.columns[0] if rule.spec_scope.columns else "*"
                 col = self._q(raw_col) if rule.spec_scope.columns else "*"
                 threshold = logic.zscore_threshold if logic.zscore_threshold is not None else 3.0

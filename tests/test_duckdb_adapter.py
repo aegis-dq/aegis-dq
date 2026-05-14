@@ -79,7 +79,11 @@ async def test_sql_expression_fails(adapter_with_data):
 
 @pytest.mark.asyncio
 async def test_sql_expression_passes(adapter_with_data):
-    rule = make_rule(RuleType.SQL_EXPRESSION, expression="order_id IS NOT NULL OR revenue IS NOT NULL", columns=[])
+    rule = make_rule(
+        RuleType.SQL_EXPRESSION,
+        expression="order_id IS NOT NULL OR revenue IS NOT NULL",
+        columns=[],
+    )
     result = await adapter_with_data.execute_rule(rule)
     # All rows satisfy this — order_id IS NOT NULL OR revenue IS NOT NULL
     # row 4: order_id=NULL, revenue=200 -> passes (revenue not null)
@@ -114,9 +118,10 @@ async def test_row_count_fails(adapter_with_data):
 
 @pytest.mark.asyncio
 async def test_custom_sql_passes(adapter_with_data):
+    # 0 rows returned = no violations = PASS
     rule = make_rule(
         RuleType.CUSTOM_SQL,
-        query="SELECT COUNT(*) > 0 AS passed, COUNT(*) AS row_count FROM orders",
+        query="SELECT order_id FROM orders WHERE 1 = 0",
         columns=[],
     )
     result = await adapter_with_data.execute_rule(rule)
@@ -125,9 +130,10 @@ async def test_custom_sql_passes(adapter_with_data):
 
 @pytest.mark.asyncio
 async def test_custom_sql_fails(adapter_with_data):
+    # rows returned = violations = FAIL
     rule = make_rule(
         RuleType.CUSTOM_SQL,
-        query="SELECT COUNT(*) > 1000 AS passed, COUNT(*) AS row_count FROM orders",
+        query="SELECT order_id FROM orders WHERE order_id IS NOT NULL",
         columns=[],
     )
     result = await adapter_with_data.execute_rule(rule)

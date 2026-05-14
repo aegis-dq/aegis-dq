@@ -27,9 +27,7 @@ app.add_typer(rules_app, name="rules")
 
 @app.command()
 def init(
-    output: Path = typer.Option(
-        Path("rules.yaml"), "--output", "-o", help="Output file path"
-    ),
+    output: Path = typer.Option(Path("rules.yaml"), "--output", "-o", help="Output file path"),
 ) -> None:
     """Generate an example rules.yaml file."""
     example = """\
@@ -98,27 +96,49 @@ def run(
     ),
 ) -> None:
     """Run data quality checks defined in a YAML config file."""
-    asyncio.run(_run(
-        config, db, warehouse,
-        pg_dsn, pg_host, pg_port, pg_dbname, pg_user, pg_password, pg_schema,
-        no_llm, llm, llm_model, ollama_host, output_json, notify, notify_on,
-    ))
+    asyncio.run(
+        _run(
+            config,
+            db,
+            warehouse,
+            pg_dsn,
+            pg_host,
+            pg_port,
+            pg_dbname,
+            pg_user,
+            pg_password,
+            pg_schema,
+            no_llm,
+            llm,
+            llm_model,
+            ollama_host,
+            output_json,
+            notify,
+            notify_on,
+        )
+    )
 
 
-def _build_llm_adapter(provider: str, model: str | None, ollama_host: str = "http://localhost:11434"):
+def _build_llm_adapter(
+    provider: str, model: str | None, ollama_host: str = "http://localhost:11434"
+):
     """Resolve provider name to an LLMAdapter instance."""
     if provider == "anthropic":
         from ..adapters.llm.anthropic import AnthropicAdapter
+
         return AnthropicAdapter(**({"model": model} if model else {}))
     if provider == "openai":
         try:
             from ..adapters.llm.openai import OpenAIAdapter
         except ImportError:
-            console.print("[red]openai package not installed. Run: pip install aegis-dq[openai][/red]")
+            console.print(
+                "[red]openai package not installed. Run: pip install aegis-dq[openai][/red]"
+            )
             raise typer.Exit(1)
         return OpenAIAdapter(**({"model": model} if model else {}))
     if provider == "ollama":
         from ..adapters.llm.ollama import OllamaAdapter
+
         kwargs: dict = {"base_url": ollama_host}
         if model:
             kwargs["model"] = model
@@ -140,6 +160,7 @@ def _build_warehouse_adapter(
 ):
     if warehouse_type == "duckdb":
         from ..adapters.warehouse.duckdb import DuckDBAdapter
+
         return DuckDBAdapter(db)
     if warehouse_type in ("postgres", "redshift"):
         try:
@@ -148,11 +169,17 @@ def _build_warehouse_adapter(
             console.print("[red]psycopg2 not installed. Run: pip install aegis-dq[postgres][/red]")
             raise typer.Exit(1)
         return PostgresAdapter(
-            host=pg_host, port=pg_port, dbname=pg_dbname,
-            user=pg_user, password=pg_password, schema=pg_schema,
+            host=pg_host,
+            port=pg_port,
+            dbname=pg_dbname,
+            user=pg_user,
+            password=pg_password,
+            schema=pg_schema,
             dsn=pg_dsn,
         )
-    console.print(f"[red]Unknown warehouse '{warehouse_type}'. Choose: duckdb|postgres|redshift[/red]")
+    console.print(
+        f"[red]Unknown warehouse '{warehouse_type}'. Choose: duckdb|postgres|redshift[/red]"
+    )
     raise typer.Exit(1)
 
 
@@ -253,10 +280,13 @@ async def _run(
     # Slack notification
     if notify or os.environ.get("AEGIS_SLACK_WEBHOOK"):
         from ..adapters.output.slack import NotifyOn, post_to_slack
+
         try:
             notify_on_enum = NotifyOn(notify_on)
         except ValueError:
-            console.print(f"[red]Invalid --notify-on value '{notify_on}'. Choose: all|failures|critical[/red]")
+            console.print(
+                f"[red]Invalid --notify-on value '{notify_on}'. Choose: all|failures|critical[/red]"
+            )
             raise typer.Exit(1)
         sent = await post_to_slack(report, webhook_url=notify, notify_on=notify_on_enum)
         if sent:
@@ -271,8 +301,12 @@ async def _run(
 def validate(
     config: Path = typer.Argument(..., help="Path to rules YAML file"),
     warnings: bool = typer.Option(True, "--warnings/--no-warnings", help="Show warnings"),
-    check_sql: bool = typer.Option(False, "--check-sql", help="Verify SQL syntax for sql_expression / custom_sql rules"),
-    db: str = typer.Option("", "--db", help="DuckDB file path — enables schema-aware + dry-run SQL checks"),
+    check_sql: bool = typer.Option(
+        False, "--check-sql", help="Verify SQL syntax for sql_expression / custom_sql rules"
+    ),
+    db: str = typer.Option(
+        "", "--db", help="DuckDB file path — enables schema-aware + dry-run SQL checks"
+    ),
 ) -> None:
     """Check rule YAML syntax and schema correctness without hitting any warehouse.
 
@@ -285,6 +319,7 @@ def validate(
     if db:
         try:
             import duckdb
+
             conn = duckdb.connect(db, read_only=True)
             check_sql = True
             console.print(f"[dim]SQL check: connected to [cyan]{db}[/cyan] (read-only)[/dim]")
@@ -316,9 +351,7 @@ def validate(
 
     console.print()
     if report.ok:
-        console.print(
-            f"[bold green]All {report.total} rule(s) valid.[/bold green]"
-        )
+        console.print(f"[bold green]All {report.total} rule(s) valid.[/bold green]")
     else:
         console.print(
             f"[bold red]{report.invalid_count} of {report.total} rule(s) invalid.[/bold red]"
@@ -331,21 +364,31 @@ def generate(
     table: str = typer.Argument(..., help="Table name to generate rules for"),
     db: str = typer.Option("", "--db", help="DuckDB file path for schema introspection"),
     output: Path = typer.Option(Path("rules.yaml"), "--output", "-o", help="Output YAML file"),
-    kb: Path = typer.Option(None, "--kb", help="Knowledge-base file (text/markdown) with business rules context"),
-    provider: str = typer.Option("anthropic", "--provider", help="LLM provider: anthropic | bedrock | openai | ollama"),
+    kb: list[Path] = typer.Option(
+        None,
+        "--kb",
+        help="Knowledge-base file(s) — repeat for multiple: --kb policy.md --kb schema.md",
+    ),
+    provider: str = typer.Option(
+        "anthropic", "--provider", help="LLM provider: anthropic | bedrock | openai | ollama"
+    ),
     model: str = typer.Option(None, "--model", "-m", help="LLM model override"),
     max_rules: int = typer.Option(20, "--max-rules", help="Maximum number of rules to generate"),
-    no_verify: bool = typer.Option(False, "--no-verify", help="Skip SQL verification of generated rules"),
-    save_versions: bool = typer.Option(False, "--save-versions", help="Persist generated rules to version store"),
+    no_verify: bool = typer.Option(
+        False, "--no-verify", help="Skip SQL verification of generated rules"
+    ),
+    save_versions: bool = typer.Option(
+        False, "--save-versions", help="Persist generated rules to version store"
+    ),
 ) -> None:
     """Generate Aegis DQ rules for TABLE using an LLM.
 
-    Introspects TABLE schema from --db (DuckDB), optionally enriches with --kb
-    business-context, calls the LLM, verifies any SQL rules, and writes YAML.
+    Introspects TABLE schema from --db (DuckDB), optionally enriches with one
+    or more --kb business-context files (policy docs, schema docs, data dicts).
 
     Examples:
       aegis generate orders --db warehouse.duckdb --output orders_rules.yaml
-      aegis generate orders --db warehouse.duckdb --kb docs/orders_spec.md
+      aegis generate transactions --db fraud.duckdb --kb policy.md --kb schema.md
     """
     import asyncio
 
@@ -361,6 +404,7 @@ def generate(
     if db:
         try:
             import duckdb
+
             conn = duckdb.connect(db, read_only=True)
             schema_info = introspect_table(conn, table)
             col_count = len(schema_info["columns"])
@@ -372,19 +416,24 @@ def generate(
             console.print(f"[red]Could not open DB '{db}': {exc}[/red]")
             raise typer.Exit(1)
     else:
-        console.print(
-            "[yellow]No --db provided — generating rules without schema stats.[/yellow]"
-        )
+        console.print("[yellow]No --db provided — generating rules without schema stats.[/yellow]")
         schema_info = {"table": table, "row_count": 0, "columns": []}
 
-    # --- KB context ---
+    # --- KB context (multi-file, concatenated) ---
     kb_text: str | None = None
     if kb:
-        if not kb.exists():
-            console.print(f"[red]KB file not found: {kb}[/red]")
-            raise typer.Exit(1)
-        kb_text = kb.read_text()
-        console.print(f"[dim]Loaded KB: [cyan]{kb}[/cyan] ({len(kb_text):,} chars)[/dim]")
+        parts: list[str] = []
+        for kb_path in kb:
+            if not kb_path.exists():
+                console.print(f"[red]KB file not found: {kb_path}[/red]")
+                raise typer.Exit(1)
+            content = kb_path.read_text()
+            parts.append(f"### {kb_path.name}\n{content}")
+            console.print(f"[dim]Loaded KB: [cyan]{kb_path}[/cyan] ({len(content):,} chars)[/dim]")
+        kb_text = "\n\n".join(parts)
+        console.print(
+            f"[dim]Total KB context: {len(kb_text):,} chars across {len(kb)} file(s)[/dim]"
+        )
 
     # --- Generate ---
     console.print(f"\n[bold blue]Generating rules for [cyan]{table}[/cyan]...[/bold blue]")
@@ -428,6 +477,7 @@ def generate(
                 rule_id = meta.get("id", "unknown")
                 version = meta.get("version", "1.0.0")
                 import yaml as _yaml
+
                 await save_rule_version(
                     rule_id=rule_id,
                     version=version,
@@ -449,12 +499,101 @@ app.add_typer(audit_app, name="audit")
 dbt_app = typer.Typer(help="dbt integration")
 app.add_typer(dbt_app, name="dbt")
 
+pipeline_app = typer.Typer(help="Named pipeline manifests — define once, run anywhere")
+app.add_typer(pipeline_app, name="pipeline")
+
+
+@pipeline_app.command("run")
+def pipeline_run(
+    manifest: Path = typer.Argument(..., help="Path to pipeline.yaml manifest"),
+    no_llm: bool = typer.Option(False, "--no-llm", help="Skip LLM diagnosis"),
+    output_json: Path | None = typer.Option(
+        None, "--output-json", "-o", help="Override report output path"
+    ),
+) -> None:
+    """Run a named pipeline from a pipeline.yaml manifest file."""
+    from ..pipeline.manifest import PipelineManifest
+
+    if not manifest.exists():
+        console.print(f"[red]Manifest not found: {manifest}[/red]")
+        raise typer.Exit(1)
+
+    m = PipelineManifest.load(manifest)
+    console.print(f"\n[bold blue]Pipeline:[/bold blue] [cyan]{m.name}[/cyan]")
+    if m.description:
+        console.print(f"[dim]{m.description}[/dim]")
+    console.print(f"[dim]Rules  : {m.rules}[/dim]")
+    console.print(f"[dim]DB     : {m.warehouse.connection.get('path', ':memory:')}[/dim]")
+    if m.kb:
+        console.print(f"[dim]KB     : {', '.join(m.kb)}[/dim]")
+
+    # Build flags and delegate to run()
+    out = output_json or (Path(m.output_json) if m.output_json else None)
+    db = m.warehouse.connection.get("path", ":memory:")
+    warehouse = m.warehouse.type
+    llm_provider = m.llm.provider
+    llm_model = m.llm.model
+
+    asyncio.run(
+        _run(
+            config=m.rules_path(),
+            db=db,
+            warehouse_type=warehouse,
+            pg_dsn=None,
+            pg_host="localhost",
+            pg_port=5432,
+            pg_dbname="postgres",
+            pg_user="postgres",
+            pg_password="",
+            pg_schema="public",
+            no_llm=no_llm,
+            llm_provider=llm_provider,
+            llm_model=llm_model,
+            ollama_host="http://localhost:11434",
+            output_json=out,
+            notify=None,
+            notify_on="failures",
+        )
+    )
+
+
+@pipeline_app.command("show")
+def pipeline_show(
+    manifest: Path = typer.Argument(..., help="Path to pipeline.yaml manifest"),
+) -> None:
+    """Show the contents of a pipeline manifest."""
+    from rich.table import Table
+
+    from ..pipeline.manifest import PipelineManifest
+
+    if not manifest.exists():
+        console.print(f"[red]Manifest not found: {manifest}[/red]")
+        raise typer.Exit(1)
+
+    m = PipelineManifest.load(manifest)
+    table = Table(title=f"Pipeline: {m.name}", show_header=False, box=None)
+    table.add_column("Field", style="dim")
+    table.add_column("Value")
+    table.add_row("Name", m.name)
+    table.add_row("Description", m.description or "—")
+    table.add_row("Rules", m.rules)
+    table.add_row("Warehouse", m.warehouse.type)
+    table.add_row("Database", m.warehouse.connection.get("path", ":memory:"))
+    table.add_row("LLM", f"{m.llm.provider}" + (f" / {m.llm.model}" if m.llm.model else ""))
+    table.add_row("KB files", "\n".join(m.kb) if m.kb else "—")
+    table.add_row("Output JSON", m.output_json or "—")
+    if m.goal:
+        table.add_row("Goal", m.goal[:120] + ("…" if len(m.goal) > 120 else ""))
+    console.print(table)
+
 
 @dbt_app.command("generate")
 def dbt_generate(
     manifest: Path = typer.Argument(..., help="Path to dbt manifest.json"),
     output: Path = typer.Option(Path("rules.yaml"), "--output", "-o"),
-    warehouse: str = typer.Option("duckdb", "--warehouse", "-w", help="Warehouse type for generated rules"),
+    warehouse: str = typer.Option(
+        "duckdb", "--warehouse", "-w", help="Warehouse type for generated rules"
+    ),
 ) -> None:
     """Generate Aegis rules YAML from a dbt manifest.json."""
     from ..integrations.dbt.parser import load_manifest, manifest_to_yaml
@@ -552,7 +691,9 @@ async def _audit_list_runs() -> None:
 @audit_app.command("export-dataset")
 def audit_export_dataset(
     output: Path = typer.Argument(..., help="Output file path (.jsonl or .json)"),
-    run_ids: list[str] = typer.Option([], "--run-id", "-r", help="Run IDs to include (repeatable); omit for all"),
+    run_ids: list[str] = typer.Option(
+        [], "--run-id", "-r", help="Run IDs to include (repeatable); omit for all"
+    ),
     fmt: str = typer.Option("jsonl", "--format", "-f", help="Output format: jsonl|json"),
     min_turns: int = typer.Option(1, "--min-turns", help="Min LLM turns per run (quality filter)"),
     no_filter: bool = typer.Option(False, "--no-filter", help="Disable quality filtering"),
@@ -618,6 +759,7 @@ def mcp(
 ) -> None:
     """Start the Aegis MCP server for tool use by Claude and other LLMs."""
     from .mcp_runner import run_mcp_server
+
     run_mcp_server(host=host, port=port, transport=transport)
 
 
@@ -716,12 +858,20 @@ def serve(
         raise typer.Exit(1)
 
     warehouse_adapter = _build_warehouse_adapter(
-        warehouse, db,
-        pg_dsn, "localhost", 5432, "postgres", "postgres", "", "public",
+        warehouse,
+        db,
+        pg_dsn,
+        "localhost",
+        5432,
+        "postgres",
+        "postgres",
+        "",
+        "public",
     )
     llm_adapter = None if no_llm else _build_llm_adapter(llm, llm_model, "http://localhost:11434")
 
     from ..server.app import create_app
+
     api = create_app(warehouse_adapter=warehouse_adapter, llm_adapter=llm_adapter)
 
     console.print(f"[bold blue]Aegis DQ API[/bold blue] → http://{host}:{port}/docs")

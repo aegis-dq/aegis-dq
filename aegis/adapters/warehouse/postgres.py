@@ -141,9 +141,14 @@ class PostgresAdapter(WarehouseAdapter):
                     sample = self._sample_rows(
                         cursor, f"SELECT * FROM {t} WHERE {col} IS NULL LIMIT 5"
                     )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  failure_sample=sample, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # UNIQUE
@@ -151,9 +156,7 @@ class PostgresAdapter(WarehouseAdapter):
             elif logic.type == RuleType.UNIQUE:
                 col = self._q(rule.spec_scope.columns[0])
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
-                dups = self._scalar(
-                    cursor, f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}"
-                )
+                dups = self._scalar(cursor, f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}")
                 sample = []
                 if dups > 0:
                     sample = self._sample_rows(
@@ -161,9 +164,14 @@ class PostgresAdapter(WarehouseAdapter):
                         f"SELECT {col}, COUNT(*) AS cnt FROM {t} "
                         f"GROUP BY {col} HAVING COUNT(*) > 1 LIMIT 5",
                     )
-                return RuleResult(rule_id=rule.metadata.id, passed=dups == 0,
-                                  row_count_checked=total, row_count_failed=dups,
-                                  failure_sample=sample, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=dups == 0,
+                    row_count_checked=total,
+                    row_count_failed=dups,
+                    failure_sample=sample,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # SQL_EXPRESSION
@@ -171,17 +179,20 @@ class PostgresAdapter(WarehouseAdapter):
             elif logic.type == RuleType.SQL_EXPRESSION:
                 expr = logic.expression or "TRUE"
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
-                fail_count = self._scalar(
-                    cursor, f"SELECT COUNT(*) FROM {t} WHERE NOT ({expr})"
-                )
+                fail_count = self._scalar(cursor, f"SELECT COUNT(*) FROM {t} WHERE NOT ({expr})")
                 sample = []
                 if fail_count > 0:
                     sample = self._sample_rows(
                         cursor, f"SELECT * FROM {t} WHERE NOT ({expr}) LIMIT 5"
                     )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  failure_sample=sample, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # ROW_COUNT
@@ -190,9 +201,13 @@ class PostgresAdapter(WarehouseAdapter):
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 threshold = int(logic.threshold or 0)
                 passed = total >= threshold
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=total,
-                                  row_count_failed=0 if passed else 1, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # FRESHNESS  (PostgreSQL: EXTRACT(EPOCH FROM ...))
@@ -202,28 +217,47 @@ class PostgresAdapter(WarehouseAdapter):
                 hours = logic.threshold or 24
                 latest = self._scalar(cursor, f"SELECT MAX({col}) FROM {t}")
                 if latest is None:
-                    return RuleResult(rule_id=rule.metadata.id, passed=False,
-                                      error="No rows — cannot determine freshness",
-                                      duration_ms=ms())
+                    return RuleResult(
+                        rule_id=rule.metadata.id,
+                        passed=False,
+                        error="No rows — cannot determine freshness",
+                        duration_ms=ms(),
+                    )
                 age_hours = self._scalar(
                     cursor,
                     f"SELECT EXTRACT(EPOCH FROM (NOW() - MAX({col})::TIMESTAMP)) / 3600 FROM {t}",
                 )
                 passed = float(age_hours) <= float(hours)
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=1,
-                                  row_count_failed=0 if passed else 1, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=1,
+                    row_count_failed=0 if passed else 1,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # CUSTOM_SQL
             # ----------------------------------------------------------------
             elif logic.type == RuleType.CUSTOM_SQL:
-                rows = self._fetchall(cursor, logic.query or "SELECT FALSE, 0")
-                row = rows[0] if rows else (False, 0)
-                passed = bool(row[0])
-                row_count = int(row[1]) if len(row) > 1 else 0
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=row_count, duration_ms=ms())
+                rows = self._fetchall(cursor, logic.query or "SELECT 1 WHERE FALSE")
+                fail_count = len(rows)
+                col_names = (
+                    [d[0] for d in cursor.description]
+                    if cursor.description
+                    else [str(i) for i in range(len(rows[0]))]
+                    if rows
+                    else []
+                )
+                sample = [dict(zip(col_names, r)) for r in rows[:5]] if fail_count > 0 else []
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=fail_count,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # NOT_EMPTY_STRING  (PostgreSQL: CAST ... AS TEXT)
@@ -243,9 +277,14 @@ class PostgresAdapter(WarehouseAdapter):
                         f"SELECT * FROM {t} "
                         f"WHERE {col} IS NULL OR TRIM(CAST({col} AS TEXT)) = '' LIMIT 5",
                     )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  failure_sample=sample, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    failure_sample=sample,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # COMPOSITE_UNIQUE
@@ -259,9 +298,13 @@ class PostgresAdapter(WarehouseAdapter):
                     f"SELECT {cols}, COUNT(*) AS cnt FROM {t} GROUP BY {cols} HAVING COUNT(*) > 1"
                     f") _dups",
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=dups == 0,
-                                  row_count_checked=total, row_count_failed=int(dups),
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=dups == 0,
+                    row_count_checked=total,
+                    row_count_failed=int(dups),
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # BETWEEN
@@ -274,9 +317,13 @@ class PostgresAdapter(WarehouseAdapter):
                     cursor,
                     f"SELECT COUNT(*) FROM {t} WHERE {col} < {min_v} OR {col} > {max_v}",
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # MIN_VALUE_CHECK
@@ -287,9 +334,13 @@ class PostgresAdapter(WarehouseAdapter):
                 fail_count = self._scalar(
                     cursor, f"SELECT COUNT(*) FROM {t} WHERE {col} < {logic.min_value}"
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # MAX_VALUE_CHECK
@@ -300,9 +351,13 @@ class PostgresAdapter(WarehouseAdapter):
                 fail_count = self._scalar(
                     cursor, f"SELECT COUNT(*) FROM {t} WHERE {col} > {logic.max_value}"
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # REGEX_MATCH  (PostgreSQL: ~ operator)
@@ -313,51 +368,66 @@ class PostgresAdapter(WarehouseAdapter):
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
                     cursor,
-                    f"SELECT COUNT(*) FROM {t} "
-                    f"WHERE NOT (CAST({col} AS TEXT) ~ '{pattern}')",
+                    f"SELECT COUNT(*) FROM {t} WHERE NOT (CAST({col} AS TEXT) ~ '{pattern}')",
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # ACCEPTED_VALUES
             # ----------------------------------------------------------------
             elif logic.type == RuleType.ACCEPTED_VALUES:
                 col = self._q(rule.spec_scope.columns[0])
-                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
+                values_list = ", ".join(
+                    f"'{escape_string_literal(v)}'" for v in (logic.values or [])
+                )
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
                     cursor,
-                    f"SELECT COUNT(*) FROM {t} "
-                    f"WHERE CAST({col} AS TEXT) NOT IN ({values_list})",
+                    f"SELECT COUNT(*) FROM {t} WHERE CAST({col} AS TEXT) NOT IN ({values_list})",
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # NOT_ACCEPTED_VALUES
             # ----------------------------------------------------------------
             elif logic.type == RuleType.NOT_ACCEPTED_VALUES:
                 col = self._q(rule.spec_scope.columns[0])
-                values_list = ", ".join(f"'{escape_string_literal(v)}'" for v in (logic.values or []))
+                values_list = ", ".join(
+                    f"'{escape_string_literal(v)}'" for v in (logic.values or [])
+                )
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
                     cursor,
-                    f"SELECT COUNT(*) FROM {t} "
-                    f"WHERE CAST({col} AS TEXT) IN ({values_list})",
+                    f"SELECT COUNT(*) FROM {t} WHERE CAST({col} AS TEXT) IN ({values_list})",
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # FOREIGN_KEY
             # ----------------------------------------------------------------
             elif logic.type == RuleType.FOREIGN_KEY:
                 col = self._q(rule.spec_scope.columns[0])
-                ref_table = self._qt(self._full_table(logic.reference_table or rule.spec_scope.table))
+                ref_table = self._qt(
+                    self._full_table(logic.reference_table or rule.spec_scope.table)
+                )
                 ref_col = self._q(logic.reference_column or rule.spec_scope.columns[0])
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 fail_count = self._scalar(
@@ -366,9 +436,13 @@ class PostgresAdapter(WarehouseAdapter):
                     f"WHERE {col} IS NOT NULL "
                     f"AND {col} NOT IN (SELECT {ref_col} FROM {ref_table})",
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # NULL_PERCENTAGE_BELOW
@@ -379,9 +453,13 @@ class PostgresAdapter(WarehouseAdapter):
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 nulls = self._scalar(cursor, f"SELECT COUNT(*) FROM {t} WHERE {col} IS NULL")
                 pct = (nulls * 100.0 / total) if total > 0 else 0.0
-                return RuleResult(rule_id=rule.metadata.id, passed=pct <= threshold,
-                                  row_count_checked=total, row_count_failed=nulls,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=pct <= threshold,
+                    row_count_checked=total,
+                    row_count_failed=nulls,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # DUPLICATE_PERCENTAGE_BELOW
@@ -390,13 +468,15 @@ class PostgresAdapter(WarehouseAdapter):
                 col = self._q(rule.spec_scope.columns[0])
                 threshold = logic.threshold or 0.0
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
-                dups = self._scalar(
-                    cursor, f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}"
-                )
+                dups = self._scalar(cursor, f"SELECT COUNT(*) - COUNT(DISTINCT {col}) FROM {t}")
                 pct = (dups * 100.0 / total) if total > 0 else 0.0
-                return RuleResult(rule_id=rule.metadata.id, passed=pct <= threshold,
-                                  row_count_checked=total, row_count_failed=int(dups),
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=pct <= threshold,
+                    row_count_checked=total,
+                    row_count_failed=int(dups),
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # MEAN_BETWEEN
@@ -407,11 +487,14 @@ class PostgresAdapter(WarehouseAdapter):
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 mean = float(self._scalar(cursor, f"SELECT AVG({col}) FROM {t}") or 0.0)
                 passed = (min_v is None or mean >= min_v) and (max_v is None or mean <= max_v)
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=total,
-                                  row_count_failed=0 if passed else 1,
-                                  failure_sample=[] if passed else [{"mean": mean}],
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=[] if passed else [{"mean": mean}],
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # STDDEV_BELOW  (PostgreSQL: stddev)
@@ -422,11 +505,14 @@ class PostgresAdapter(WarehouseAdapter):
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 stddev = float(self._scalar(cursor, f"SELECT stddev({col}) FROM {t}") or 0.0)
                 passed = stddev <= threshold
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=total,
-                                  row_count_failed=0 if passed else 1,
-                                  failure_sample=[] if passed else [{"stddev": stddev}],
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=[] if passed else [{"stddev": stddev}],
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # NO_FUTURE_DATES  (PostgreSQL: NOW())
@@ -434,12 +520,14 @@ class PostgresAdapter(WarehouseAdapter):
             elif logic.type == RuleType.NO_FUTURE_DATES:
                 col = self._q(rule.spec_scope.columns[0])
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
-                fail_count = self._scalar(
-                    cursor, f"SELECT COUNT(*) FROM {t} WHERE {col} > NOW()"
+                fail_count = self._scalar(cursor, f"SELECT COUNT(*) FROM {t} WHERE {col} > NOW()")
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
 
             # ----------------------------------------------------------------
             # DATE_ORDER
@@ -453,9 +541,13 @@ class PostgresAdapter(WarehouseAdapter):
                     f"SELECT COUNT(*) FROM {t} "
                     f"WHERE {col_a} IS NOT NULL AND {col_b} IS NOT NULL AND {col_a} > {col_b}",
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # COLUMN_EXISTS  (PostgreSQL: information_schema.columns)
@@ -475,8 +567,12 @@ class PostgresAdapter(WarehouseAdapter):
                     f"AND column_name = '{escape_string_literal(col)}'",
                 )
                 exists = int(exists_count or 0) > 0
-                return RuleResult(rule_id=rule.metadata.id, passed=exists,
-                                  row_count_failed=0 if exists else 1, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=exists,
+                    row_count_failed=0 if exists else 1,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # ROW_COUNT_BETWEEN
@@ -486,11 +582,14 @@ class PostgresAdapter(WarehouseAdapter):
                 max_v = logic.max_value or float("inf")
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 passed = min_v <= total <= max_v
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=total,
-                                  row_count_failed=0 if passed else 1,
-                                  failure_sample=[] if passed else [{"row_count": total}],
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=[] if passed else [{"row_count": total}],
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # COLUMN_SUM_BETWEEN
@@ -499,17 +598,18 @@ class PostgresAdapter(WarehouseAdapter):
                 col = self._q(rule.spec_scope.columns[0])
                 min_v, max_v = logic.min_value, logic.max_value
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
-                total_sum = float(
-                    self._scalar(cursor, f"SELECT SUM({col}) FROM {t}") or 0.0
-                )
+                total_sum = float(self._scalar(cursor, f"SELECT SUM({col}) FROM {t}") or 0.0)
                 passed = (min_v is None or total_sum >= min_v) and (
                     max_v is None or total_sum <= max_v
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=total,
-                                  row_count_failed=0 if passed else 1,
-                                  failure_sample=[] if passed else [{"sum": total_sum}],
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=[] if passed else [{"sum": total_sum}],
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # CONDITIONAL_NOT_NULL
@@ -522,9 +622,13 @@ class PostgresAdapter(WarehouseAdapter):
                     cursor,
                     f"SELECT COUNT(*) FROM {t} WHERE ({condition}) AND {col} IS NULL",
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=fail_count == 0,
-                                  row_count_checked=total, row_count_failed=fail_count,
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=fail_count == 0,
+                    row_count_checked=total,
+                    row_count_failed=fail_count,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # RECONCILE_ROW_COUNT
@@ -539,10 +643,14 @@ class PostgresAdapter(WarehouseAdapter):
                 else:
                     passed = abs(src_count - tgt_count) / src_count <= tol
                 sample = [] if passed else [{"source_rows": src_count, "target_rows": tgt_count}]
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=src_count,
-                                  row_count_failed=abs(src_count - tgt_count),
-                                  failure_sample=sample, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=src_count,
+                    row_count_failed=abs(src_count - tgt_count),
+                    failure_sample=sample,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # RECONCILE_COLUMN_SUM
@@ -558,16 +666,18 @@ class PostgresAdapter(WarehouseAdapter):
                     self._scalar(cursor, f"SELECT COALESCE(SUM({col}), 0) FROM {t}") or 0
                 )
                 passed = (
-                    abs(src_sum - tgt_sum) / abs(src_sum) <= tol
-                    if src_sum != 0
-                    else tgt_sum == 0
+                    abs(src_sum - tgt_sum) / abs(src_sum) <= tol if src_sum != 0 else tgt_sum == 0
                 )
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {t}")
                 sample = [] if passed else [{"source_sum": src_sum, "target_sum": tgt_sum}]
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=total,
-                                  row_count_failed=0 if passed else 1,
-                                  failure_sample=sample, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=0 if passed else 1,
+                    failure_sample=sample,
+                    duration_ms=ms(),
+                )
 
             # ----------------------------------------------------------------
             # RECONCILE_KEY_MATCH
@@ -578,33 +688,41 @@ class PostgresAdapter(WarehouseAdapter):
                 total = self._scalar(cursor, f"SELECT COUNT(*) FROM {src}")
                 missing_in_tgt = self._scalar(
                     cursor,
-                    f"SELECT COUNT(*) FROM {src} "
-                    f"WHERE {col} NOT IN (SELECT {col} FROM {t})",
+                    f"SELECT COUNT(*) FROM {src} WHERE {col} NOT IN (SELECT {col} FROM {t})",
                 )
                 missing_in_src = self._scalar(
                     cursor,
-                    f"SELECT COUNT(*) FROM {t} "
-                    f"WHERE {col} NOT IN (SELECT {col} FROM {src})",
+                    f"SELECT COUNT(*) FROM {t} WHERE {col} NOT IN (SELECT {col} FROM {src})",
                 )
                 passed = missing_in_tgt == 0 and missing_in_src == 0
                 sample = (
                     []
                     if passed
-                    else [{"missing_in_target": missing_in_tgt, "missing_in_source": missing_in_src}]
+                    else [
+                        {"missing_in_target": missing_in_tgt, "missing_in_source": missing_in_src}
+                    ]
                 )
-                return RuleResult(rule_id=rule.metadata.id, passed=passed,
-                                  row_count_checked=total,
-                                  row_count_failed=missing_in_tgt + missing_in_src,
-                                  failure_sample=sample, duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=passed,
+                    row_count_checked=total,
+                    row_count_failed=missing_in_tgt + missing_in_src,
+                    failure_sample=sample,
+                    duration_ms=ms(),
+                )
 
             else:
-                return RuleResult(rule_id=rule.metadata.id, passed=False,
-                                  error=f"Unsupported rule type: {logic.type}",
-                                  duration_ms=ms())
+                return RuleResult(
+                    rule_id=rule.metadata.id,
+                    passed=False,
+                    error=f"Unsupported rule type: {logic.type}",
+                    duration_ms=ms(),
+                )
 
         except Exception as e:
-            return RuleResult(rule_id=rule.metadata.id, passed=False,
-                              error=str(e), duration_ms=ms())
+            return RuleResult(
+                rule_id=rule.metadata.id, passed=False, error=str(e), duration_ms=ms()
+            )
         finally:
             cursor.close()
 
