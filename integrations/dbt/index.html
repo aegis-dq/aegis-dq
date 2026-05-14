@@ -170,6 +170,11 @@
       </label>
       <nav class="md-search__options" aria-label="Search">
         
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -309,7 +314,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../cli-reference.md" class="md-tabs__link">
+        <a href="../../cli-reference/" class="md-tabs__link">
           
   
   
@@ -1002,7 +1007,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cli-reference.md" class="md-nav__link">
+      <a href="../../cli-reference/" class="md-nav__link">
         
   
   
@@ -1030,7 +1035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../audit-trail.md" class="md-nav__link">
+      <a href="../../audit-trail/" class="md-nav__link">
         
   
   
@@ -1273,10 +1278,10 @@
 <p>Aegis can read a dbt <code>manifest.json</code> and automatically generate Aegis rules for every dbt test in your project. This lets you reuse your existing dbt test definitions without rewriting them.</p>
 <hr />
 <h2 id="generate-rules-from-a-dbt-manifest">Generate rules from a dbt manifest</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>aegis<span class="w"> </span>dbt<span class="w"> </span>generate<span class="w"> </span>manifest.json
+<div class="highlight"><span class="filename">Terminal</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>aegis<span class="w"> </span>dbt<span class="w"> </span>generate<span class="w"> </span>manifest.json
 </code></pre></div>
 <p>This writes <code>rules.yaml</code> in the current directory (use <code>--output</code> to change the path):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>aegis<span class="w"> </span>dbt<span class="w"> </span>generate<span class="w"> </span>manifest.json<span class="w"> </span>--output<span class="w"> </span>dbt_rules.yaml
+<div class="highlight"><span class="filename">Terminal</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>aegis<span class="w"> </span>dbt<span class="w"> </span>generate<span class="w"> </span>manifest.json<span class="w"> </span>--output<span class="w"> </span>dbt_rules.yaml
 </code></pre></div>
 <h3 id="what-gets-converted">What gets converted</h3>
 <table>
@@ -1316,19 +1321,19 @@
 <p>Custom generic tests that do not map to a known Aegis rule type are emitted as <code>custom_sql</code> rules using the compiled SQL from the manifest.</p>
 <hr />
 <h2 id="run-the-generated-rules">Run the generated rules</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>aegis<span class="w"> </span>run<span class="w"> </span>dbt_rules.yaml<span class="w"> </span>--db<span class="w"> </span>my_warehouse.duckdb
+<div class="highlight"><span class="filename">Terminal</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>aegis<span class="w"> </span>run<span class="w"> </span>dbt_rules.yaml<span class="w"> </span>--db<span class="w"> </span>my_warehouse.duckdb
 </code></pre></div>
 <p>Or point at BigQuery:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>aegis<span class="w"> </span>run<span class="w"> </span>dbt_rules.yaml<span class="w"> </span>--warehouse<span class="w"> </span>bigquery<span class="w"> </span>--project<span class="w"> </span>my-gcp-project<span class="w"> </span>--dataset<span class="w"> </span>my_dataset
+<div class="highlight"><span class="filename">Terminal</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>aegis<span class="w"> </span>run<span class="w"> </span>dbt_rules.yaml<span class="w"> </span>--warehouse<span class="w"> </span>bigquery<span class="w"> </span>--project<span class="w"> </span>my-gcp-project<span class="w"> </span>--dataset<span class="w"> </span>my_dataset
 </code></pre></div>
 <hr />
 <h2 id="keep-rules-in-sync">Keep rules in sync</h2>
 <p>Add this to your dbt project's <code>on-run-end</code> hook in <code>dbt_project.yml</code> to regenerate Aegis rules after every <code>dbt compile</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">on-run-end</span><span class="p">:</span>
+<div class="highlight"><span class="filename">dbt_project.yml</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">on-run-end</span><span class="p">:</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">aegis_dbt_generate(results)</span><span class="nv"> </span><span class="s">}}&quot;</span>
 </code></pre></div>
 <p>Or run it in CI before your Aegis validation step:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>dbt<span class="w"> </span>compile<span class="w"> </span>--profiles-dir<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<div class="highlight"><span class="filename">Terminal</span><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>dbt<span class="w"> </span>compile<span class="w"> </span>--profiles-dir<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>aegis<span class="w"> </span>dbt<span class="w"> </span>generate<span class="w"> </span>target/manifest.json<span class="w"> </span>--output<span class="w"> </span>rules.yaml<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>aegis<span class="w"> </span>run<span class="w"> </span>rules.yaml<span class="w"> </span>--no-llm
 </code></pre></div>
@@ -1361,6 +1366,46 @@
       </main>
       
         <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../mcp/" class="md-footer__link md-footer__link--prev" aria-label="Previous: MCP Server Reference">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                MCP Server Reference
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../airflow/" class="md-footer__link md-footer__link--next" aria-label="Next: Airflow">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Airflow
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1418,10 +1463,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.instant", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.instant", "navigation.breadcrumbs", "navigation.footer", "navigation.tracking", "toc.follow", "search.highlight", "search.suggest", "search.share", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/extra.js"></script>
       
     
   </body>
