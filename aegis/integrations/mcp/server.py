@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Annotated
 
 from mcp.server.fastmcp import FastMCP
 
@@ -20,14 +21,13 @@ mcp_server = FastMCP(
 
 
 @mcp_server.tool()
-async def list_runs(limit: int = 20) -> str:
+async def list_runs(
+    limit: Annotated[int, "Maximum number of run IDs to return (default: 20)"] = 20,
+) -> str:
     """List recent Aegis DQ run IDs from the audit trail, newest first.
 
     Use this to discover available run IDs before calling get_run_report,
     get_trajectory, compare_reports, summarize_reports, or check_consistency.
-
-    Args:
-        limit: Maximum number of run IDs to return (default: 20).
 
     Returns:
         JSON array of run ID strings, ordered newest to oldest.
@@ -37,7 +37,9 @@ async def list_runs(limit: int = 20) -> str:
 
 
 @mcp_server.tool()
-async def get_trajectory(run_id: str) -> str:
+async def get_trajectory(
+    run_id: Annotated[str, "The run ID to retrieve — use list_runs to get available IDs"],
+) -> str:
     """Get the node-by-node LLM decision log for a completed run.
 
     Returns every prompt sent and response received during the validation —
@@ -61,7 +63,9 @@ async def get_trajectory(run_id: str) -> str:
 
 
 @mcp_server.tool()
-async def get_run_report(run_id: str) -> str:
+async def get_run_report(
+    run_id: Annotated[str, "The run ID to retrieve — use list_runs to get available IDs"],
+) -> str:
     """Get the full validation report for a completed run by ID.
 
     Returns the complete report including pass/fail status for every rule,
