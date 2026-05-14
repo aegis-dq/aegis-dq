@@ -77,3 +77,4 @@ ignore = ["E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+markers = ["slow: full benchmark harness runs — excluded from CI"]

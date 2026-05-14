@@ -14,6 +14,7 @@ from aegis_benchmark.tasks import CATEGORIES, TASKS
 # Task catalog
 # ---------------------------------------------------------------------------
 
+
 class TestTaskCatalog:
     def test_exactly_100_tasks(self):
         assert len(TASKS) == 100
@@ -42,6 +43,7 @@ class TestTaskCatalog:
 
     def test_category_distribution(self):
         from collections import Counter
+
         counts = Counter(t.category for t in TASKS)
         assert counts["imputation"] == 20
         assert counts["dedup"] == 20
@@ -53,6 +55,7 @@ class TestTaskCatalog:
     def test_roughly_balanced_pass_fail(self):
         """Each category should have both passing and failing tasks."""
         from collections import defaultdict
+
         by_cat: dict[str, list[bool]] = defaultdict(list)
         for t in TASKS:
             by_cat[t.category].append(t.ground_truth["passed"])
@@ -69,8 +72,9 @@ class TestTaskCatalog:
     def test_failing_tasks_have_failure_category(self):
         for t in TASKS:
             if not t.ground_truth["passed"]:
-                assert t.ground_truth.get("failure_category"), \
+                assert t.ground_truth.get("failure_category"), (
                     f"Failing task {t.task_id} missing failure_category"
+                )
 
     def test_task_descriptions_not_empty(self):
         for t in TASKS:
@@ -81,15 +85,28 @@ class TestTaskCatalog:
 # Metrics computation
 # ---------------------------------------------------------------------------
 
-def _make_result(task_id: str, category: str, predicted: bool, expected: bool,
-                 keywords: list[str] | None = None, found: list[str] | None = None,
-                 cost: float = 0.0, latency: float = 10.0) -> TaskResult:
+
+def _make_result(
+    task_id: str,
+    category: str,
+    predicted: bool,
+    expected: bool,
+    keywords: list[str] | None = None,
+    found: list[str] | None = None,
+    cost: float = 0.0,
+    latency: float = 10.0,
+) -> TaskResult:
     kw = keywords or []
     return TaskResult(
-        task_id=task_id, category=category,
-        predicted_pass=predicted, expected_pass=expected,
-        diagnosis_text=None, keywords_found=found or [],
-        keywords_expected=kw, cost_usd=cost, latency_ms=latency,
+        task_id=task_id,
+        category=category,
+        predicted_pass=predicted,
+        expected_pass=expected,
+        diagnosis_text=None,
+        keywords_found=found or [],
+        keywords_expected=kw,
+        cost_usd=cost,
+        latency_ms=latency,
     )
 
 
@@ -120,7 +137,7 @@ class TestMetrics:
 
     def test_f1_zero_when_only_false_negatives(self):
         results = [
-            _make_result("t1", "filtering", True, False),   # FP
+            _make_result("t1", "filtering", True, False),  # FP
         ]
         report = compute_metrics(results, "run-4", None)
         # recall = 0 (no TPs), so F1 = 0
@@ -156,16 +173,28 @@ class TestMetrics:
 
     def test_keyword_hit_rate_full_match(self):
         results = [
-            _make_result("t1", "integration", False, False,
-                         keywords=["NULL", "missing"], found=["NULL", "missing"]),
+            _make_result(
+                "t1",
+                "integration",
+                False,
+                False,
+                keywords=["NULL", "missing"],
+                found=["NULL", "missing"],
+            ),
         ]
         report = compute_metrics(results, "run-8", None)
         assert report.overall.avg_keyword_hit_rate == pytest.approx(1.0)
 
     def test_keyword_hit_rate_partial(self):
         results = [
-            _make_result("t1", "integration", False, False,
-                         keywords=["NULL", "missing", "ETL"], found=["NULL"]),
+            _make_result(
+                "t1",
+                "integration",
+                False,
+                False,
+                keywords=["NULL", "missing", "ETL"],
+                found=["NULL"],
+            ),
         ]
         report = compute_metrics(results, "run-9", None)
         assert report.overall.avg_keyword_hit_rate == pytest.approx(1 / 3)
@@ -184,14 +213,20 @@ class TestMetrics:
         assert "per_category" in d
         assert "total_tasks" in d
         assert d["model"] == "claude-haiku-4-5"
-        assert set(d["overall"].keys()) >= {"accuracy", "f1", "precision", "recall", "total_cost_usd"}
+        assert set(d["overall"].keys()) >= {
+            "accuracy",
+            "f1",
+            "precision",
+            "recall",
+            "total_cost_usd",
+        }
 
     def test_confusion_matrix_counts(self):
         results = [
             _make_result("t1", "filtering", False, False),  # TP
-            _make_result("t2", "filtering", True, True),    # TN
-            _make_result("t3", "filtering", False, True),   # FP
-            _make_result("t4", "filtering", True, False),   # FN
+            _make_result("t2", "filtering", True, True),  # TN
+            _make_result("t3", "filtering", False, True),  # FP
+            _make_result("t4", "filtering", True, False),  # FN
         ]
         report = compute_metrics(results, "run-cm", None)
         ov = report.overall
@@ -205,9 +240,11 @@ class TestMetrics:
 # Harness integration (DuckDB, no LLM)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_harness_single_pass_task():
     from aegis_benchmark.harness import _run_one
+
     task = next(t for t in TASKS if t.ground_truth["passed"] and t.category == "imputation")
     result = await _run_one(task, llm=None)
     assert result.error is None
@@ -218,6 +255,7 @@ async def test_harness_single_pass_task():
 @pytest.mark.asyncio
 async def test_harness_single_fail_task():
     from aegis_benchmark.harness import _run_one
+
     task = next(t for t in TASKS if not t.ground_truth["passed"] and t.category == "imputation")
     result = await _run_one(task, llm=None)
     assert result.error is None
@@ -228,6 +266,7 @@ async def test_harness_single_fail_task():
 @pytest.mark.asyncio
 async def test_harness_dedup_pass():
     from aegis_benchmark.harness import _run_one
+
     task = next(t for t in TASKS if t.task_id == "dup_01")
     result = await _run_one(task, llm=None)
     assert result.correct is True
@@ -236,6 +275,7 @@ async def test_harness_dedup_pass():
 @pytest.mark.asyncio
 async def test_harness_dedup_fail():
     from aegis_benchmark.harness import _run_one
+
     task = next(t for t in TASKS if t.task_id == "dup_02")
     result = await _run_one(task, llm=None)
     assert result.correct is True
@@ -244,6 +284,7 @@ async def test_harness_dedup_fail():
 @pytest.mark.asyncio
 async def test_harness_filtering_sql_expression():
     from aegis_benchmark.harness import _run_one
+
     task = next(t for t in TASKS if t.task_id == "flt_02")
     result = await _run_one(task, llm=None)
     assert result.correct is True
@@ -252,15 +293,18 @@ async def test_harness_filtering_sql_expression():
 @pytest.mark.asyncio
 async def test_harness_integration_foreign_key_fail():
     from aegis_benchmark.harness import _run_one
+
     task = next(t for t in TASKS if t.task_id == "int_02")
     result = await _run_one(task, llm=None)
     assert result.correct is True
 
 
+@pytest.mark.slow
 @pytest.mark.asyncio
 async def test_harness_no_llm_all_100_tasks():
     """Run all 100 tasks without LLM and verify >90% accuracy."""
     from aegis_benchmark.harness import run_eval
+
     report = await run_eval(llm=None, concurrency=20)
     assert report.total_tasks == 100
     assert report.overall.accuracy >= 0.90, (
@@ -269,20 +313,21 @@ async def test_harness_no_llm_all_100_tasks():
     )
 
 
+@pytest.mark.slow
 @pytest.mark.asyncio
 async def test_harness_per_category_accuracy():
     """Each category must achieve >=85% accuracy on pass/fail detection."""
     from aegis_benchmark.harness import run_eval
+
     report = await run_eval(llm=None, concurrency=20)
     for cat, cm in report.per_category.items():
-        assert cm.accuracy >= 0.85, (
-            f"Category '{cat}' accuracy {cm.accuracy:.1%} < 85%"
-        )
+        assert cm.accuracy >= 0.85, f"Category '{cat}' accuracy {cm.accuracy:.1%} < 85%"
 
 
 @pytest.mark.asyncio
 async def test_harness_report_shape():
     from aegis_benchmark.harness import run_eval
+
     report = await run_eval(tasks=TASKS[:5], llm=None)
     d = report.as_dict()
     assert d["total_tasks"] == 5
@@ -293,6 +338,7 @@ async def test_harness_report_shape():
 @pytest.mark.asyncio
 async def test_harness_baseline_accuracy_set_when_no_llm():
     from aegis_benchmark.harness import run_eval
+
     report = await run_eval(tasks=TASKS[:10], llm=None)
     assert report.baseline_accuracy is not None
     assert 0.0 <= report.baseline_accuracy <= 1.0
@@ -302,11 +348,13 @@ async def test_harness_baseline_accuracy_set_when_no_llm():
 # Report generation
 # ---------------------------------------------------------------------------
 
+
 class TestReportGeneration:
     def test_save_json(self, tmp_path):
         import json
 
         from aegis_benchmark.report import save_json
+
         results = [_make_result("t1", "imputation", True, True)]
         report = compute_metrics(results, "run-rep", None)
         out = tmp_path / "report.json"
@@ -317,6 +365,7 @@ class TestReportGeneration:
 
     def test_save_html(self, tmp_path):
         from aegis_benchmark.report import save_html
+
         results = [_make_result("t1", "imputation", True, True)]
         report = compute_metrics(results, "run-html", None)
         out = tmp_path / "report.html"
@@ -328,6 +377,7 @@ class TestReportGeneration:
 
     def test_html_contains_accuracy(self, tmp_path):
         from aegis_benchmark.report import save_html
+
         results = [
             _make_result("t1", "dedup", True, True),
             _make_result("t2", "dedup", False, False),
@@ -344,9 +394,11 @@ class TestReportGeneration:
 # Workflow YAML
 # ---------------------------------------------------------------------------
 
+
 class TestEvalWorkflow:
     def test_workflow_file_exists(self):
         from pathlib import Path
+
         wf = Path(__file__).parent.parent / ".github" / "workflows" / "eval.yml"
         assert wf.exists()
 
@@ -354,6 +406,7 @@ class TestEvalWorkflow:
         from pathlib import Path
 
         import yaml
+
         wf = Path(__file__).parent.parent / ".github" / "workflows" / "eval.yml"
         d = yaml.safe_load(wf.read_text())
         assert "on" in d or True  # 'on' may be parsed as True by YAML
@@ -361,6 +414,7 @@ class TestEvalWorkflow:
 
     def test_workflow_has_schedule(self):
         from pathlib import Path
+
         wf = Path(__file__).parent.parent / ".github" / "workflows" / "eval.yml"
         content = wf.read_text()
         assert "schedule" in content
@@ -368,10 +422,12 @@ class TestEvalWorkflow:
 
     def test_workflow_has_gh_pages_deploy(self):
         from pathlib import Path
+
         wf = Path(__file__).parent.parent / ".github" / "workflows" / "eval.yml"
         assert "gh-pages" in wf.read_text()
 
     def test_workflow_has_artifact_upload(self):
         from pathlib import Path
+
         wf = Path(__file__).parent.parent / ".github" / "workflows" / "eval.yml"
         assert "upload-artifact" in wf.read_text()
