@@ -64,20 +64,30 @@ async def get_trajectory(
 
 @mcp_server.tool()
 async def get_run_report(
-    run_id: Annotated[str, "The run ID to retrieve — use list_runs to get available IDs"],
+    run_id: Annotated[
+        str,
+        "Unique run identifier (UUID string). Call list_runs first to get available IDs. "
+        "Example: '01926e4f-1234-7abc-8def-000000000001'",
+    ],
 ) -> str:
-    """Get the full validation report for a completed run by ID.
+    """Retrieve the complete validation report for a specific run by its ID.
 
-    Returns the complete report including pass/fail status for every rule,
-    LLM diagnosis, root cause analysis, SQL remediation proposals, severity
-    breakdown, and cost/latency summary. Use list_runs to discover run IDs.
+    Looks up the run in the audit trail and returns the full structured report.
+    Use this after run_validation completes, or to review any past run. Always
+    call list_runs first to get a valid run_id — passing an unknown ID returns
+    an error object rather than raising an exception.
 
-    Args:
-        run_id: The run ID to retrieve (from list_runs).
+    Typical usage:
+      1. Call list_runs to get recent run IDs
+      2. Call get_run_report with a run_id to see the full results
+      3. Call get_trajectory with the same run_id to see the LLM reasoning chain
 
-    Returns:
-        JSON object with summary, failures (each with diagnosis, root_cause,
-        remediation_sql, severity), and cost_usd.
+    Returns a JSON object containing:
+      - summary: total_rules, passed, failed, pass_rate, severity_breakdown, cost_usd
+      - failures: list of failed rules, each with rule_id, table, column, diagnosis,
+        root_cause, remediation_sql, severity, and effective_severity
+      - triggered_by: what initiated the run (e.g. "mcp", "cli", "airflow")
+      - timestamp: ISO-8601 UTC timestamp of when the run executed
     """
     data = await export_sharegpt(run_id, db_path=DB_PATH)
     return json.dumps(data)
