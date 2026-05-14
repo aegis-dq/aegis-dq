@@ -2,50 +2,50 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://aegis-dq.dev/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://aegis-dq.dev/architecture/</loc>
-         <lastmod>2026-05-13</lastmod>
-    </url>
-    <url>
-         <loc>https://aegis-dq.dev/audit-trail/</loc>
-         <lastmod>2026-05-13</lastmod>
-    </url>
-    <url>
-         <loc>https://aegis-dq.dev/cli-reference/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://aegis-dq.dev/contributing/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://aegis-dq.dev/getting-started/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://aegis-dq.dev/rule-schema-reference/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://aegis-dq.dev/vs-competitors/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://aegis-dq.dev/integrations/airflow/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://aegis-dq.dev/integrations/dbt/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://aegis-dq.dev/integrations/github-actions/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
+    </url>
+    <url>
+         <loc>https://aegis-dq.dev/integrations/hermes/</loc>
+         <lastmod>2026-05-14</lastmod>
+    </url>
+    <url>
+         <loc>https://aegis-dq.dev/integrations/mcp-clients/</loc>
+         <lastmod>2026-05-14</lastmod>
     </url>
     <url>
          <loc>https://aegis-dq.dev/integrations/mcp/</loc>
-         <lastmod>2026-05-13</lastmod>
+         <lastmod>2026-05-14</lastmod>
     </url>
 </urlset>

@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://aegis-dq.dev/integrations/mcp/">
+        <link rel="canonical" href="https://aegis-dq.dev/integrations/mcp-clients/">
       
       
-        <link rel="prev" href="../mcp-clients/">
+        <link rel="prev" href="../hermes/">
       
       
-        <link rel="next" href="../dbt/">
+        <link rel="next" href="../mcp/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>MCP Server Reference - Aegis DQ</title>
+        <title>MCP Clients - Aegis DQ</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mcp-server" class="md-skip">
+        <a href="#mcp-clients" class="md-skip">
           Skip to content
         </a>
       
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              MCP Server Reference
+              MCP Clients
             
           </span>
         </div>
@@ -703,34 +703,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../mcp-clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MCP Clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -750,7 +722,7 @@
   <span class="md-ellipsis">
     
   
-    MCP Server Reference
+    MCP Clients
   
 
     
@@ -768,7 +740,7 @@
   <span class="md-ellipsis">
     
   
-    MCP Server Reference
+    MCP Clients
   
 
     
@@ -794,33 +766,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#start-the-server" class="md-nav__link">
+  <a href="#claude-desktop" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Start the server
+        Claude Desktop
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tools" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tools
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Tools">
+    <nav class="md-nav" aria-label="Claude Desktop">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#load_pipeline" class="md-nav__link">
+  <a href="#1-install-aegis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        load_pipeline
+        1. Install Aegis
       
     </span>
   </a>
@@ -828,10 +789,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#run_validation" class="md-nav__link">
+  <a href="#2-edit-the-claude-desktop-config" class="md-nav__link">
     <span class="md-ellipsis">
       
-        run_validation
+        2. Edit the Claude Desktop config
       
     </span>
   </a>
@@ -839,43 +800,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#list_runs" class="md-nav__link">
+  <a href="#3-restart-claude-desktop" class="md-nav__link">
     <span class="md-ellipsis">
       
-        list_runs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get_run_report" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        get_run_report
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get_trajectory" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        get_trajectory
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#search_decisions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        search_decisions
+        3. Restart Claude Desktop
       
     </span>
   </a>
@@ -888,10 +816,110 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-client-prompts" class="md-nav__link">
+  <a href="#cursor" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example client prompts
+        Cursor
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cursor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-open-mcp-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Open MCP settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-add-aegis-as-a-stdio-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Add Aegis as a stdio server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-use-in-the-cursor-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Use in the Cursor chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cline
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-open-cline-mcp-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Open Cline MCP settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-add-the-server-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Add the server config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-use-in-cline-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Use in Cline chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#http-sse-transport-remote-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP / SSE transport (remote servers)
       
     </span>
   </a>
@@ -899,10 +927,104 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#client-setup-guides" class="md-nav__link">
+  <a href="#environment-variables-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Client setup guides
+        Environment variables reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment variables reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#duckdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DuckDB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bigquery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BigQuery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#athena" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Athena
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#databricks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Databricks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgres-redshift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Postgres / Redshift
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
       
     </span>
   </a>
@@ -913,6 +1035,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Server Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1266,33 +1416,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#start-the-server" class="md-nav__link">
+  <a href="#claude-desktop" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Start the server
+        Claude Desktop
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tools" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tools
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Tools">
+    <nav class="md-nav" aria-label="Claude Desktop">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#load_pipeline" class="md-nav__link">
+  <a href="#1-install-aegis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        load_pipeline
+        1. Install Aegis
       
     </span>
   </a>
@@ -1300,10 +1439,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#run_validation" class="md-nav__link">
+  <a href="#2-edit-the-claude-desktop-config" class="md-nav__link">
     <span class="md-ellipsis">
       
-        run_validation
+        2. Edit the Claude Desktop config
       
     </span>
   </a>
@@ -1311,43 +1450,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#list_runs" class="md-nav__link">
+  <a href="#3-restart-claude-desktop" class="md-nav__link">
     <span class="md-ellipsis">
       
-        list_runs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get_run_report" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        get_run_report
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get_trajectory" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        get_trajectory
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#search_decisions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        search_decisions
+        3. Restart Claude Desktop
       
     </span>
   </a>
@@ -1360,10 +1466,110 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-client-prompts" class="md-nav__link">
+  <a href="#cursor" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example client prompts
+        Cursor
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cursor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-open-mcp-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Open MCP settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-add-aegis-as-a-stdio-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Add Aegis as a stdio server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-use-in-the-cursor-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Use in the Cursor chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cline
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-open-cline-mcp-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Open Cline MCP settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-add-the-server-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Add the server config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-use-in-cline-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Use in Cline chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#http-sse-transport-remote-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HTTP / SSE transport (remote servers)
       
     </span>
   </a>
@@ -1371,10 +1577,104 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#client-setup-guides" class="md-nav__link">
+  <a href="#environment-variables-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Client setup guides
+        Environment variables reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment variables reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#duckdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DuckDB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bigquery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BigQuery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#athena" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Athena
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#databricks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Databricks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgres-redshift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Postgres / Redshift
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
       
     </span>
   </a>
@@ -1401,248 +1701,284 @@
   
 
 
-<h1 id="mcp-server">MCP Server</h1>
-<p>Aegis ships a <a href="https://modelcontextprotocol.io">Model Context Protocol</a> server that exposes five tools to any MCP-compatible client. Connect Claude Desktop, Cursor, Cline, Hermes, or any other MCP client and run data quality validations conversationally.</p>
+<h1 id="mcp-clients">MCP Clients</h1>
+<p>Aegis ships a standard <a href="https://modelcontextprotocol.io">Model Context Protocol</a> server. Any MCP-compatible client can connect to it — not just Hermes. This page covers configuration for Claude Desktop, Cursor, and Cline.</p>
 <hr />
-<h2 id="start-the-server">Start the server</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>aegis<span class="w"> </span>mcp<span class="w"> </span>serve
+<h2 id="claude-desktop">Claude Desktop</h2>
+<h3 id="1-install-aegis">1. Install Aegis</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aegis-dq
 </code></pre></div>
-<p>The server uses <strong>stdio transport</strong> by default — it runs as a subprocess managed by your MCP client. For remote access, use SSE:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>aegis<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span>--transport<span class="w"> </span>sse<span class="w"> </span>--port<span class="w"> </span><span class="m">8765</span>
-</code></pre></div>
-<hr />
-<h2 id="tools">Tools</h2>
-<h3 id="load_pipeline"><code>load_pipeline</code></h3>
-<p>Load a <a href="../hermes/#pipeline-manifests-define-once-run-forever"><code>pipeline.yaml</code> manifest</a> and return its configuration and goal as context. Use this before <code>run_validation</code> to let the LLM understand what the pipeline does without you re-explaining it.</p>
-<p><strong>Parameters</strong></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>manifest_path</code></td>
-<td>string</td>
-<td>Path to a <code>pipeline.yaml</code> manifest file</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns</strong>: JSON object with <code>name</code>, <code>description</code>, <code>goal</code>, <code>rules_path</code>, <code>warehouse</code>, <code>connection_params</code>, <code>kb</code>, and a pre-built <code>run_validation_call</code> object ready to pass directly to <code>run_validation</code>.</p>
-<p><strong>Example</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;manifest_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;demo/fraud/pipeline.yaml&quot;</span><span class="w"> </span><span class="p">}</span>
-</code></pre></div>
-<hr />
-<h3 id="run_validation"><code>run_validation</code></h3>
-<p>Run a rules YAML file against a warehouse. Returns a JSON report with pass/fail per rule, LLM diagnosis, root cause analysis, and remediation SQL.</p>
-<p><strong>Parameters</strong></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>rules_path</code></td>
-<td>string</td>
-<td>required</td>
-<td>Path to the rules YAML file</td>
-</tr>
-<tr>
-<td><code>warehouse</code></td>
-<td>string</td>
-<td><code>"duckdb"</code></td>
-<td>Warehouse type: <code>duckdb</code>, <code>bigquery</code>, <code>athena</code>, <code>databricks</code>, <code>postgres</code></td>
-</tr>
-<tr>
-<td><code>connection_params</code></td>
-<td>string (JSON)</td>
-<td><code>"{}"</code></td>
-<td>Warehouse connection kwargs as a JSON object. Falls back to environment variables if omitted.</td>
-</tr>
-<tr>
-<td><code>no_llm</code></td>
-<td>bool</td>
-<td><code>false</code></td>
-<td>Skip LLM diagnosis. Returns rule pass/fail only.</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Examples</strong></p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">DuckDB</label><label for="__tabbed_1_2">BigQuery</label><label for="__tabbed_1_3">Athena</label><label for="__tabbed_1_4">Databricks</label><label for="__tabbed_1_5">Postgres</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;rules_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/home/user/rules/orders.yaml&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;warehouse&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;duckdb&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;connection_params&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;path\&quot;: \&quot;/data/prod.duckdb\&quot;}&quot;</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;rules_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/home/user/rules/orders.yaml&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;warehouse&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bigquery&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;connection_params&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;project\&quot;: \&quot;my-project\&quot;, \&quot;dataset\&quot;: \&quot;analytics\&quot;}&quot;</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;rules_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/home/user/rules/orders.yaml&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;warehouse&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;athena&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&quot;connection_params&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;s3_staging_dir\&quot;: \&quot;s3://bucket/athena/\&quot;, \&quot;region_name\&quot;: \&quot;us-east-1\&quot;}&quot;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">}</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;rules_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/home/user/rules/orders.yaml&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">&quot;warehouse&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;databricks&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">&quot;connection_params&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;server_hostname\&quot;: \&quot;abc.azuredatabricks.net\&quot;, \&quot;http_path\&quot;: \&quot;/sql/1.0/warehouses/abc\&quot;, \&quot;access_token\&quot;: \&quot;dapi...\&quot;}&quot;</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">}</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;rules_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/home/user/rules/orders.yaml&quot;</span><span class="p">,</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&quot;warehouse&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;postgres&quot;</span><span class="p">,</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">&quot;connection_params&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{\&quot;dsn\&quot;: \&quot;postgresql://user:pass@host:5432/db\&quot;}&quot;</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">}</span>
-</code></pre></div>
-</div>
-</div>
-</div>
-<p><strong>Using environment variables instead</strong></p>
-<p>Set warehouse env vars in your client config (see <a href="../mcp-clients/">MCP Clients</a>) and omit <code>connection_params</code>. Aegis picks them up automatically:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;rules_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/home/user/rules/orders.yaml&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;warehouse&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bigquery&quot;</span><span class="w"> </span><span class="p">}</span>
-</code></pre></div>
-<hr />
-<h3 id="list_runs"><code>list_runs</code></h3>
-<p>List recent run IDs from the audit trail, newest first.</p>
-<p><strong>Parameters</strong></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>limit</code></td>
-<td>int</td>
-<td><code>20</code></td>
-<td>Maximum number of run IDs to return</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns</strong>: JSON array of run ID strings.</p>
-<hr />
-<h3 id="get_run_report"><code>get_run_report</code></h3>
-<p>Get the full report for a past validation run.</p>
-<p><strong>Parameters</strong></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>run_id</code></td>
-<td>string</td>
-<td>Run ID from <code>list_runs</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns</strong>: JSON object with <code>run_id</code>, <code>summary</code>, <code>failures</code>, and metadata.</p>
-<hr />
-<h3 id="get_trajectory"><code>get_trajectory</code></h3>
-<p>Get the node-by-node LLM decision log for a run — every prompt, response, cost, and latency. Useful for auditing exactly what Aegis decided and why.</p>
-<p><strong>Parameters</strong></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>run_id</code></td>
-<td>string</td>
-<td>Run ID from <code>list_runs</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns</strong>: JSON array of decision records, one per agent node that made an LLM call.</p>
-<hr />
-<h3 id="search_decisions"><code>search_decisions</code></h3>
-<p>Full-text search across all LLM decisions in the audit trail.</p>
-<p><strong>Parameters</strong></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>query</code></td>
-<td>string</td>
-<td>required</td>
-<td>Search terms (e.g. <code>"null order_id"</code>, <code>"root cause ETL"</code>)</td>
-</tr>
-<tr>
-<td><code>run_id</code></td>
-<td>string</td>
-<td><code>null</code></td>
-<td>Restrict search to a specific run</td>
-</tr>
-<tr>
-<td><code>limit</code></td>
-<td>int</td>
-<td><code>20</code></td>
-<td>Maximum results</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns</strong>: JSON array of matching decision records with run ID, step, and summary.</p>
-<hr />
-<h2 id="example-client-prompts">Example client prompts</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Load the pipeline at demo/fraud/pipeline.yaml and run it.
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Run /home/user/rules/orders.yaml against BigQuery and summarise the failures.
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Show me the last 5 validation runs.
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>What did Aegis diagnose for run run_20260513_143022_a1b2c3?
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>Search the audit trail for anything about null order IDs.
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Run my rules against Athena offline — no LLM, just tell me what passes and fails.
-</code></pre></div>
-<hr />
-<h2 id="client-setup-guides">Client setup guides</h2>
+<h3 id="2-edit-the-claude-desktop-config">2. Edit the Claude Desktop config</h3>
 <ul>
-<li><a href="../hermes/">Hermes</a></li>
-<li><a href="../mcp-clients/">Claude Desktop, Cursor, Cline</a></li>
+<li><strong>macOS</strong>: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
+<li><strong>Windows</strong>: <code>%APPDATA%\Claude\claude_desktop_config.json</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">&quot;aegis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aegis&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">        </span><span class="nt">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sk-ant-...&quot;</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
+</code></pre></div>
+<p>Add warehouse env vars inside the <code>env</code> block for any warehouse you want to reach:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">&quot;aegis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aegis&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="nt">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sk-ant-...&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="nt">&quot;BQ_PROJECT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my-project&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span><span class="nt">&quot;BQ_DATASET&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;analytics&quot;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="3-restart-claude-desktop">3. Restart Claude Desktop</h3>
+<p>The Aegis tools appear in the tool picker once the server connects. Try:</p>
+<blockquote>
+<p>Run my rules.yaml against BigQuery and tell me what failed.</p>
+</blockquote>
+<hr />
+<h2 id="cursor">Cursor</h2>
+<h3 id="1-open-mcp-settings">1. Open MCP settings</h3>
+<p>In Cursor: <strong>Settings → Features → MCP</strong> (or <code>Cmd+Shift+P</code> → "MCP: Add Server").</p>
+<h3 id="2-add-aegis-as-a-stdio-server">2. Add Aegis as a stdio server</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">&quot;aegis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aegis&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">        </span><span class="nt">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sk-ant-...&quot;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="3-use-in-the-cursor-chat">3. Use in the Cursor chat</h3>
+<p>Once connected, Cursor's AI can call Aegis tools inline. Useful for:</p>
+<ul>
+<li>Validating a rules file you have open in the editor</li>
+<li>Searching the audit trail while debugging a pipeline</li>
+<li>Getting LLM diagnosis without leaving the IDE</li>
+</ul>
+<hr />
+<h2 id="cline">Cline</h2>
+<h3 id="1-open-cline-mcp-settings">1. Open Cline MCP settings</h3>
+<p>In VS Code with Cline installed: open the Cline sidebar → <strong>MCP Servers</strong> tab → <strong>Add Server</strong>.</p>
+<h3 id="2-add-the-server-config">2. Add the server config</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;aegis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aegis&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mcp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serve&quot;</span><span class="p">],</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">      </span><span class="nt">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sk-ant-...&quot;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="3-use-in-cline-chat">3. Use in Cline chat</h3>
+<p>Cline can now call Aegis tools mid-task. Example:</p>
+<blockquote>
+<p>Validate the rules in <code>rules/orders.yaml</code> against Postgres and show me the failures.</p>
+</blockquote>
+<hr />
+<h2 id="http-sse-transport-remote-servers">HTTP / SSE transport (remote servers)</h2>
+<p>All examples above use <strong>stdio transport</strong> — the server runs as a local subprocess. For remote access (e.g. a shared team server), use SSE transport:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>aegis<span class="w"> </span>mcp<span class="w"> </span>serve<span class="w"> </span>--transport<span class="w"> </span>sse<span class="w"> </span>--port<span class="w"> </span><span class="m">8765</span>
+</code></pre></div>
+<p>Connect clients to <code>http://your-server:8765/sse</code>. Note: SSE transport does not encrypt traffic — run behind a reverse proxy with TLS for production use.</p>
+<hr />
+<h2 id="environment-variables-reference">Environment variables reference</h2>
+<p>Set these in the <code>env</code> block of your client config, or export them in your shell before starting the server.</p>
+<h3 id="llm">LLM</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>Anthropic API key (Claude). Used for LLM diagnosis.</td>
+</tr>
+<tr>
+<td><code>OPENAI_API_KEY</code></td>
+<td>OpenAI API key.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="duckdb">DuckDB</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DUCKDB_PATH</code></td>
+<td><code>:memory:</code></td>
+<td>Path to DuckDB database file.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bigquery">BigQuery</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BQ_PROJECT</code></td>
+<td>GCP project ID</td>
+</tr>
+<tr>
+<td><code>BQ_DATASET</code></td>
+<td>Default dataset</td>
+</tr>
+<tr>
+<td><code>BQ_LOCATION</code></td>
+<td>BigQuery location (default: <code>US</code>)</td>
+</tr>
+<tr>
+<td><code>GOOGLE_CLOUD_PROJECT</code></td>
+<td>Fallback for <code>BQ_PROJECT</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="athena">Athena</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ATHENA_S3_STAGING_DIR</code></td>
+<td>S3 path for query result staging (e.g. <code>s3://bucket/athena/</code>)</td>
+</tr>
+<tr>
+<td><code>AWS_REGION</code></td>
+<td>AWS region (e.g. <code>us-east-1</code>)</td>
+</tr>
+<tr>
+<td><code>ATHENA_SCHEMA</code></td>
+<td>Default Glue/Athena database (default: <code>default</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="databricks">Databricks</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DATABRICKS_HOST</code></td>
+<td>Workspace hostname (e.g. <code>abc.azuredatabricks.net</code>)</td>
+</tr>
+<tr>
+<td><code>DATABRICKS_HTTP_PATH</code></td>
+<td>SQL warehouse HTTP path</td>
+</tr>
+<tr>
+<td><code>DATABRICKS_TOKEN</code></td>
+<td>Personal access token or service principal secret</td>
+</tr>
+</tbody>
+</table>
+<h3 id="postgres-redshift">Postgres / Redshift</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POSTGRES_DSN</code></td>
+<td>Full DSN (e.g. <code>postgresql://user:pass@host:5432/db</code>). Takes precedence over individual vars.</td>
+</tr>
+<tr>
+<td><code>PGHOST</code></td>
+<td>Hostname</td>
+</tr>
+<tr>
+<td><code>PGPORT</code></td>
+<td>Port (default: <code>5432</code>)</td>
+</tr>
+<tr>
+<td><code>PGDATABASE</code></td>
+<td>Database name</td>
+</tr>
+<tr>
+<td><code>PGUSER</code></td>
+<td>Username</td>
+</tr>
+<tr>
+<td><code>PGPASSWORD</code></td>
+<td>Password</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="available-tools">Available tools</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run_validation</code></td>
+<td>Run a rules YAML file against a warehouse. Returns full JSON report with pass/fail, LLM diagnosis, root cause, and remediation SQL.</td>
+</tr>
+<tr>
+<td><code>list_runs</code></td>
+<td>List recent run IDs from the audit trail, newest first.</td>
+</tr>
+<tr>
+<td><code>get_run_report</code></td>
+<td>Get the full report for a past run by ID.</td>
+</tr>
+<tr>
+<td><code>get_trajectory</code></td>
+<td>Get the node-by-node LLM decision log for a run.</td>
+</tr>
+<tr>
+<td><code>search_decisions</code></td>
+<td>Full-text search across all past LLM decisions.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="../hermes/">Hermes integration</a> — Hermes-specific setup with scheduling and alerting</li>
+<li><a href="../mcp/">MCP Server reference</a> — tool parameter details</li>
 </ul>
 
 
