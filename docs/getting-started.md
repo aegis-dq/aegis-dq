@@ -344,7 +344,7 @@ The demo script is at [`demo/realworld_demo.py`](../demo/realworld_demo.py).
 
 ---
 
-## 12. Generate rules with the LLM (v0.6.0)
+## 12. Generate rules with the LLM (v0.7.0)
 
 Instead of writing rules by hand, let Aegis introspect your table schema and generate a draft rules file:
 
@@ -397,7 +397,7 @@ Generated rules are stamped `status: draft` and `generated_by: <model>`. Review 
 
 ---
 
-## 13. Validate SQL expressions (v0.6.0)
+## 13. Validate SQL expressions (v0.7.0)
 
 Run the SQL verification pipeline against your rules without executing a full run:
 

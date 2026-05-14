@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Validate data quality
-        uses: aegis-dq/aegis-dq@v0.6.0
+        uses: aegis-dq/aegis-dq@v0.7.0
         with:
           rules-file: rules.yaml
           db: data/warehouse.duckdb
@@ -47,7 +47,7 @@ The step **fails the job automatically** when any rules fail, blocking broken da
 
 ```yaml
       - name: Validate data quality (offline)
-        uses: aegis-dq/aegis-dq@v0.6.0
+        uses: aegis-dq/aegis-dq@v0.7.0
         with:
           rules-file: rules.yaml
           db: data/warehouse.duckdb
@@ -85,7 +85,7 @@ The step **fails the job automatically** when any rules fail, blocking broken da
 ```yaml
       - name: Validate data quality
         id: dq
-        uses: aegis-dq/aegis-dq@v0.6.0
+        uses: aegis-dq/aegis-dq@v0.7.0
         with:
           rules-file: rules.yaml
 
@@ -386,7 +386,7 @@ aegis run rules.yaml --llm bedrock --llm-model amazon.nova-pro-v1:0
 |---|---|---|---|
 | Foundation | v0.1 | Core agent, DuckDB, CLI, audit trail | ✅ Done |
 | Differentiate | v0.5 | BigQuery, Databricks, Athena, Airflow, Ollama, RCA, ShareGPT export, FTS5 search, dbt, MCP | ✅ Done |
-| Quality | v0.6 | SQL verification pipeline, rule versioning, `aegis generate` (LLM + KB), GitHub Action, ML anomaly detection | ✅ Done |
+| Quality | v0.7 | SQL verification pipeline, rule versioning, `aegis generate` (LLM + KB), GitHub Action, ML anomaly detection | ✅ Done |
 | Mature | v1.0 | Postgres, REST API, parallel subagents, VS Code extension, eval suite, banking/healthcare packs | 🚧 In progress |
 
 Full issue tracker: [github.com/aegis-dq/aegis-dq/issues](https://github.com/aegis-dq/aegis-dq/issues)
