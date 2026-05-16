@@ -226,9 +226,13 @@ class _MockLLM:
         self._model = model
         self._response = response
         self.call_count = 0
+        self.last_system: str | None = None
+        self.last_user: str | None = None
 
     async def complete(self, system: str, user: str, max_tokens: int = 512):
         self.call_count += 1
+        self.last_system = system
+        self.last_user = user
         return self._response, 100, 50
 
 
@@ -280,6 +284,7 @@ class TestGenerateRules:
             generate_rules("orders", schema_info, llm, kb_text="Amount must always be positive.")
         )
         assert llm.call_count == 1
+        assert "Amount must always be positive." in (llm.last_user or "")
         assert len(rules) == 2  # KB didn't break anything
 
 
@@ -288,6 +293,24 @@ class TestGenerateRules:
 # ---------------------------------------------------------------------------
 
 class TestGeneratorHelpers:
+    def test_system_prompt_mentions_every_rule_type(self):
+        from aegis.rules.generator import _SYSTEM_PROMPT
+        from aegis.rules.schema import RuleType
+
+        missing = [
+            rule_type.value for rule_type in RuleType if rule_type.value not in _SYSTEM_PROMPT
+        ]
+        assert missing == []
+
+    def test_system_prompt_includes_extended_field_guidance(self):
+        from aegis.rules.generator import _SYSTEM_PROMPT
+
+        assert "logic.column_b" in _SYSTEM_PROMPT
+        assert "logic.reference_table" in _SYSTEM_PROMPT
+        assert "logic.reference_column" in _SYSTEM_PROMPT
+        assert "logic.source_table" in _SYSTEM_PROMPT
+        assert "logic.zscore_threshold" in _SYSTEM_PROMPT
+
     def test_extract_yaml_with_fences(self):
         from aegis.rules.generator import _extract_yaml
         text = "Here you go:\n```yaml\nrules: []\n```\n"

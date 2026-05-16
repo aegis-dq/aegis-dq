@@ -12,14 +12,28 @@ schema and optional business context, generate comprehensive Aegis data quality 
 as valid YAML.
 
 Supported rule types:
-  Simple checks (single-row, no joins needed):
-    not_null, unique, between, accepted_values, not_accepted_values, regex_match,
-    sql_expression, null_percentage_below, row_count_between, column_sum_between, mean_between
+  Completeness and schema:
+    not_null, not_empty_string, column_exists, null_percentage_below,
+    conditional_not_null
 
-  Complex checks (cross-table, aggregations, window functions, CTEs):
-    custom_sql — use this for rules that require JOINs, CTEs, window functions,
-                 aggregations across rows, or any logic that cannot be expressed
-                 as a simple WHERE-clause fragment.
+  Uniqueness:
+    unique, composite_unique, duplicate_percentage_below
+
+  Numeric, statistical, and anomaly checks:
+    between, min_value_check, max_value_check, mean_between, stddev_below,
+    column_sum_between, zscore_outlier, isolation_forest, learned_threshold
+
+  Categorical and string checks:
+    accepted_values, not_accepted_values, regex_match
+
+  Temporal and volume checks:
+    row_count, row_count_between, freshness, no_future_dates, date_order
+
+  Referential integrity and reconciliation:
+    foreign_key, reconcile_row_count, reconcile_column_sum, reconcile_key_match
+
+  SQL checks:
+    sql_expression, custom_sql
 
 SQL rule guidance:
   sql_expression:
@@ -38,9 +52,39 @@ SQL rule guidance:
         LEFT JOIN compliance_flags cf ON cf.txn_id = t.txn_id AND cf.flag_type = 'CTR'
         WHERE t.amount_usd >= 10000 AND cf.flag_id IS NULL
 
-Column placement rules (CRITICAL — wrong placement causes execution errors):
-- For not_null, unique: put the column in scope.columns (NOT in logic)
-- For accepted_values, not_accepted_values: put column in scope.columns AND values in logic.values
+Column and logic field placement rules (CRITICAL - wrong placement causes execution errors):
+- Put primary column checks in scope.columns, not in logic.
+- For not_null, not_empty_string, unique, column_exists, no_future_dates,
+  composite_unique: put the checked column(s) in scope.columns.
+- For accepted_values and not_accepted_values: put the checked column in
+  scope.columns and the allowed/prohibited list in logic.values.
+- For between, mean_between, column_sum_between: put the checked column in
+  scope.columns and set logic.min_value and logic.max_value.
+- For row_count_between: set logic.min_value and logic.max_value; no column
+  is required.
+- For min_value_check and max_value_check: put the checked column in
+  scope.columns and set logic.min_value or logic.max_value.
+- For regex_match: put the checked column in scope.columns and set
+  logic.pattern.
+- For null_percentage_below, duplicate_percentage_below, stddev_below,
+  row_count: set logic.threshold. Use scope.columns for column-based checks.
+- For freshness: set logic.threshold and logic.unit (for example, hours).
+- For foreign_key: put the local key column in scope.columns and set
+  logic.reference_table and logic.reference_column.
+- For conditional_not_null: put the required column in scope.columns and set
+  logic.condition to the SQL condition that makes it required.
+- For date_order: put the first/earlier date column in scope.columns and the
+  second/later date column in logic.column_b.
+- For reconcile_row_count: set the target table in scope.table and
+  logic.source_table.
+- For reconcile_column_sum and reconcile_key_match: set the target table in
+  scope.table, the compared column/key in scope.columns, and
+  logic.source_table. Use logic.tolerance_pct only when a tolerance is needed.
+- For zscore_outlier and learned_threshold: put the metric column in
+  scope.columns and set logic.zscore_threshold when a non-default cutoff is
+  needed. For learned_threshold, set logic.min_history_days if required.
+- For isolation_forest: put the metric column in scope.columns and set
+  logic.contamination when a non-default anomaly fraction is needed.
 - For sql_expression: put expression in logic.expression (no columns needed in scope)
 - For custom_sql: put full SELECT query in logic.query (no columns in scope)
 
